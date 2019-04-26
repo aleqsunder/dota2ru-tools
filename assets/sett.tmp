@@ -1,0 +1,21 @@
+<setting>
+	<backfon onclick='closeASetting()'></backfon>
+	<smiles>
+		<top>Настройки</top>
+		<middle>
+			<finder>
+				<input type='text' name='name' placeholder='Имя'>
+				<input type='text' name='src' placeholder='Ссылка'>
+				<fing onclick='add()'>Добавить</fing>
+			</finder>
+			
+			<smile-list>
+				
+			</smile-list>
+		</middle>
+		
+		<bottom>
+			<fing onclick='save()'>Сохранить</fing>
+		</bottom>
+	</smiles>
+</setting>
