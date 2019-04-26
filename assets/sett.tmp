@@ -1,5 +1,5 @@
 <setting>
-	<backfon onclick='closeASetting()'></backfon>
+	<backfon class='smiles' onclick='closeASetting()'></backfon>
 	<smiles>
 		<top>Настройки</top>
 		<middle>
@@ -15,7 +15,31 @@
 		</middle>
 		
 		<bottom>
-			<fing onclick='save()'>Сохранить</fing>
+			<fing onclick="adoor('loadfrom')">Загрузить от</fing>
+			<fing onclick="adoor('saveto')">Сохранить для</fing>
+			<fing onclick="save()">Сохранить</fing>
 		</bottom>
 	</smiles>
+	
+	<backfon class='loadfrom' onclick="adoor('loadfrom')"></backfon>
+	<loadfrom>
+		<top>Загрузка сторонних смайлов</top>
+		<middle>
+			Вставьте то, чем с вами поделились, и нажмите Загрузить
+			<textarea></textarea>
+		</middle>
+		
+		<bottom>
+			<fing onclick="loadFrom()">Загрузить</fing>
+		</bottom>
+	</loadfrom>
+	
+	<backfon class='saveto' onclick="adoor('saveto')"></backfon>
+	<saveto>
+		<top>Сохранение смайлов</top>
+		<middle>
+			Скопируйте и поделитесь с пользователем!
+			<textarea></textarea>
+		</middle>
+	</saveto>
 </setting>

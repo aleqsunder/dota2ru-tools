@@ -33,8 +33,6 @@ setting
 	left: 0;
 	top: 0;
 	
-	background: rgba(0, 0, 0, .7);
-	
 	color: #fff;
 	
 	transition: all .4s;
@@ -47,6 +45,14 @@ backfon
 	
 	position: fixed;
 	z-index: 10001;
+	
+	background: rgba(0, 0, 0, .7);
+}
+
+backfon.loadfrom, backfon.saveto
+{
+	display: none;
+	z-index: 10003;
 }
 
 setting *
@@ -54,25 +60,29 @@ setting *
 	display: flex;
 }
 
-setting.open
+setting.open, loadfrom.open, saveto.open, backfon.open
 {
 	display: flex;
 }
 
-smiles
+smiles, loadfrom, saveto
 {
+	position: absolute;
+	
 	width: 600px;
 	height: auto;
 	max-height: 600px;
 	border-radius: 3px;
-	z-index: 10002;
 	
 	background: #121215;
 	
 	flex-direction: column;
 }
 
-smiles top
+smiles { z-index: 10002; }
+loadfrom, saveto { display: none; z-index: 10004; }
+
+setting top
 {
 	background: #2b2c32;
 	border-radius: 3px;
@@ -82,7 +92,7 @@ smiles top
 	font-size: 16px;
 }
 
-smiles middle
+setting middle
 {
 	height: 100%;
 	flex-direction: column;
@@ -90,11 +100,16 @@ smiles middle
 	padding: 10px 16px;
 }
 
-smiles bottom
+setting bottom
 {
 	flex-direction: row;
 	padding: 0px 16px 10px;
 	justify-content: flex-end;
+}
+
+setting bottom > *
+{
+	margin-left: 6px;
 }
 
 finder
@@ -103,13 +118,13 @@ finder
 	margin-bottom: 6px;
 }
 
-finder input[name='name']
+setting input[name='name']
 {
 	width: 100px!important;
 }
 
 /* Перекрываем стили как можем ей богу */
-finder input
+setting input, setting textarea
 {
 	margin: 0 5px 0 0!important; /* Особенно это */
 	height: 29px!important;
@@ -119,6 +134,9 @@ finder input
 	background-color: #000;
 	color: #989899!important;
 }
+
+setting textarea
+{ height: 450px!important; }
 
 fing
 {
@@ -150,10 +168,16 @@ smile-list list
 	margin: 3px 0;
 }
 
+smile-list list img
+{
+	max-height: 28px;
+	max-width: 28px;
+}
+
 smile-list list > *
 {
-	margin: 0 3px;
 	background-color: #000;
+	margin: 0 3px;
     border: 1px solid #343434;
 	border-radius: 4px;
     padding: 2px 7px!important;

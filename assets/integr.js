@@ -2,8 +2,17 @@ var asetting = document.querySelector('setting'),
 	smileList = document.querySelector('setting smile-list'),
 	chess = 'a-dota2smiles', storageCache = _getStorage();
 
-Object.keys(storageCache).forEach
-( function (name) { add(name, storageCache[name]) });
+// Обновление списка до текущей версии
+function reload ()
+{
+	// Самый простой способ очистить от всего старого
+	smileList.innerHTML = '';
+	
+	Object.keys(storageCache).forEach
+	( function (name) { add(name, storageCache[name]) });
+}
+
+reload();
 
 function add (name, value)
 {
@@ -41,7 +50,31 @@ function save ()
 		setStorage(name, src);
 	});
 	
-	closeASetting();
+	storageCache = _getStorage();
+}
+
+function saveTo ()
+{
+	save();
+	document.querySelector('setting saveTo textarea').value = JSON.stringify( _getStorage() );
+}
+
+function loadFrom ()
+{
+	// Будет обидно, если изменения не сохранятся, верно?)
+	save();
+	
+	var area = document.querySelector('setting loadfrom textarea'),
+		your = (typeof storageCache == 'string')? JSON.parse(storageCache) : storageCache,
+		load = (typeof area.value == 'string')? JSON.parse(area.value) : area.value,
+		oth = Object.assign(load, your);
+		
+	localStorage.setItem(chess, JSON.stringify(oth));
+	area.value = '';
+	
+	// Ну и сразу получаем готовенькое
+	storageCache = _getStorage();
+	reload();
 }
 
 function openASetting ()
@@ -49,6 +82,15 @@ function openASetting ()
 
 function closeASetting ()
 { asetting.classList.remove('open') }
+
+function adoor(elem)
+{ 
+	asetting.querySelector('backfon.'+ elem).classList.toggle('open');
+	var flag = asetting.querySelector(elem).classList.toggle('open');
+	
+	if (elem == 'saveto' && flag)
+		saveTo();
+}
 
 function createDOM (html)
 { return new DOMParser().parseFromString(html, 'text/html').querySelector('body').childNodes[0] }

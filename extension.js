@@ -51,7 +51,7 @@ fetch(getURL('/assets/sett.tmp'))
 watching('div[aria-label="Смайлы"]', function (el)
 {
 	el.addEventListener('click', createPanel, false);
-});
+}, true);
 
 /**
  *	Шаг второй - отслеживание появления блока смайлов
@@ -99,18 +99,22 @@ function createDOM (html)
 
 /**
  *	Следит за появлением объекта в DOM сайта
+ *	Цикл не прекращается, если указан флаг bool
  *
  *	@param string elem
  *	@param function callback
+ *	@param boolean bool
  */ 
-function watching (elem, callback)
+function watching (elem, callback, bool)
 {
 	var interval = setInterval
 	( function () {
-		if (el = document.querySelector(elem))
+		if (el = document.querySelector(elem +':not(.watched)'))
 		{
 			callback(el);
-			clearInterval(interval);
+			el.classList.add('watched');
+			
+			if (!bool) clearInterval(interval);
 		}
 	}, 100);
 }
