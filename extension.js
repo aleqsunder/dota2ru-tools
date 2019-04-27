@@ -2,10 +2,16 @@
  *	Переменные
  */
 let index = -2, button, tabs, name = 'Собственные', chess = 'a-dota2smiles', storageCache = _getStorage()
-	list = [];
+	list = [], reloadInterval = setInterval(reload, 3000);
 
 Object.keys(storageCache).forEach
 ( function (name) { list.push( {'name': name, 'src': storageCache[name]} ) });
+
+function reload ()
+{
+	Object.keys(storageCache).forEach
+	( function (name) { list.push( {'name': name, 'src': storageCache[name]} ) });
+}
 
 /**
  *	Шаг нулевой - определение страницы настроек
@@ -19,71 +25,106 @@ fetch(getURL('/assets/sett.tmp'))
 	
 	document.body.insertBefore(html, document.body.firstChild);
 	
-	watching('div.userbar', function (el)
-	{
-		el.insertBefore( createDOM(`
-			<a class='icon' onclick="openASetting()">
-				<i class="fa fa-wrench"></i>
-			</a>
-		`), el.querySelector('a[title="Настройки"]'));
-		
-		/**
-		 *	Да-да, только теперь можно подгружать динамический JS на страницу, и только отдельным файлом
-		 *	Тегом script браузер просто проигнорирует)0
-		 */
-		 
-		fetch(getURL('/assets/integr.js'))
-		.then(function(response){
-			return response.text();
-		})
-		.then(function(body){
-			var script = document.createElement('script');
-			script.innerHTML = body;
+	watching
+	({
+		elem: 'div.userbar',
+		callback: function (el)
+		{
+			el.insertBefore( createDOM(`
+				<a class='icon' onclick="adoor('smiles')">
+					<i class="fa fa-wrench"></i>
+				</a>
+			`), el.querySelector('a[title="Настройки"]'));
 			
-			document.head.appendChild(script);
-		});
+			/**
+			 *	Да-да, только теперь можно подгружать динамический JS на страницу, и только отдельным файлом
+			 *	Тегом script браузер просто проигнорирует)0
+			 */
+			 
+			fetch(getURL('/assets/integr.js'))
+			.then(function(response){
+				return response.text();
+			})
+			.then(function(body){
+				var script = document.createElement('script');
+				script.innerHTML = body;
+				
+				document.head.appendChild(script);
+			});
+		}
 	});
 });
 
 /**
  *	Шаг первый - отслеживание timyMCE и присваивание кнопке второго шага
  */
-watching('div[aria-label="Смайлы"]', function (el)
-{
-	el.addEventListener('click', createPanel, false);
-}, true);
+watching
+({
+	elem: 'div[aria-label="Смайлы"]',
+	bool: true,
+	
+	callback: function (el)
+	{
+		el.addEventListener('click', createPanel, false);
+	}
+});
 
 /**
  *	Шаг второй - отслеживание появления блока смайлов
  */
 function createPanel ()
 {
-	watching('div.smiles-panel ul.tabs', function ()
-	{
-		el.insertBefore( createDOM(`
-			<li class='tab-title'>
-				<a href="#smile-cat-`+ index +`" data-cat="`+ index +`">`+ name +`</a>
-			</li>
-		`), el.firstChild);
+	watching
+	({
+		elem: 'div.smiles-panel ul.tabs',
 		
-		// Приступаем к созданию контента
-		var content = document.querySelector('div.smiles-panel div.tabs-content'),
-			div = createDOM(`<div id='smile-cat-`+ index + `' class='content'></div>`);
-		
-		// Перебираем все смайлы
-		for (var i = 0; i < list.length; i++)
+		callback: function ()
 		{
-			div.appendChild( createDOM(`
-				<div class='smile-content'>
-					<a href="#" data-shortcut=":`+ list[i].name +`:" data-mce-url="`+ list[i].src +`" tabindex="`
-						+ index +`" title=":`+ list[i].name +`:">
-						<img src="`+ list[i].src +`" role="presentation">
-					</a>
-				</div>
-			`));
+			el.querySelectorAll('a').forEach
+			( function (a){
+				var pages = JSON.parse(localStorage.getItem('pages')),
+					a = a;
+					// получаемая переменная может работать только в пределах своей ф-ии
+				
+				if (pages) // Проверяем, есть ли вообще такой объект в локалке
+				{
+					Object.keys(pages).forEach
+					( function (b, index) {
+						var index = a.dataset.cat.toString();
+						
+						if (pages[index] == false)
+						{
+							a.style = 'display: none';
+						}
+					});
+				}
+			});
+			
+			el.insertBefore( createDOM(`
+				<li class='tab-title'>
+					<a href="#smile-cat-`+ index +`" data-cat="`+ index +`">`+ name +`</a>
+				</li>
+			`), el.firstChild);
+			
+			// Приступаем к созданию контента
+			var content = document.querySelector('div.smiles-panel div.tabs-content'),
+				div = createDOM(`<div id='smile-cat-`+ index + `' class='content'></div>`);
+			
+			// Перебираем все смайлы
+			for (var i = 0; i < list.length; i++)
+			{
+				div.appendChild( createDOM(`
+					<div class='smile-content'>
+						<a href="#" data-shortcut=":`+ list[i].name +`:" data-mce-url="`+ list[i].src +`" tabindex="`
+							+ index +`" title=":`+ list[i].name +`:">
+							<img src="`+ list[i].src +`" role="presentation">
+						</a>
+					</div>
+				`));
+			}
+			
+			content.appendChild(div);
 		}
-		
-		content.appendChild(div);
 	});
 }
 
@@ -105,11 +146,13 @@ function createDOM (html)
  *	@param function callback
  *	@param boolean bool
  */ 
-function watching (elem, callback, bool)
+function watching ({doc, elem, callback, bool})
 {
 	var interval = setInterval
 	( function () {
-		if (el = document.querySelector(elem +':not(.watched)'))
+		doc = (doc)? doc : document;
+		
+		if (el = doc.querySelector(elem +':not(.watched)'))
 		{
 			callback(el);
 			el.classList.add('watched');

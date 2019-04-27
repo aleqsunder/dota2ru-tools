@@ -1,6 +1,10 @@
-var asetting = document.querySelector('setting'),
-	smileList = document.querySelector('setting smile-list'),
-	chess = 'a-dota2smiles', storageCache = _getStorage();
+var afullpage = document.querySelector('fullpage'),
+	smileList = document.querySelector('fullpage smile-list'),
+	asspages = document.querySelectorAll('asett pages input'),
+	chess = 'a-dota2smiles', storageCache = _getStorage(), 
+	storagePages = JSON.parse(localStorage.getItem('pages')), 
+	alert = document.querySelector('fullpage alert'),
+	version = '0.0.3';
 
 // Обновление списка до текущей версии
 function reload ()
@@ -10,17 +14,60 @@ function reload ()
 	
 	Object.keys(storageCache).forEach
 	( function (name) { add(name, storageCache[name]) });
+	
+	asspages.forEach
+	( function (a) {
+		a.checked = storagePages[a.value];
+	});
 }
 
 reload();
 
+if (localStorage.getItem('version') != version)
+{
+	localStorage.setItem('version', version);
+	openAlert({
+		wait: true,
+		
+		text: `Добро пожаловать в новую версию `+ version +`!<br>
+		<br>
+		Для ознакомления нажмите <a href='https://dota2.ru/forum/threads/legalno-sozdajom-svoi-smajly-dlja-foruma.1275974/'>здесь</a><br>
+		Уведомление высвечивается лишь раз после каждого обновления, чтобы уведомить вас о том, что ваше расширение успешно обновлено<br>
+		<br>
+		Приятного использования!`
+	});
+}
+
+// Переносить ради такого фунцкцию из extension не вижу смысла, плюс нужно её переделать
+setInterval
+( function () {
+	var content = tinymce.get('forumPost').contentDocument;
+	
+	if (content)
+	{
+		content.querySelector('head style').innerHTML += 'img[data-smile] { width: 30px; height: 30px; }';
+		
+		var allCont = content.querySelectorAll('img[data-smile]:not(.resized)');
+		
+		if (allCont.length > 0)
+		{
+			allCont.forEach(function (a) {
+				a.width = '30';
+				a.height = '30';
+				
+				a.classList.add('resized');
+			})
+		}
+	}
+}, 500);
+
 function add (name, value)
 {
-	name = (name)? name : document.querySelector('setting finder input[name="name"]').value;
-	value = (value)? value : document.querySelector('setting finder input[name="src"]').value;
+	name = (name)? name : document.querySelector('fullpage finder input[name="name"]').value;
+	value = (value)? value : document.querySelector('fullpage finder input[name="src"]').value;
 	
-	document.querySelector('setting finder input[name="name"]').value = '';
-	document.querySelector('setting finder input[name="src"]').value = '';
+	document.querySelector('fullpage finder input[name="name"]').value = '';
+	document.querySelector('fullpage finder input[name="src"]').value = '';
 	
 	smileList.appendChild( createDOM(`
 		<list data-smile='`+ name +`'>
@@ -51,12 +98,17 @@ function save ()
 	});
 	
 	storageCache = _getStorage();
+	reload();
+	
+	openAlert({text: 'Ваши смайлы сохранены!'});
 }
 
 function saveTo ()
 {
 	save();
-	document.querySelector('setting saveTo textarea').value = JSON.stringify( _getStorage() );
+	document.querySelector('fullpage saveTo textarea').value = JSON.stringify( _getStorage() );
+	
+	openAlert({text: 'Скопируйте Ваши смайлы, чтобы поделиться!'});
 }
 
 function loadFrom ()
@@ -64,7 +116,7 @@ function loadFrom ()
 	// Будет обидно, если изменения не сохранятся, верно?)
 	save();
 	
-	var area = document.querySelector('setting loadfrom textarea'),
+	var area = document.querySelector('fullpage loadfrom textarea'),
 		your = (typeof storageCache == 'string')? JSON.parse(storageCache) : storageCache,
 		load = (typeof area.value == 'string')? JSON.parse(area.value) : area.value,
 		oth = Object.assign(load, your);
@@ -75,21 +127,59 @@ function loadFrom ()
 	// Ну и сразу получаем готовенькое
 	storageCache = _getStorage();
 	reload();
+	
+	openAlert({text: 'Смайлы загружены!'});
 }
 
-function openASetting ()
-{ asetting.classList.add('open') }
+function savePages ()
+{
+	var pages = document.querySelectorAll('asett pages input'),
+		array = {};
+		
+	pages.forEach
+	( function (a, i) {
+		array[a.value] = a.checked;
+	});
+	
+	console.log(array);
+	
+	localStorage.setItem('pages', JSON.stringify(array));
+	
+	openAlert({text: 'Отображение изменено по вашему усмотрению!'});
+}
 
-function closeASetting ()
-{ asetting.classList.remove('open') }
-
-function adoor(elem)
-{ 
-	asetting.querySelector('backfon.'+ elem).classList.toggle('open');
-	var flag = asetting.querySelector(elem).classList.toggle('open');
+function adoor (elem)
+{
+	if (!afullpage.querySelector('.open'))
+		afullpage.classList.toggle('open');
+	
+	afullpage.querySelector('backfon.'+ elem).classList.toggle('open');
+	var flag = afullpage.querySelector(elem).classList.toggle('open');
 	
 	if (elem == 'saveto' && flag)
 		saveTo();
+	
+	if (!afullpage.querySelector('.open'))
+		afullpage.classList.toggle('open');
+}
+
+function openAlert ({text, wait})
+{
+	alert.querySelector('middle').innerHTML = text;
+	
+	adoor('alert');
+	
+	if (wait)
+	{
+		document.querySelector('fullpage backfon.alert').setAttribute('onclick', `adoor('alert'); this.onclick = 'return false;'`);
+	}
+	else
+	{
+		setTimeout
+		(function () {
+			adoor('alert');
+		}, 2000);
+	}
 }
 
 function createDOM (html)

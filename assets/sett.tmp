@@ -1,7 +1,7 @@
-<setting>
-	<backfon class='smiles' onclick='closeASetting()'></backfon>
+<fullpage>
+	<backfon class='smiles' onclick="adoor('smiles')"></backfon>
 	<smiles>
-		<top>Настройки</top>
+		<top>Редактор смайлов <close class='fa fa-times' onclick="adoor('smiles')"></close></top>
 		<middle>
 			<finder>
 				<input type='text' name='name' placeholder='Имя'>
@@ -15,15 +15,20 @@
 		</middle>
 		
 		<bottom>
-			<fing onclick="adoor('loadfrom')">Загрузить от</fing>
-			<fing onclick="adoor('saveto')">Сохранить для</fing>
+			<fing onclick="adoor('asett')">Настройки</fing>
+			
+			<center>
+				<fing onclick="adoor('loadfrom')">Загрузить</fing>
+				<fing onclick="adoor('saveto')">Поделиться</fing>
+			</center>
+			
 			<fing onclick="save()">Сохранить</fing>
 		</bottom>
 	</smiles>
 	
 	<backfon class='loadfrom' onclick="adoor('loadfrom')"></backfon>
 	<loadfrom>
-		<top>Загрузка сторонних смайлов</top>
+		<top>Загрузка сторонних смайлов <close class='fa fa-times' onclick="adoor('loadfrom')"></close></top>
 		<middle>
 			Вставьте то, чем с вами поделились, и нажмите Загрузить
 			<textarea></textarea>
@@ -36,10 +41,41 @@
 	
 	<backfon class='saveto' onclick="adoor('saveto')"></backfon>
 	<saveto>
-		<top>Сохранение смайлов</top>
+		<top>Сохранение смайлов <close class='fa fa-times' onclick="adoor('saveto')"></close></top>
 		<middle>
 			Скопируйте и поделитесь с пользователем!
 			<textarea></textarea>
 		</middle>
 	</saveto>
-</setting>
+	
+	<backfon class='asett' onclick="adoor('asett')"></backfon>
+	<asett>
+		<top>Настройки <close class='fa fa-times' onclick="adoor('asett')"></close></top>
+		<middle>
+			<top>Видимые разделы</top>
+			<pages>
+				<page class='check'><input type="checkbox" name="-1" value="-1"> Популярное</page>
+				<page class='check'><input type="checkbox" name="-1" value="1"> Стандартные</page>
+				<page class='check'><input type="checkbox" name="-1" value="5"> Твич</page>
+				<page class='check'><input type="checkbox" name="-1" value="6"> Разное</page>
+				<page class='check'><input type="checkbox" name="-1" value="7"> Dota 2 анимированные</page>
+				<page class='check'><input type="checkbox" name="-1" value="9"> Dota 2 герои</page>
+				<page class='check'><input type="checkbox" name="-1" value="11"> Аниме</page>
+				<page class='check'><input type="checkbox" name="-1" value="14"> Пепа</page>
+				<page class='check'><input type="checkbox" name="-1" value="16"> Dota 2 предметы</page>
+				<page class='check'><input type="checkbox" name="-1" value="17"> LoL</page>
+				<page class='check'><input type="checkbox" name="-1" value="18"> Твич-герои</page>
+			</pages>
+		</middle>
+		
+		<bottom>
+			<fing onclick="savePages()">Сохранить</fing>
+		</bottom>
+	</asett>
+	
+	<backfon class='alert'></backfon>
+	<alert>
+		<top>Уведомление</top>
+		<middle></middle>
+	</alert>
+</fullpage>
