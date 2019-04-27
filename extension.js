@@ -9,6 +9,7 @@ Object.keys(storageCache).forEach
 
 function reload ()
 {
+	list = [];
 	Object.keys(storageCache).forEach
 	( function (name) { list.push( {'name': name, 'src': storageCache[name]} ) });
 }
