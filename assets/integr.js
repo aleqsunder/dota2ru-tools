@@ -15,9 +15,16 @@ function reload ()
 	Object.keys(storageCache).forEach
 	( function (name) { add(name, storageCache[name]) });
 	
+	if (!storagePages)
+	{
+		// Спасибо Поняхе за найденный баг
+		localStorage.setItem('pages', `{"1":true,"5":true,"6":true,"7":true,"9":true,"11":true,"14":true,"16":true,"17":true,"18":true,"-1":true}`);
+	}
+	
 	asspages.forEach
 	( function (a) {
-		a.checked = storagePages[a.value];
+		console.log(a.value, a.value.toString());
+		a.checked = storagePages[a.value.toString()];
 	});
 }
 
