@@ -268,8 +268,8 @@ function chan (name)
 	{
 		if (Number.parseInt(from.querySelector('input[name=width]').value) != '')
 		{
-			to.querySelector('width').innerHTML = Number.parseInt(from.querySelector('input[name=width]').value);
-			to.querySelector('height').innerHTML = Number.parseInt(from.querySelector('input[name=height]').value);
+			to.querySelector('width').innerHTML = from.querySelector('input[name=width]').value;
+			to.querySelector('height').innerHTML = from.querySelector('input[name=height]').value;
 		}
 	}
 	
