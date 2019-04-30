@@ -18,6 +18,7 @@ function reload ()
 	{
 		// Спасибо Поняхе за найденный баг
 		localStorage.setItem('pages', `{"1":true,"5":true,"6":true,"7":true,"9":true,"11":true,"14":true,"16":true,"17":true,"18":true,"-1":true}`);
+		storagePages = JSON.parse(localStorage.getItem('pages'));
 	}
 	
 	// Переприсваиваем все разрешённые вкладки смайлов
@@ -106,7 +107,7 @@ if (localStorage.getItem('version') != version)
 setInterval
 ( function () {
 	// Получаем активный tinyMCE
-	if (tinymce)
+	if (typeof tinymce !== 'undefined')
 	{ var content = tinymce.activeEditor.contentDocument }
 	
 	if (content)
