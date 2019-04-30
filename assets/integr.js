@@ -147,8 +147,9 @@ setInterval
 						/**
 						 *	Но на всякий случай проверяем, указаны ли значения, ибо всякое бывает
 						 */
-						a.width = (list.width)? list.width : '';
-						a.height = (list.height)? list.height : '';
+						
+						a.width = (list.width != '')? list.width : a.width;
+						a.height = (list.height != '')? list.height : a.height;
 						
 						a.classList.add('resized');
 					}
