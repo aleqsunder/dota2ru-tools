@@ -1,18 +1,49 @@
 /**
  *	Переменные
  */
-let index = -2, button, tabs, name = 'Собственные', chess = 'a-dota2smiles', storageCache = _getStorage()
+let index = -2, button, tabs, name = 'Собственные', chess = 'a-dota2smile', storageCache = _getStorage(),
 	list = [], reloadInterval = setInterval(reload, 3000);
 
-Object.keys(storageCache).forEach
-( function (name) { list.push( {'name': name, 'src': storageCache[name]} ) });
-
+/**
+ *	Обновление элементов и сортировка по алфавиту
+ */
 function reload ()
 {
 	list = [];
 	Object.keys(storageCache).forEach
-	( function (name) { list.push( {'name': name, 'src': storageCache[name]} ) });
+	( function (name) {
+		var sc = JSON.parse(storageCache[name]);
+		
+		if (sc.name)
+		{
+			// Раскрыл для наглядности
+			if (sc.canEdit == 'true')
+			{
+				list.push
+				({
+					'name': sc.name,
+					'src': sc.src,
+					'canEdit': sc.canEdit,
+					'width': sc.width,
+					'height': sc.height
+				});
+			}
+			else
+			{
+				list.push
+				({
+					'name': sc.name,
+					'src': sc.src,
+					'canEdit': sc.canEdit
+				});
+			}
+		}
+	});
+	
+	list.sort((a, b) => (a.name.toLowerCase() > b.name.toLowerCase()) ? 1 : -1);
 }
+
+reload();
 
 /**
  *	Шаг нулевой - определение страницы настроек
@@ -22,7 +53,7 @@ fetch(getURL('/assets/sett.tmp'))
 	return response.text();
 })
 .then(function(html){
-	html = createDOM(html);
+	html = dom(html);
 	
 	document.body.insertBefore(html, document.body.firstChild);
 	
@@ -31,7 +62,7 @@ fetch(getURL('/assets/sett.tmp'))
 		elem: 'div.userbar',
 		callback: function (el)
 		{
-			el.insertBefore( createDOM(`
+			el.insertBefore( dom(`
 				<a class='icon' onclick="adoor('smiles')">
 					<i class="fa fa-wrench"></i>
 				</a>
@@ -87,7 +118,8 @@ function createPanel ()
 					a = a;
 					// получаемая переменная может работать только в пределах своей ф-ии
 				
-				if (pages) // Проверяем, есть ли вообще такой объект в локалке
+				// Проверяем, есть ли вообще такой объект в локалке
+				if (pages)
 				{
 					Object.keys(pages).forEach
 					( function (b, index) {
@@ -101,7 +133,7 @@ function createPanel ()
 				}
 			});
 			
-			el.insertBefore( createDOM(`
+			el.insertBefore( dom(`
 				<li class='tab-title'>
 					<a href="#smile-cat-`+ index +`" data-cat="`+ index +`">`+ name +`</a>
 				</li>
@@ -109,16 +141,24 @@ function createPanel ()
 			
 			// Приступаем к созданию контента
 			var content = document.querySelector('div.smiles-panel div.tabs-content'),
-				div = createDOM(`<div id='smile-cat-`+ index + `' class='content'></div>`);
+				div = dom(`<div id='smile-cat-`+ index + `' class='content'></div>`);
 			
 			// Перебираем все смайлы
 			for (var i = 0; i < list.length; i++)
 			{
-				div.appendChild( createDOM(`
+				/**
+				 *	Чтобы не ловить фейспалмы потом от canEdit='hooe' и прочее
+				 */
+				var v = list[i],
+					shortcut = (v.canEdit == 'true')
+					? 'canEdit=true&height=' + v.height + '&width=' + v.width
+					: 'canEdit=false';
+				
+				div.appendChild( dom(`
 					<div class='smile-content'>
-						<a href="#" data-shortcut=":`+ list[i].name +`:" data-mce-url="`+ list[i].src +`" tabindex="`
-							+ index +`" title=":`+ list[i].name +`:">
-							<img src="`+ list[i].src +`" role="presentation">
+						<a href="#" data-shortcut="`+ shortcut +`" data-mce-url="`+ v.src +`" tabindex="`
+							+ index +`" title=":`+ v.name +`:">
+							<img src="`+ v.src +`" role="presentation">
 						</a>
 					</div>
 				`));
@@ -136,7 +176,7 @@ function createPanel ()
  *
  *	@return object
  */
-function createDOM (html)
+function dom (html)
 { return new DOMParser().parseFromString(html, 'text/html').querySelector('body').childNodes[0] }
 
 /**

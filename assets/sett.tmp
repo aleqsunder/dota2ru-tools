@@ -73,6 +73,23 @@
 		</bottom>
 	</asett>
 	
+	<backfon class='chan' onclick="adoor('chan')"></backfon>
+	<chan>
+		<top>Настройки размера смайла <close class='fa fa-times' onclick="adoor('chan')"></close></top>
+		<middle>
+			<helper>Включенный режим - управление размером<br>Выключенный режим - фиксированный размер</helper>
+			<canEdit onclick="CEtoggle()"></canEdit>
+			<finder>
+				<input type='text' name='width' placeholder='Ширина'>
+				<input type='text' name='height' placeholder='Высота'>
+			</finder>
+		</middle>
+		
+		<bottom>
+			<fing onclick="chan()">Сохранить</fing>
+		</bottom>
+	</chan>
+	
 	<backfon class='alert'></backfon>
 	<alert>
 		<top>Уведомление</top>
