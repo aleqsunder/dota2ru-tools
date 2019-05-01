@@ -43,10 +43,27 @@
 	<saveto>
 		<top>Сохранение смайлов <close class='fa fa-times' onclick="adoor('saveto')"></close></top>
 		<middle>
-			Скопируйте и поделитесь с пользователем!
+			<finder>
+				Выберите пользователя для отправки
+				<fing onclick="adoor('savetouser')">Выбрать пользователя</fing>
+			</finder>
+			Или нажмите, чтобы выделить и скопировать<br>
 			<textarea></textarea>
 		</middle>
 	</saveto>
+	
+	<backfon class='savetouser' onclick="adoor('savetouser')"></backfon>
+	<savetouser>
+		<top>Отправить пользователю <close class='fa fa-times' onclick="adoor('savetouser')"></close></top>
+		<middle>
+			<finder>
+				<input type="text" name="username">
+				<fing onclick='findUser()'>Искать</fing>
+			</finder>
+			
+			<information></information>
+		</middle>
+	</savetouser>
 	
 	<backfon class='asett' onclick="adoor('asett')"></backfon>
 	<asett>
@@ -54,17 +71,53 @@
 		<middle>
 			<top>Видимые разделы</top>
 			<pages>
-				<page class='check'><input type="checkbox" name="-1" value="-1"> Популярное</page>
-				<page class='check'><input type="checkbox" name="-1" value="1"> Стандартные</page>
-				<page class='check'><input type="checkbox" name="-1" value="5"> Твич</page>
-				<page class='check'><input type="checkbox" name="-1" value="6"> Разное</page>
-				<page class='check'><input type="checkbox" name="-1" value="7"> Dota 2 анимированные</page>
-				<page class='check'><input type="checkbox" name="-1" value="9"> Dota 2 герои</page>
-				<page class='check'><input type="checkbox" name="-1" value="11"> Аниме</page>
-				<page class='check'><input type="checkbox" name="-1" value="14"> Пепа</page>
-				<page class='check'><input type="checkbox" name="-1" value="16"> Dota 2 предметы</page>
-				<page class='check'><input type="checkbox" name="-1" value="17"> LoL</page>
-				<page class='check'><input type="checkbox" name="-1" value="18"> Твич-герои</page>
+				Для изменения отображения используется чекбокс (галочка рядом с пунктом), для изменения 
+				названия используется нажатие на название (изменяется как текстовое поле)<br>
+			
+				<page class='check'>
+					<input type="checkbox" value="-1">
+					<input type='text' name="withoutfone" value=''>
+				</page>
+				<page class='check'>
+					<input type="checkbox" value="1">
+					<input type='text' name="withoutfone" value=''>
+				</page>
+				<page class='check'>
+					<input type="checkbox" value="5">
+					<input type='text' name="withoutfone" value=''>
+				</page>
+				<page class='check'>
+					<input type="checkbox" value="6">
+					<input type='text' name="withoutfone" value=''>
+				</page>
+				<page class='check'>
+					<input type="checkbox" value="7">
+					<input type='text' name="withoutfone" value=''>
+				</page>
+				<page class='check'>
+					<input type="checkbox" value="9">
+					<input type='text' name="withoutfone" value=''>
+				</page>
+				<page class='check'>
+					<input type="checkbox" value="11">
+					<input type='text' name="withoutfone" value=''>
+				</page>
+				<page class='check'>
+					<input type="checkbox" value="14">
+					<input type='text' name="withoutfone" value=''>
+				</page>
+				<page class='check'>
+					<input type="checkbox" value="16">
+					<input type='text' name="withoutfone" value=''>
+				</page>
+				<page class='check'>
+					<input type="checkbox" value="17">
+					<input type='text' name="withoutfone" value=''>
+				</page>
+				<page class='check'>
+					<input type="checkbox" value="18">
+					<input type='text' name="withoutfone" value=''>
+				</page>
 			</pages>
 		</middle>
 		

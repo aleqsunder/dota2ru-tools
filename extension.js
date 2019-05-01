@@ -114,21 +114,21 @@ function createPanel ()
 		{
 			el.querySelectorAll('a').forEach
 			( function (a){
-				var pages = JSON.parse(localStorage.getItem('pages')),
+				var page = JSON.parse(localStorage.getItem('page')),
 					a = a;
 					// получаемая переменная может работать только в пределах своей ф-ии
 				
 				// Проверяем, есть ли вообще такой объект в локалке
-				if (pages)
+				if (page)
 				{
-					Object.keys(pages).forEach
+					Object.keys(page).forEach
 					( function (b, index) {
 						var index = a.dataset.cat.toString();
 						
-						if (pages[index] == false)
-						{
+						a.innerHTML = page[index].name;
+						
+						if (page[index].is == false)
 							a.style = 'display: none';
-						}
 					});
 				}
 			});

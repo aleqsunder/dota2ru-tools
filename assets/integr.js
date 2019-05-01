@@ -3,9 +3,9 @@
  */
 var afullpage = document.querySelector('fullpage'),
 	smileList = document.querySelector('fullpage smile-list'),
-	asspages = document.querySelectorAll('asett pages input'),
+	asspages = document.querySelectorAll('asett pages page'),
 	chess = 'a-dota2smile', storageCache = _getStorage(), 
-	storagePages = JSON.parse(localStorage.getItem('pages')), 
+	storagePage = JSON.parse(localStorage.getItem('page')), 
 	alert = document.querySelector('fullpage alert'), list = [], aflag = true,
 	version = '0.0.4';
 
@@ -14,17 +14,23 @@ var afullpage = document.querySelector('fullpage'),
  */
 function reload ()
 {
-	if (!storagePages)
+	if (localStorage.getItem('pages'))
+		localStorage.removeItem('pages');
+	
+	if (!localStorage.getItem('page'))
 	{
-		// Спасибо Поняхе за найденный баг
-		localStorage.setItem('pages', `{"1":true,"5":true,"6":true,"7":true,"9":true,"11":true,"14":true,"16":true,"17":true,"18":true,"-1":true}`);
-		storagePages = JSON.parse(localStorage.getItem('pages'));
+		localStorage.setItem('page', `{"1":{"name":"Стандартные","is":true},"5":{"name":"Твич","is":true},"6":{"name":"Разное","is":true},"7":{"name":"Dota 2 анимированные","is":true},"9":{"name":"Dota 2 герои","is":true},"11":{"name":"Аниме","is":true},"14":{"name":"Пепа","is":true},"16":{"name":"Dota 2 предметы","is":true},"17":{"name":"LoL","is":true},"18":{"name":"Твич-герои","is":true},"-1":{"name":"Популярные","is":true}}`);
+		storagePage = JSON.parse(localStorage.getItem('page'));
 	}
 	
 	// Переприсваиваем все разрешённые вкладки смайлов
 	asspages.forEach
 	( function (a) {
-		a.checked = storagePages[a.value.toString()];
+		var input = a.querySelector('input[type="checkbox"]'),
+			name = a.querySelector('input[type="text"]');
+			
+		name.value = storagePage[input.value.toString()].name;
+		input.checked = storagePage[input.value.toString()].is;
 	});
 	
 	// Самый простой способ очистить от всего старого
@@ -369,18 +375,93 @@ function loadFrom ()
  */
 function savePages ()
 {
-	var pages = document.querySelectorAll('asett pages input'),
+	var pages = document.querySelectorAll('asett pages page'),
 		array = {};
 		
 	pages.forEach
 	( function (a, i) {
-		array[a.value] = a.checked;
+		var input = a.querySelector('input[type="checkbox"]'),
+			name = a.querySelector('input[type="text"]').value;
+			
+		array[input.value] = {name: name, is: input.checked};
+		console.log(name, input.value, input.checked);
 	});
 	
-	localStorage.setItem('pages', JSON.stringify(array));
+	localStorage.setItem('page', JSON.stringify(array));
+	storagePage = array;
 	reload();
 	
 	openAlert({text: 'Отображение изменено по вашему усмотрению!'});
+}
+
+/**
+ *	Автоматически поделиться с указанным пользователем
+ */
+function sendSmiles ({you, to, username})
+{
+	var you = you, user = to, username = username,
+		title = '[dota2smile] '+ you +' поделился с '+ username +' своими смайлами',
+		content =
+		`<div class="bbCodeBlock bbCodeQuote">
+			<blockquote class="quoteContainer">
+				<div class="quote">
+					<p>`+ JSON.stringify( _getStorage() ) +`</p>
+				</div>
+			</blockquote>
+		</div>`;
+	
+	void requestHandler.ajaxRequest
+	("/api/message/createConversation",
+		{ title: title, content: content, recipient: user },
+		
+		function (response)
+		{
+			if (response.status == 'success')
+			{
+				openAlert({text: 'Пак смайлов отправлен!'});
+				
+				adoor('savetouser');
+				adoor('saveto');
+			}
+			else
+			{
+				openAlert({text: 'Ошибка: некорректный никнейм пользователя'});
+			}
+		}
+	)
+}
+
+/**
+ *	Проверка пользователя на существование
+ */
+function findUser ()
+{
+	var stu = document.querySelector('fullpage savetouser'),
+		info = stu.querySelector('information'),
+		username = stu.querySelector('input').value;
+	
+	info.innerHTML = 'Загрузка..';
+	
+	fetch('https://dota2.ru/forum/search?type=user&keywords='+ username +'&sort_by=username')
+	.then(function(response){
+		return response.text();
+	})
+	.then(function(html){
+		var you = document.querySelector('div.hello .username').innerHTML,
+			userdocument = dom(html).ownerDocument.querySelector('.member-list-item .avatar'),
+			href = userdocument.href.split('/'),
+			id = href[href.length - 2].split('.')[1],
+			avatar = userdocument.querySelector('img').src;
+	
+		info.innerHTML =
+		`<avatar><img src='`+ avatar +`'></avatar>
+		<pass>
+			<name><t>Имя</t> `+ username +`</name>
+			<id><t>ID</t> `+ id +`</id>
+			<confirmation>Это верный пользователь?</confirmation>
+			<fing onclick="sendSmiles({you: '`+ you +`', to: '`+ id +`', username: '`+ username +`'})">Да, отправить</fing>
+		</pass>`;
+	});
 }
 
 /**
