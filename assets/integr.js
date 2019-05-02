@@ -407,7 +407,7 @@ function savePages ()
 function sendSmiles ({you, to, username})
 {
 	var you = you, user = to, username = username,
-		title = '[dota2smile] '+ you +' поделился с '+ username,
+		title = '[d2s] '+ you +' => '+ username,
 		content =
 		`<p><a href="https://dota2.ru/forum/threads/legalno-sozdajom-svoi-smajly-dlja-foruma.1275974/" data-mce-href="https://dota2.ru/forum/threads/legalno-sozdajom-svoi-smajly-dlja-foruma.1275974/" data-mce-selected="inline-boundary">У вас не установлено расширение для использования кастомных смайлов<br>Для продолжения проследуйте сюда.</a></p>
 		<div class="bbCodeBlock bbCodeQuote">
