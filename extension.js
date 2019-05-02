@@ -1,8 +1,32 @@
 /**
  *	Переменные
  */
-let index = -2, button, tabs, name = 'Собственные', chess = 'a-dota2smile', storageCache = _getStorage(),
-	list = [], reloadInterval = setInterval(reload, 3000);
+var index = -2, button, tabs, name = 'Собственные', chess = 'a-dota2smile', storageCache = _getStorage(),
+	list = [], reloadInterval = setInterval(reload, 3000),
+	mode = document.location.href.match(/forum\/(.*?)\//),
+	mode = (mode != null)? mode[1] : 'unknown',
+	tinyMods = [ 'threads', 'conversation' ],
+	otherMods = [ 'conversations', 'category', 'forums', 'notifications', 'settings', 'unknown' ];
+	
+if (mode == 'conversation')
+{
+	var butt = document.querySelector('blockquote.messageText.baseHtml');
+	
+	if (butt)
+	{
+		if (butt.querySelector('p').innerHTML
+			.indexOf('У вас не установлено расширение для использования кастомных смайлов') > -1)
+		{
+			butt.querySelector('p').outerHTML = '';
+			butt.appendChild
+			(dom(
+			`<quotebutton onclick='loadFrom(true)'>
+				Активировать себе
+			</quotebutton>`
+			));
+		}
+	}
+};
 
 /**
  *	Обновление элементов и сортировка по алфавиту

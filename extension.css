@@ -273,7 +273,8 @@ fullpage smile-settings
 
 information img
 {
-	width: 128px;
+	width: 150px;
+	height: 150px;
 }
 
 fullpage pass
@@ -441,4 +442,15 @@ chan finder input:last-child
 {
 	margin: 0!important;
 	background:  linear-gradient(90deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%)!important;
+}
+
+quotebutton
+{
+	padding: 5px 10px;
+    border-radius: 4px;
+	color: #a8b5ba;
+    background-color: #000;
+    border: 1px solid #343434;
+	
+	cursor: pointer;
 }

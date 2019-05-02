@@ -7,7 +7,11 @@ var afullpage = document.querySelector('fullpage'),
 	chess = 'a-dota2smile', storageCache = _getStorage(), 
 	storagePage = JSON.parse(localStorage.getItem('page')), 
 	alert = document.querySelector('fullpage alert'), list = [], aflag = true,
-	version = '0.0.4';
+	version = '0.0.4',
+	mode = document.location.href.match(/forum\/(.*?)\//),
+	mode = (mode != null)? mode[1] : 'unknown',
+	tinyMods = [ 'threads', 'conversation' ],
+	otherMods = [ 'conversations', 'category', 'forums', 'notifications', 'settings', 'unknown' ];
 
 /**
  *	Обновление элементов сайта под текущие значения
@@ -110,70 +114,73 @@ if (localStorage.getItem('version') != version)
 }
 
 // Переносить ради такого фунцкцию из extension не вижу смысла, плюс нужно её переделать
-setInterval
-( function () {
-	// Получаем активный tinyMCE
-	if (typeof tinymce !== 'undefined')
-	{ var content = tinymce.activeEditor.contentDocument }
-	
-	if (content)
-	{
-		var head = content.querySelector('head style:not(.resized)');
+if (tinyMods.indexOf(mode))
+{
+	setInterval
+	( function () {
+		// Получаем активный tinyMCE
+		if (typeof tinymce !== 'undefined')
+		{ var content = tinymce.activeEditor.contentDocument }
 		
-		// Проверяем, существуют ли (для стабильности, проскакивает "of null")
-		if (head)
+		if (content)
 		{
-			// Добавляем стили и присваиваем класс, чтобы больше на глаза не попадался
-			head.innerHTML += 'img[data-smile][data-shortcut="canEdit=false"] { width: auto; height: 30px; }';
-			head.classList.add('resized');
-		}
-		
-		var allCont = content.querySelectorAll('img[data-smile]:not(.resized)');
-		
-		// Если есть неизменённые смайлы
-		if (allCont.length > 0)
-		{
-			allCont.forEach(function (a) {
-				var getter = a.dataset.shortcut,
-					getters = getter.split('&'),
-					list = {};
-				
-				if (a.dataset.shortcut.indexOf('=') > -1)
-				{
-					getters.forEach
-					( function (b) {
-						b = b.split('=');
-						
-						list[b[0]] = b[1];
-					});
+			var head = content.querySelector('head style:not(.resized)');
+			
+			// Проверяем, существуют ли (для стабильности, проскакивает "of null")
+			if (head)
+			{
+				// Добавляем стили и присваиваем класс, чтобы больше на глаза не попадался
+				head.innerHTML += 'img[data-smile][data-shortcut="canEdit=false"] { width: auto; height: 30px; }';
+				head.classList.add('resized');
+			}
+			
+			var allCont = content.querySelectorAll('img[data-smile]:not(.resized)');
+			
+			// Если есть неизменённые смайлы
+			if (allCont.length > 0)
+			{
+				allCont.forEach(function (a) {
+					var getter = a.dataset.shortcut,
+						getters = getter.split('&'),
+						list = {};
 					
-					// Проверяем, разрешили ли мы вообще изменять размер, мало ли
-					if (list.canEdit == 'true')
+					if (a.dataset.shortcut.indexOf('=') > -1)
 					{
-						/**
-						 *	Но на всякий случай проверяем, указаны ли значения, ибо всякое бывает
-						 */
+						getters.forEach
+						( function (b) {
+							b = b.split('=');
+							
+							list[b[0]] = b[1];
+						});
 						
-						a.width = (list.width != '')? list.width : a.width;
-						a.height = (list.height != '')? list.height : a.height;
-						
-						a.classList.add('resized');
+						// Проверяем, разрешили ли мы вообще изменять размер, мало ли
+						if (list.canEdit == 'true')
+						{
+							/**
+							 *	Но на всякий случай проверяем, указаны ли значения, ибо всякое бывает
+							 */
+							
+							a.width = (list.width != '')? list.width : a.width;
+							a.height = (list.height != '')? list.height : a.height;
+							
+							a.classList.add('resized');
+						}
+						else
+						{
+							a.height = '30';
+							a.width = a.width;
+						}
 					}
 					else
 					{
 						a.height = '30';
 						a.width = a.width;
 					}
-				}
-				else
-				{
-					a.height = '30';
-					a.width = a.width;
-				}
-			})
+				})
+			}
 		}
-	}
-}, 200);
+	}, 200);
+}
 
 /**
  *	Добавление смайла в стеш окна редактора смайлов
@@ -350,12 +357,12 @@ function saveTo ()
 /**
  *	Подгрузка смайлов с пака пользователя к своим смайлам
  */
-function loadFrom ()
+function loadFrom (bool)
 {
 	// Будет обидно, если изменения не сохранятся, верно?)
 	save();
 	
-	var area = document.querySelector('fullpage loadfrom textarea'),
+	var area = (bool)? document.querySelector('div.bbCodeBlock.asmile') : document.querySelector('fullpage loadfrom textarea'),
 		your = (typeof storageCache == 'string')? JSON.parse(storageCache) : storageCache,
 		load = (typeof area.value == 'string')? JSON.parse(area.value) : area.value,
 		oth = Object.assign(load, your);
@@ -400,13 +407,12 @@ function savePages ()
 function sendSmiles ({you, to, username})
 {
 	var you = you, user = to, username = username,
-		title = '[dota2smile] '+ you +' поделился с '+ username +' своими смайлами',
+		title = '[dota2smile] '+ you +' поделился с '+ username,
 		content =
-		`<div class="bbCodeBlock bbCodeQuote">
+		`<p><a href="https://dota2.ru/forum/threads/legalno-sozdajom-svoi-smajly-dlja-foruma.1275974/" data-mce-href="https://dota2.ru/forum/threads/legalno-sozdajom-svoi-smajly-dlja-foruma.1275974/" data-mce-selected="inline-boundary">У вас не установлено расширение для использования кастомных смайлов<br>Для продолжения проследуйте сюда.</a></p>
+		<div class="bbCodeBlock bbCodeQuote">
 			<blockquote class="quoteContainer">
-				<div class="quote">
-					<p>`+ JSON.stringify( _getStorage() ) +`</p>
-				</div>
+				<p>`+ JSON.stringify( _getStorage() ) +`</p>
 			</blockquote>
 		</div>`;
 	
@@ -426,6 +432,7 @@ function sendSmiles ({you, to, username})
 			else
 			{
 				openAlert({text: 'Ошибка: некорректный никнейм пользователя'});
+				console.log(response);
 			}
 		}
 	)
@@ -458,7 +465,7 @@ function findUser ()
 		<pass>
 			<name><t>Имя</t> `+ username +`</name>
 			<id><t>ID</t> `+ id +`</id>
-			<confirmation>Это верный пользователь?</confirmation>
+			<confirmation>При подтверждении ниже будет создана переписка с пользователем, где ему будут предоставлены смайлы и кнопка, при нажатии на которую он сможет добавить смайлы себе. Вы уверены, что это тот самый пользователь?</confirmation>
 			<fing onclick="sendSmiles({you: '`+ you +`', to: '`+ id +`', username: '`+ username +`'})">Да, отправить</fing>
 		</pass>`;
 	});
