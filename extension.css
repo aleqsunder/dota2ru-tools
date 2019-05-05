@@ -210,8 +210,13 @@ fullpage input[name='name']
 	width: 100px!important;
 }
 
+fullpage input[name="tab"]
+{
+	width: 125px!important;
+}
+
 /* Перекрываем стили как можем ей богу */
-fullpage input:not([name="withoutfone"]), fullpage textarea
+fullpage input:not([mode="withoutfone"]), fullpage textarea
 {
 	margin: 0 5px 0 0!important; /* Особенно это */
 	height: 29px!important;
@@ -220,25 +225,6 @@ fullpage input:not([name="withoutfone"]), fullpage textarea
 	border: 1px solid #343434;
 	background-color: #000;
 	color: #989899!important;
-}
-
-fullpage input[name="withoutfone"]
-{
-	margin: 5px!important;
-	border: none!important;
-	outline: none!important;
-	color: #eee!important;
-	background: none!important;
-	height: 29px!important;
-	border-radius: 3px;
-	
-	transition: all .3s;
-}
-
-
-fullpage input[name="withoutfone"]:focus
-{
-    background: #121215!important;
 }
 
 fullpage textarea
@@ -316,6 +302,91 @@ smile-list
 	flex-direction: column;
 	height: 100%;
 	overflow: auto;
+}
+
+::-webkit-scrollbar {
+    width: 6px;
+}
+ 
+::-webkit-scrollbar-track {
+    background: rgba(100,100,100,0); 
+    border-radius: 10px;
+}
+ 
+::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background: #2b2c32;
+}
+
+smile-list tab
+{
+	flex-direction: column;
+	margin-bottom: 5px;
+}
+
+smile-list tab.minimized list
+{
+	display: none;
+}
+
+smile-list tab list
+{
+	margin-left: 20px;
+	position: relative;
+}
+
+smile-list tab list:before
+{
+	content: '';
+	
+    left: -10px;
+    bottom: 0;
+	
+    width: 1px;
+    height: 41px;
+	
+    background: #2b2c32;
+    position: absolute;
+}
+
+smile-list tab list:last-child:before
+{
+	content: '';
+	
+    top: -6px;
+	left: -10px;
+	
+    width: 1px;
+    height: 23px;
+	
+    background: #2b2c32;
+    position: absolute;
+}
+
+smile-list tab list:after
+{
+	content: '';
+	
+    bottom: 0;
+    top: 16px;
+    left: -10px;
+	
+    width: 10px;
+    height: 1px;
+	
+    background: #2b2c32;
+    position: absolute;
+}
+
+smile-list hit
+{
+	font-size: 14px;
+    justify-content: space-between;
+    align-items: center;
+    background: rgb(43, 44, 50);
+    border-radius: 3px;
+    margin: 0 3px 3px 0;
+    padding: 2px 10px;
 }
 
 smile-list list
@@ -414,7 +485,7 @@ chan helper
 	text-align: center;
 }
 
-chan canedit.false ~ finder
+chan canedit.false ~ finder[name='hiddly']
 { max-height: 0px }
 
 chan finder
@@ -440,6 +511,7 @@ chan finder input:first-child
 
 chan finder input:last-child
 {
+	text-align: left;
 	margin: 0!important;
 	background:  linear-gradient(90deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%)!important;
 }
@@ -453,4 +525,39 @@ quotebutton
     border: 1px solid #343434;
 	
 	cursor: pointer;
+}
+
+asett page[tab] input[name="index"]
+{
+	width: 45px;
+}
+
+asett middle
+{
+	overflow: auto;
+}
+
+fullpage input[mode="withoutfone"]
+{
+	margin: 5px!important;
+	margin-left: 0px!important;
+	border: none!important;
+	outline: none!important;
+	color: #eee!important;
+	background: none!important;
+	height: 29px!important;
+	border-radius: 3px;
+	
+	transition: all .3s;
+}
+
+
+fullpage input[mode="withoutfone"]:focus
+{
+    background: #121215!important;
+}
+
+smiles finder input[mode="withoutfone"]:focus
+{
+    background: #0e0e0e!important;
 }

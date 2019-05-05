@@ -1,17 +1,21 @@
 /**
+ *	Неизменяемые переменные
+ */
+const version = '0.0.5', tinyMods = [ 'threads', 'conversation' ],
+	otherMods = [ 'conversations', 'category', 'forums', 'notifications', 'settings', 'unknown' ];
+
+/**
  *	Все основные переменные для удобства
  */
 var afullpage = document.querySelector('fullpage'),
 	smileList = document.querySelector('fullpage smile-list'),
-	asspages = document.querySelectorAll('asett pages page'),
+	asspages = document.querySelectorAll('asett pages[name="pagesetting"] page'),
+	asstabes = document.querySelector('asett pages[name="tabsetting"]'),
 	chess = 'a-dota2smile', storageCache = _getStorage(), 
 	storagePage = JSON.parse(localStorage.getItem('page')), 
+	cath = JSON.parse(localStorage.getItem('cath')), 
 	alert = document.querySelector('fullpage alert'), list = [], aflag = true,
-	version = '0.0.4',
-	mode = document.location.href.match(/forum\/(.*?)\//),
-	mode = (mode != null)? mode[1] : 'unknown',
-	tinyMods = [ 'threads', 'conversation' ],
-	otherMods = [ 'conversations', 'category', 'forums', 'notifications', 'settings', 'unknown' ];
+	mode = document.location.href.match(/forum\/(.*?)\//), mode = (mode != null)? mode[1] : 'unknown';
 
 /**
  *	Обновление элементов сайта под текущие значения
@@ -39,6 +43,49 @@ function reload ()
 	
 	// Самый простой способ очистить от всего старого
 	smileList.innerHTML = '';
+	asstabes.innerHTML = '';
+	
+	if (!cath)
+	{
+		localStorage.setItem('cath', `{"0":{"name":"Без категории","index":"100","undeletable":"true"}}`);
+		cath = JSON.parse(localStorage.getItem('cath'));
+	}
+	
+	var arraytabes = [];
+	
+	Object.keys(cath).forEach
+	(function (tab) {
+		tab = cath[tab];
+		console.log(tab, tab.name, tab.index);
+		
+		arraytabes.push
+		( dom(
+			`<tab alt='${tab.name}' index='${tab.index}'>
+				<hit>${tab.name} <close class='fa fa-minus' onclick="ahide('${tab.name}')"></close></hit>
+			</tab>`
+		));
+		
+		asstabes.appendChild
+		( dom(
+			`<page class='check' tab='${tab.name}'>
+				<input type='text' mode="withoutfone" name='index' value='${tab.index}'>
+				<input type='text' mode="withoutfone" name='tab' value='${tab.name}'>
+			</page>`
+		));
+	});
+	
+	if (arraytabes)
+	{
+		arraytabes.sort
+		( function (a, b) {
+			return parseFloat(a.getAttribute('index')) - parseFloat(b.getAttribute('index'));
+		});
+		
+		arraytabes.forEach
+		( function (a) {
+			smileList.appendChild(a);
+		});
+	}
 	
 	// Если обнаружены смайлы старого образца - конвертация в новый и обновление
 	if (localStorage.getItem('a-dota2smiles'))
@@ -73,6 +120,7 @@ function reload ()
 				list.push
 				({
 					'name': sc.name,
+					'tab': (sc.tab || sc.tab == '')? sc.tab : 'Без категории',
 					'src': sc.src,
 					'canEdit': sc.canEdit,
 					'width': sc.width,
@@ -84,6 +132,7 @@ function reload ()
 				list.push
 				({
 					'name': sc.name,
+					'tab': (sc.tab || sc.tab == '')? sc.tab : 'Без категории',
 					'src': sc.src,
 					'canEdit': sc.canEdit
 				});
@@ -104,7 +153,7 @@ if (localStorage.getItem('version') != version)
 	openAlert({
 		wait: true,
 		
-		text: `Добро пожаловать в новую версию `+ version +`!<br>
+		text: `Добро пожаловать в новую версию ${version}!<br>
 		<br>
 		<a href='https://dota2.ru/forum/threads/legalno-sozdajom-svoi-smajly-dlja-foruma.1275974/'>Для ознакомления нажмите здесь</a><br>
 		Уведомление высвечивается лишь раз после каждого обновления, чтобы уведомить вас о том, что ваше расширение успешно обновлено<br>
@@ -114,73 +163,70 @@ if (localStorage.getItem('version') != version)
 }
 
 // Переносить ради такого фунцкцию из extension не вижу смысла, плюс нужно её переделать
-if (tinyMods.indexOf(mode))
-{
-	setInterval
-	( function () {
-		// Получаем активный tinyMCE
-		if (typeof tinymce !== 'undefined')
-		{ var content = tinymce.activeEditor.contentDocument }
+setInterval
+( function () {
+	// Получаем активный tinyMCE
+	if (typeof tinymce != 'undefined' && tinymce.activeEditor)
+	{ var content = tinymce.activeEditor.contentDocument }
+	
+	if (content)
+	{
+		var head = content.querySelector('head style:not(.resized)');
 		
-		if (content)
+		// Проверяем, существуют ли (для стабильности, проскакивает "of null")
+		if (head)
 		{
-			var head = content.querySelector('head style:not(.resized)');
-			
-			// Проверяем, существуют ли (для стабильности, проскакивает "of null")
-			if (head)
-			{
-				// Добавляем стили и присваиваем класс, чтобы больше на глаза не попадался
-				head.innerHTML += 'img[data-smile][data-shortcut="canEdit=false"] { width: auto; height: 30px; }';
-				head.classList.add('resized');
-			}
-			
-			var allCont = content.querySelectorAll('img[data-smile]:not(.resized)');
-			
-			// Если есть неизменённые смайлы
-			if (allCont.length > 0)
-			{
-				allCont.forEach(function (a) {
-					var getter = a.dataset.shortcut,
-						getters = getter.split('&'),
-						list = {};
-					
-					if (a.dataset.shortcut.indexOf('=') > -1)
-					{
-						getters.forEach
-						( function (b) {
-							b = b.split('=');
-							
-							list[b[0]] = b[1];
-						});
+			// Добавляем стили и присваиваем класс, чтобы больше на глаза не попадался
+			head.innerHTML += 'img[data-smile][data-shortcut="canEdit=false"] { width: auto; height: 30px; }';
+			head.classList.add('resized');
+		}
+		
+		var allCont = content.querySelectorAll('img[data-smile]:not(.resized)');
+		
+		// Если есть неизменённые смайлы
+		if (allCont.length > 0)
+		{
+			allCont.forEach(function (a) {
+				var getter = a.dataset.shortcut,
+					getters = getter.split('&'),
+					list = {};
+				
+				if (a.dataset.shortcut.indexOf('=') > -1)
+				{
+					getters.forEach
+					( function (b) {
+						b = b.split('=');
 						
-						// Проверяем, разрешили ли мы вообще изменять размер, мало ли
-						if (list.canEdit == 'true')
-						{
-							/**
-							 *	Но на всякий случай проверяем, указаны ли значения, ибо всякое бывает
-							 */
-							
-							a.width = (list.width != '')? list.width : a.width;
-							a.height = (list.height != '')? list.height : a.height;
-							
-							a.classList.add('resized');
-						}
-						else
-						{
-							a.height = '30';
-							a.width = a.width;
-						}
+						list[b[0]] = b[1];
+					});
+					
+					// Проверяем, разрешили ли мы вообще изменять размер, мало ли
+					if (list.canEdit == 'true')
+					{
+						/**
+						 *	Но на всякий случай проверяем, указаны ли значения, ибо всякое бывает
+						 */
+						
+						a.width = (list.width != '')? list.width : a.width;
+						a.height = (list.height != '')? list.height : a.height;
+						
+						a.classList.add('resized');
 					}
 					else
 					{
 						a.height = '30';
 						a.width = a.width;
 					}
-				})
-			}
+				}
+				else
+				{
+					a.height = '30';
+					a.width = a.width;
+				}
+			})
 		}
-	}, 200);
-}
+	}
+}, 200);
 
 /**
  *	Добавление смайла в стеш окна редактора смайлов
@@ -190,6 +236,7 @@ function add (a)
 	if (typeof a == 'object')
 	{
 		var	name = (a.name)? a.name : document.querySelector('fullpage finder input[name="name"]').value,
+			tab = (a.tab)? a.tab : document.querySelector('fullpage finder input[name="tab"]').value,
 			value = (a.src)? a.src : document.querySelector('fullpage finder input[name="src"]').value,
 			canEdit = (a.canEdit == 'true')? 'true' : 'false',
 			width = (a.width)? a.width : '',
@@ -197,40 +244,60 @@ function add (a)
 	}
 	else
 	{
-		/**
-		 *	Конвертация из старого формата
-		 */
-		
 		var	name = (a)? a : document.querySelector('fullpage finder input[name="name"]').value,
+			tab = document.querySelector('fullpage finder input[name="tab"]').value,
 			value = (storageCache[a])? storageCache[a] : document.querySelector('fullpage finder input[name="src"]').value,
 			canEdit = 'false',
 			width = '',
 			height = '';
 	}
 	
+	if (tab == '') tab = 'Без категории';
+	
 	document.querySelector('fullpage finder input[name="name"]').value = '';
 	document.querySelector('fullpage finder input[name="src"]').value = '';
 	
-	smileList.appendChild( dom(`
-		<list data-smile='`+ name +`'>
-			<input name='name' data-name='`+ name +`' value='`+ name +`'>
-			<img src='`+ value +`'>
-			<input name='value' data-value='`+ value +`' value='`+ value +`'>
-			<del class="fa fa-text-height" onclick="ch('`+ name +`')"></del>
-			<del class="fa fa-minus" onclick="del('`+ name +`')"></del>
-			
-			<smile-settings>
-				<canedit>`+ canEdit +`</canedit>
-				<width>`+ width +`</width>
-				<height>`+ height +`</height>
-			</smile-settings>
-		</list>
-	`));
+	if (!smileList.querySelector('tab[alt="'+ tab + '"]'))
+		smileList.appendChild( dom(
+		`<tab alt='${tab}'>
+			<hit>${tab} <close class='fa fa-minus' onclick="ahide('${tab}')"></close></hit>
+		</tab>`));
+	
+	smileList.querySelector(`tab[alt='${tab}']`).appendChild( dom(`
+			<list data-smile='${name}'>
+				<input name='name' data-name='${name}' value='${name}'>
+				<img src='${value}'>
+				<input name='value' data-value='${value}' value='${value}'>
+				<del class="fa fa-text-height" onclick="ch('${name}')"></del>
+				<del class="fa fa-minus" onclick="del('${name}')"></del>
+				
+				<smile-settings>
+					<canedit>${canEdit}</canedit>
+					<width>${width}</width>
+					<height>${height}</height>
+					<tab>${tab}</tab>
+				</smile-settings>
+			</list>
+		`));
 	
 	setTimeout
 	( function () {
-		smileList.querySelector(`list[data-smile="`+ name +`"]`).classList.add('created');
+		smileList.querySelector(`list[data-smile="${name}"]`).classList.add('created');
 	});
+}
+
+/**
+ *	Сворачивание таба
+ */
+function ahide (tab)
+{
+	var tab = smileList.querySelector('tab[alt="'+ tab +'"]'),
+		close = tab.querySelector('hit close');
+		
+	tab.classList.toggle('minimized');
+	
+	close.classList.toggle('fa-minus');
+	close.classList.toggle('fa-plus');
 }
 
 /**
@@ -257,10 +324,11 @@ function ch (name)
 		canEdit = list.querySelector('canedit').innerHTML,
 		canEditText = (canEdit == 'true')? 'Изменение разрешено' : 'Не изменять размер смайла';
 		
-	cha.querySelector('canedit').innerHTML = canEditText;
+	cha.querySelector('canedit').textContent = canEditText;
 	cha.querySelector('canedit').classList = canEdit;
 	cha.querySelector('input[name=width]').value = list.querySelector('width').innerHTML;
 	cha.querySelector('input[name=height]').value = list.querySelector('height').innerHTML;
+	cha.querySelector('input[name=tab]').value = list.querySelector('tab').innerHTML;
 	
 	cha.querySelector('bottom fing').setAttribute('onclick', "chan('"+ name +"')");
 	
@@ -276,14 +344,16 @@ function chan (name)
 		to = document.querySelector('list[data-smile="'+ name +'"] smile-settings'),
 		canEdit = from.querySelector('canEdit').classList[0];
 	
-	to.querySelector('canEdit').innerHTML = canEdit;
+	to.querySelector('canEdit').textContent = canEdit;
+	to.querySelector('tab').textContent = from.querySelector('input[name=tab]').value;
 	
 	if (canEdit == 'true')
 	{
-		if (Number.parseInt(from.querySelector('input[name=width]').value) != '')
+		if (Number.parseInt(from.querySelector('input[name=width]').value) != '' ||
+			Number.parseInt(from.querySelector('input[name=height]').value) != '')
 		{
-			to.querySelector('width').innerHTML = from.querySelector('input[name=width]').value;
-			to.querySelector('height').innerHTML = from.querySelector('input[name=height]').value;
+			to.querySelector('width').textContent = from.querySelector('input[name=width]').value;
+			to.querySelector('height').textContent = from.querySelector('input[name=height]').value;
 		}
 	}
 	
@@ -319,28 +389,52 @@ function CEtoggle ()
  */
 function save ()
 {
+	var tabs = [], tabes = JSON.parse(localStorage.getItem('cath'));
 	localStorage.setItem(chess, JSON.stringify({}));
 	
 	smileList.querySelectorAll('list').forEach
 	( function(a) {
-		a.style.setProperty('background', '#343434');
-		
 		var value = 
 		{
 			name: a.querySelector('input[data-name]').value,
 			src: a.querySelector('input[data-value]').value,
 			canEdit: a.querySelector('smile-settings canEdit').innerHTML,
 			width: a.querySelector('smile-settings width').innerHTML,
-			height: a.querySelector('smile-settings height').innerHTML
-		};
-			
+			height: a.querySelector('smile-settings height').innerHTML,
+			tab: a.querySelector('smile-settings tab').innerHTML
+		},	index = findOf(tabes, value.tab);
+		
+		if (index < 0)
+			tabes[lastOf(tabes)] = {name: value.tab, index: '100'};
+		
 		setStorage(value.name, JSON.stringify(value));
 	});
 	
+	localStorage.setItem('cath', JSON.stringify(tabes));
 	storageCache = _getStorage();
 	reload();
 	
 	openAlert({text: 'Ваши смайлы сохранены!'});
+}
+
+function findOf (obj, name)
+{
+	for (var a = 0; a < lastOf(obj); a++)
+		if (obj[a].name == name) return a;
+	
+	return '-1';
+}
+
+function lastOf (obj)
+{
+	var length = 0;
+	
+	Object.keys(obj).forEach
+	( function () {
+		length++;
+	});
+	
+	return length;
 }
 
 /**
@@ -362,9 +456,13 @@ function loadFrom (bool)
 	// Будет обидно, если изменения не сохранятся, верно?)
 	save();
 	
-	var area = (bool)? document.querySelector('div.bbCodeBlock.asmile') : document.querySelector('fullpage loadfrom textarea'),
+	var area = (bool)? document.querySelector('blockquote.messageText .quoteContainer p')
+		: document.querySelector('fullpage loadfrom textarea'),
+		
 		your = (typeof storageCache == 'string')? JSON.parse(storageCache) : storageCache,
-		load = (typeof area.value == 'string')? JSON.parse(area.value) : area.value,
+		load = (bool)? ((typeof area.innerText == 'string')? JSON.parse(area.innerText) : area.innerText)
+		: ((typeof area.value == 'string')? JSON.parse(area.value) : area.value),
+		
 		oth = Object.assign(load, your);
 		
 	localStorage.setItem(chess, JSON.stringify(oth));
@@ -382,20 +480,49 @@ function loadFrom (bool)
  */
 function savePages ()
 {
-	var pages = document.querySelectorAll('asett pages page'),
-		array = {};
+	var pages = document.querySelectorAll("asett pages[name='pagesetting'] page"),
+		tabs = document.querySelectorAll("asett pages[name='tabsetting'] page"),
+		arrayPage = {}, arrayTab = {}, j = 0;
 		
 	pages.forEach
-	( function (a, i) {
+	( function (a) {
 		var input = a.querySelector('input[type="checkbox"]'),
 			name = a.querySelector('input[type="text"]').value;
 			
-		array[input.value] = {name: name, is: input.checked};
-		console.log(name, input.value, input.checked);
+		arrayPage[input.value] = {name: name, is: input.checked};
 	});
 	
-	localStorage.setItem('page', JSON.stringify(array));
-	storagePage = array;
+	localStorage.setItem('page', JSON.stringify(arrayPage));
+	storagePage = arrayPage;
+	
+	tabs.forEach
+	( function (a) {
+		var index = a.querySelector('input[name="index"]').value,
+			tab = a.querySelector('input[name="tab"]').value,
+			oldtab = a.getAttribute('tab');
+			
+		arrayTab[j] = {name: tab, index: index};
+		j++;
+		
+		if (tab != oldtab)
+		{
+			Object.keys(storageCache).forEach
+			( function (a) {
+				var el = JSON.parse(storageCache[a]);
+				
+				console.log(el.tab, tab);
+				if (el.tab == oldtab)
+				{
+					el.tab = tab;
+					setStorage(el.name, JSON.stringify(el));
+				}
+			});
+		}
+	});
+	
+	localStorage.setItem('cath', JSON.stringify(arrayTab));
+	cath = arrayTab;
+	
 	reload();
 	
 	openAlert({text: 'Отображение изменено по вашему усмотрению!'});
@@ -412,7 +539,7 @@ function sendSmiles ({you, to, username})
 		`<p><a href="https://dota2.ru/forum/threads/legalno-sozdajom-svoi-smajly-dlja-foruma.1275974/" data-mce-href="https://dota2.ru/forum/threads/legalno-sozdajom-svoi-smajly-dlja-foruma.1275974/" data-mce-selected="inline-boundary">У вас не установлено расширение для использования кастомных смайлов<br>Для продолжения проследуйте сюда.</a></p>
 		<div class="bbCodeBlock bbCodeQuote">
 			<blockquote class="quoteContainer">
-				<p>`+ JSON.stringify( _getStorage() ) +`</p>
+				<p>${JSON.stringify( _getStorage() )}</p>
 			</blockquote>
 		</div>`;
 	
@@ -453,7 +580,7 @@ function findUser ()
 	.then(function(response){
 		return response.text();
 	})
-	.then(function(html){
+	.then(function(html){		
 		var you = document.querySelector('div.hello .username').innerHTML,
 			userdocument = dom(html).ownerDocument.querySelector('.member-list-item .avatar'),
 			href = userdocument.href.split('/'),
@@ -461,12 +588,12 @@ function findUser ()
 			avatar = userdocument.querySelector('img').src;
 	
 		info.innerHTML =
-		`<avatar><img src='`+ avatar +`'></avatar>
+		`<avatar><img src='${avatar}'></avatar>
 		<pass>
-			<name><t>Имя</t> `+ username +`</name>
-			<id><t>ID</t> `+ id +`</id>
+			<name><t>Имя</t> ${username}</name>
+			<id><t>ID</t> ${id}</id>
 			<confirmation>При подтверждении ниже будет создана переписка с пользователем, где ему будут предоставлены смайлы и кнопка, при нажатии на которую он сможет добавить смайлы себе. Вы уверены, что это тот самый пользователь?</confirmation>
-			<fing onclick="sendSmiles({you: '`+ you +`', to: '`+ id +`', username: '`+ username +`'})">Да, отправить</fing>
+			<fing onclick="sendSmiles({you: '${you}', to: '${id}', username: '${username}'})">Да, отправить</fing>
 		</pass>`;
 	});
 }
@@ -517,7 +644,7 @@ function adoor (elem)
  */
 function openAlert ({text, wait})
 {
-	alert.querySelector('middle').innerHTML = text;
+	alert.querySelector('middle').textContent = text;
 	
 	adoor('alert');
 	
@@ -537,7 +664,12 @@ function openAlert ({text, wait})
 }
 
 function dom (html)
-{ return new DOMParser().parseFromString(html, 'text/html').querySelector('body').childNodes[0] }
+{
+	return new DOMParser()
+				.parseFromString(html, 'text/html')
+				.querySelector('body')
+				.childNodes[0];
+}
 
 function putStorage (key, value)
 {

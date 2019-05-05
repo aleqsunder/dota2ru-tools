@@ -4,6 +4,7 @@
 		<top>Редактор смайлов <close class='fa fa-times' onclick="adoor('smiles')"></close></top>
 		<middle>
 			<finder>
+				<input type='text' mode='withoutfone' name='tab' placeholder='Категория' value='Без категории'>
 				<input type='text' name='name' placeholder='Имя'>
 				<input type='text' name='src' placeholder='Ссылка'>
 				<fing onclick='add()'>Добавить</fing>
@@ -70,55 +71,58 @@
 		<top>Настройки <close class='fa fa-times' onclick="adoor('asett')"></close></top>
 		<middle>
 			<top>Видимые разделы</top>
-			<pages>
+			<pages name='pagesetting'>
 				Для изменения отображения используется чекбокс (галочка рядом с пунктом), для изменения 
 				названия используется нажатие на название (изменяется как текстовое поле)<br>
 			
 				<page class='check'>
 					<input type="checkbox" value="-1">
-					<input type='text' name="withoutfone" value=''>
+					<input type='text' mode="withoutfone" value=''>
 				</page>
 				<page class='check'>
 					<input type="checkbox" value="1">
-					<input type='text' name="withoutfone" value=''>
+					<input type='text' mode="withoutfone" value=''>
 				</page>
 				<page class='check'>
 					<input type="checkbox" value="5">
-					<input type='text' name="withoutfone" value=''>
+					<input type='text' mode="withoutfone" value=''>
 				</page>
 				<page class='check'>
 					<input type="checkbox" value="6">
-					<input type='text' name="withoutfone" value=''>
+					<input type='text' mode="withoutfone" value=''>
 				</page>
 				<page class='check'>
 					<input type="checkbox" value="7">
-					<input type='text' name="withoutfone" value=''>
+					<input type='text' mode="withoutfone" value=''>
 				</page>
 				<page class='check'>
 					<input type="checkbox" value="9">
-					<input type='text' name="withoutfone" value=''>
+					<input type='text' mode="withoutfone" value=''>
 				</page>
 				<page class='check'>
 					<input type="checkbox" value="11">
-					<input type='text' name="withoutfone" value=''>
+					<input type='text' mode="withoutfone" value=''>
 				</page>
 				<page class='check'>
 					<input type="checkbox" value="14">
-					<input type='text' name="withoutfone" value=''>
+					<input type='text' mode="withoutfone" value=''>
 				</page>
 				<page class='check'>
 					<input type="checkbox" value="16">
-					<input type='text' name="withoutfone" value=''>
+					<input type='text' mode="withoutfone" value=''>
 				</page>
 				<page class='check'>
 					<input type="checkbox" value="17">
-					<input type='text' name="withoutfone" value=''>
+					<input type='text' mode="withoutfone" value=''>
 				</page>
 				<page class='check'>
 					<input type="checkbox" value="18">
-					<input type='text' name="withoutfone" value=''>
+					<input type='text' mode="withoutfone" value=''>
 				</page>
 			</pages>
+			
+			<top>Настройка порядка категорий</top>
+			<pages name='tabsetting'></cate>
 		</middle>
 		
 		<bottom>
@@ -132,9 +136,14 @@
 		<middle>
 			<helper>Включенный режим - управление размером<br>Выключенный режим - фиксированный размер</helper>
 			<canEdit onclick="CEtoggle()"></canEdit>
-			<finder>
+			<finder name='hiddly'>
 				<input type='text' name='width' placeholder='Ширина'>
 				<input type='text' name='height' placeholder='Высота'>
+			</finder>
+			
+			<helper>Укажите категорию смайла</helper>
+			<finder style='justify-content: center'>
+				<input type='text' name='tab' placeholder='Категория'>
 			</finder>
 		</middle>
 		

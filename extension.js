@@ -91,11 +91,6 @@ fetch(getURL('/assets/sett.tmp'))
 					<i class="fa fa-wrench"></i>
 				</a>
 			`), el.querySelector('a[title="Настройки"]'));
-			
-			/**
-			 *	Да-да, только теперь можно подгружать динамический JS на страницу, и только отдельным файлом
-			 *	Тегом script браузер просто проигнорирует)0
-			 */
 			 
 			fetch(getURL('/assets/integr.js'))
 			.then(function(response){
@@ -149,7 +144,7 @@ function createPanel ()
 					( function (b, index) {
 						var index = a.dataset.cat.toString();
 						
-						a.innerHTML = page[index].name;
+						a.textContent = page[index].name;
 						
 						if (page[index].is == false)
 							a.style = 'display: none';
@@ -159,13 +154,13 @@ function createPanel ()
 			
 			el.insertBefore( dom(`
 				<li class='tab-title'>
-					<a href="#smile-cat-`+ index +`" data-cat="`+ index +`">`+ name +`</a>
+					<a href="#smile-cat-${index}" data-cat="${index}">${name}</a>
 				</li>
 			`), el.firstChild);
 			
 			// Приступаем к созданию контента
 			var content = document.querySelector('div.smiles-panel div.tabs-content'),
-				div = dom(`<div id='smile-cat-`+ index + `' class='content'></div>`);
+				div = dom(`<div id='smile-cat-${index}' class='content'></div>`);
 			
 			// Перебираем все смайлы
 			for (var i = 0; i < list.length; i++)
@@ -180,9 +175,8 @@ function createPanel ()
 				
 				div.appendChild( dom(`
 					<div class='smile-content'>
-						<a href="#" data-shortcut="`+ shortcut +`" data-mce-url="`+ v.src +`" tabindex="`
-							+ index +`" title=":`+ v.name +`:">
-							<img src="`+ v.src +`" role="presentation">
+						<a href="#" data-shortcut="${shortcut}" data-mce-url="${v.src}" tabindex="${index}" title=":${v.name}:">
+							<img src="${v.src}" role="presentation">
 						</a>
 					</div>
 				`));
@@ -198,10 +192,15 @@ function createPanel ()
  *
  *	@param string html
  *
- *	@return object
+ *	@return HTMLElement
  */
 function dom (html)
-{ return new DOMParser().parseFromString(html, 'text/html').querySelector('body').childNodes[0] }
+{
+	return new DOMParser()
+				.parseFromString(html, 'text/html')
+				.querySelector('body')
+				.childNodes[0];
+}
 
 /**
  *	Следит за появлением объекта в DOM сайта
