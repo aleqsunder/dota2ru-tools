@@ -72,7 +72,7 @@ reload();
 /**
  *	Шаг нулевой - определение страницы настроек
  */
-fetch(getURL('/assets/sett.tmp'))
+fetch(getURL('/assets/sett.html'))
 .then(function(response){
 	return response.text();
 })
@@ -170,8 +170,8 @@ function createPanel ()
 				 */
 				var v = list[i],
 					shortcut = (v.canEdit == 'true')
-					? 'canEdit=true&height=' + v.height + '&width=' + v.width
-					: 'canEdit=false';
+					? `canEdit=true&height=${v.height}&width=${v.width}`
+					: `canEdit=false`;
 				
 				div.appendChild( dom(`
 					<div class='smile-content'>
@@ -216,7 +216,7 @@ function watching ({doc, elem, callback, bool})
 	( function () {
 		doc = (doc)? doc : document;
 		
-		if (el = doc.querySelector(elem +':not(.watched)'))
+		if (el = doc.querySelector(`${elem}:not(.watched)`))
 		{
 			callback(el);
 			el.classList.add('watched');

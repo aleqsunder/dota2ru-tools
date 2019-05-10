@@ -1,20 +1,22 @@
 /**
  *	Неизменяемые переменные
  */
-const version = '0.0.5', tinyMods = [ 'threads', 'conversation' ],
-	otherMods = [ 'conversations', 'category', 'forums', 'notifications', 'settings', 'unknown' ];
+const version = '0.0.5.1', tinyMods = [ 'threads', 'conversation', 'settings' ],
+	otherMods = [ 'conversations', 'category', 'forums', 'notifications', 'unknown' ];
 
 /**
  *	Все основные переменные для удобства
  */
-var afullpage = document.querySelector('fullpage'),
-	smileList = document.querySelector('fullpage smile-list'),
-	asspages = document.querySelectorAll('asett pages[name="pagesetting"] page'),
-	asstabes = document.querySelector('asett pages[name="tabsetting"]'),
+var afp = _('fullpage'),
+	smileSett = _('smiles category', afp),
+	smileList = _('smile-list', afp),
+	asspages = $_('asett pages[name="pagesetting"] page', afp),
+	asstabes = _('asett pages[name="tabsetting"]', afp),
+	assscroll = _('asett pages[name="scrollbar"]', afp),
 	chess = 'a-dota2smile', storageCache = _getStorage(), 
 	storagePage = JSON.parse(localStorage.getItem('page')), 
 	cath = JSON.parse(localStorage.getItem('cath')), 
-	alert = document.querySelector('fullpage alert'), list = [], aflag = true,
+	alert = _('alert', afp), list = [], aflag = true,
 	mode = document.location.href.match(/forum\/(.*?)\//), mode = (mode != null)? mode[1] : 'unknown';
 
 /**
@@ -34,8 +36,8 @@ function reload ()
 	// Переприсваиваем все разрешённые вкладки смайлов
 	asspages.forEach
 	( function (a) {
-		var input = a.querySelector('input[type="checkbox"]'),
-			name = a.querySelector('input[type="text"]');
+		var input = _('input[type="checkbox"]', a),
+			name = _('input[type="text"]', a);
 			
 		name.value = storagePage[input.value.toString()].name;
 		input.checked = storagePage[input.value.toString()].is;
@@ -47,23 +49,20 @@ function reload ()
 	
 	if (!cath)
 	{
-		localStorage.setItem('cath', `{"0":{"name":"Без категории","index":"100","undeletable":"true"}}`);
+		localStorage.setItem('cath', `{"0":{"name":"Без категории","index":"100","hidden":"false"}}`);
 		cath = JSON.parse(localStorage.getItem('cath'));
 	}
 	
 	var arraytabes = [];
+	
+	_('listed', smileSett).innerHTML = '';
 	
 	Object.keys(cath).forEach
 	(function (tab) {
 		tab = cath[tab];
 		console.log(tab, tab.name, tab.index);
 		
-		arraytabes.push
-		( dom(
-			`<tab alt='${tab.name}' index='${tab.index}'>
-				<hit>${tab.name} <close class='fa fa-minus' onclick="ahide('${tab.name}')"></close></hit>
-			</tab>`
-		));
+		arraytabes.push({ name: tab.name, index: tab.index, hidden: tab.hidden });
 		
 		asstabes.appendChild
 		( dom(
@@ -78,12 +77,30 @@ function reload ()
 	{
 		arraytabes.sort
 		( function (a, b) {
-			return parseFloat(a.getAttribute('index')) - parseFloat(b.getAttribute('index'));
+			return parseFloat(a.index) - parseFloat(b.index);
 		});
 		
 		arraytabes.forEach
 		( function (a) {
-			smileList.appendChild(a);
+			var isOpen = (a.hidden == 'true')? 'plus' : 'minus',
+				classed = (a.hidden == 'true')? 'class="minimized"' : '';
+			
+			console.log(a.hidden);
+			
+			smileList.appendChild( dom(
+			`<tab alt='${a.name}' index='${a.index}' ${classed}>
+				<hit>
+					${a.name}
+					
+					<items>
+						<remove class='fa fa-eraser' onclick="delTab('${a.name}')"></remove>
+						<close class='fa fa-${isOpen}' onclick="ahide('${a.name}')"></close>
+					</items>
+				</hit>
+			</tab>`));
+			
+			_('listed', smileSett).appendChild
+			(dom(`<tab alt='${a.name}' index='${a.index}' onclick="takeTab('${a.name}')">${a.name}</tab>`));
 		});
 	}
 	
@@ -94,7 +111,7 @@ function reload ()
 		storageCache = _getStorage();
 		
 		Object.keys(storageCache).forEach
-		( function (name) { add(name) });
+		( function (name) { add({a: name}) });
 		localStorage.removeItem('a-dota2smiles');
 		
 		chess = 'a-dota2smile';
@@ -141,7 +158,7 @@ function reload ()
 	});
 	
 	list.sort((a, b) => (a.name.toLowerCase() > b.name.toLowerCase()) ? 1 : -1);
-	list.forEach(function (a) { add(a) });
+	list.forEach(function (a) { add({a: a}) });
 }
 
 reload();
@@ -149,17 +166,63 @@ reload();
 // Если новая версия
 if (localStorage.getItem('version') != version)
 {
-	localStorage.setItem('version', version);
-	openAlert({
-		wait: true,
+	if (!localStorage.getItem('first'))
+	{
+		adoor('wellcome');
 		
-		text: `Добро пожаловать в новую версию ${version}!<br>
-		<br>
-		<a href='https://dota2.ru/forum/threads/legalno-sozdajom-svoi-smajly-dlja-foruma.1275974/'>Для ознакомления нажмите здесь</a><br>
-		Уведомление высвечивается лишь раз после каждого обновления, чтобы уведомить вас о том, что ваше расширение успешно обновлено<br>
-		<br>
-		Приятного использования!`
-	});
+		var qn = $_('wellcome qn', afp),
+			len = qn.length,
+			i = 0, timer = 0;
+		
+		function trytodoit () {
+			if (i < 1)
+			{
+				qn[i].style.setProperty('max-height', '100px');
+				qn[i].style.setProperty('opacity', '1');
+			}
+			else
+			{
+				qn[i-1].style = '';
+				qn[i].style.setProperty('max-height', '100px');
+				qn[i].style.setProperty('opacity', '1');
+			}
+			
+			i++;
+			timer = qn[i-1].innerText.length * 52;
+			
+			if (i < len)
+			{
+				setTimeout(trytodoit, timer);
+			}
+			else
+			{
+				setTimeout
+				( function () {
+					adoor('wellcome');
+					
+					localStorage.setItem('first', 'est zhi');
+					localStorage.setItem('version', version);
+				}, timer)
+			}
+		}
+		
+		trytodoit();
+	}
+	else
+	{
+		localStorage.setItem('version', version);
+		openAlert({
+			wait: true,
+			
+			titleOf: `Обновление`,
+			text: `Добро пожаловать в новую версию ${version}!<br>
+			<br>
+			<a href='https://dota2.ru/forum/threads/legalno-sozdajom-svoi-smajly-dlja-foruma.1275974/'>Для ознакомления нажмите здесь</a><br>
+			Уведомление высвечивается лишь раз после каждого обновления, чтобы уведомить вас о том, что ваше расширение успешно обновлено<br>
+			<br>
+			Приятного использования!`
+		});
+	}
 }
 
 // Переносить ради такого фунцкцию из extension не вижу смысла, плюс нужно её переделать
@@ -171,7 +234,7 @@ setInterval
 	
 	if (content)
 	{
-		var head = content.querySelector('head style:not(.resized)');
+		var head = _('head style:not(.resized)', content);
 		
 		// Проверяем, существуют ли (для стабильности, проскакивает "of null")
 		if (head)
@@ -181,7 +244,7 @@ setInterval
 			head.classList.add('resized');
 		}
 		
-		var allCont = content.querySelectorAll('img[data-smile]:not(.resized)');
+		var allCont = $_('img[data-smile]:not(.resized)', content);
 		
 		// Если есть неизменённые смайлы
 		if (allCont.length > 0)
@@ -231,39 +294,86 @@ setInterval
 /**
  *	Добавление смайла в стеш окна редактора смайлов
  */
-function add (a)
+function add ({a, bool})
 {
 	if (typeof a == 'object')
 	{
-		var	name = (a.name)? a.name : document.querySelector('fullpage finder input[name="name"]').value,
-			tab = (a.tab)? a.tab : document.querySelector('fullpage finder input[name="tab"]').value,
-			value = (a.src)? a.src : document.querySelector('fullpage finder input[name="src"]').value,
+		var	name = a.name || _('fullpage finder input[name="name"]').value,
+			tab = a.tab || _('fullpage finder input[name="tab"]').value,
+			value = a.src || _('fullpage finder input[name="src"]').value,
 			canEdit = (a.canEdit == 'true')? 'true' : 'false',
-			width = (a.width)? a.width : '',
-			height = (a.height)? a.height : '';
+			width = a.width || '',
+			height = a.height || '';
 	}
 	else
 	{
-		var	name = (a)? a : document.querySelector('fullpage finder input[name="name"]').value,
-			tab = document.querySelector('fullpage finder input[name="tab"]').value,
-			value = (storageCache[a])? storageCache[a] : document.querySelector('fullpage finder input[name="src"]').value,
+		var	name = a || _('fullpage finder input[name="name"]').value,
+			tab = _('fullpage finder input[name="tab"]').value || 'Без категории',
+			value = storageCache[a] || _('fullpage finder input[name="src"]').value,
 			canEdit = 'false',
 			width = '',
 			height = '';
 	}
 	
-	if (tab == '') tab = 'Без категории';
+	if (!bool && tab == '')
+	{
+		tab = 'Без категории';
+	}
+	else
+		if (tab == '')
+			tab = 'Без категории';
 	
-	document.querySelector('fullpage finder input[name="name"]').value = '';
-	document.querySelector('fullpage finder input[name="src"]').value = '';
+	_('fullpage finder input[name="name"]').value = '';
+	_('fullpage finder input[name="src"]').value = '';
 	
-	if (!smileList.querySelector('tab[alt="'+ tab + '"]'))
-		smileList.appendChild( dom(
-		`<tab alt='${tab}'>
-			<hit>${tab} <close class='fa fa-minus' onclick="ahide('${tab}')"></close></hit>
-		</tab>`));
+	if (!_(`tab[alt="${tab}"]`, smileList))
+	{
+		if (bool == 'true' && tab != '')
+		{
+			var itis = (hidden == 'true')? 'plus' : 'minus',
+				classed = (hidden == 'true')? 'class="minimized"' : '';
+			
+			smileList.appendChild( dom(
+			`<tab alt='${tab}' ${classed}>
+				<hit>
+					${tab}
+					
+					<items>
+						<remove class='fa fa-eraser' onclick="delTab('${tab}')"></remove>
+						<close class='fa fa-${itis}' onclick="ahide('${tab}')"></close>
+					</items>
+				</hit>
+			</tab>`));
+			
+			_('listed', smileSett).appendChild( dom(
+			`<tab alt='${tab}' index="100" onclick="takeTab('${tab}')">${tab}</tab>`));
+			
+			asstabes.appendChild
+			( dom(
+				`<page class='check' tab='${tab}'>
+					<input type='text' mode="withoutfone" name='index' value='100'>
+					<input type='text' mode="withoutfone" name='tab' value='${tab}'>
+				</page>`
+			));
+			
+			var arraytab = [];
+			
+			Object.keys(cath).forEach
+			( function (a) {
+				var val = cath[a];
+				arraytab.push(val);
+			})
+			
+			arraytab.push({ "name": tab, "index": "100", "hidden": "false" })
+			localStorage.setItem('cath', JSON.stringify(arraytab));
+		}
+		else
+		{
+			tab = 'Без категории';
+		}
+	}
 	
-	smileList.querySelector(`tab[alt='${tab}']`).appendChild( dom(`
+	_(`tab[alt='${tab}']`, smileList).appendChild( dom(`
 			<list data-smile='${name}'>
 				<input name='name' data-name='${name}' value='${name}'>
 				<img src='${value}'>
@@ -282,8 +392,51 @@ function add (a)
 	
 	setTimeout
 	( function () {
-		smileList.querySelector(`list[data-smile="${name}"]`).classList.add('created');
+		_(`list[data-smile="${name}"]`, smileList).classList.add('created');
 	});
+}
+
+/**
+ *	Взятие категории
+ */
+function takeTab (tab)
+{ _('input', smileSett).value = tab }
+
+/**
+ *	Удаление категории
+ */
+function delTab (tab, bool)
+{
+	if (bool === true)
+	{
+		_(`page[tab="${tab}"]`, asstabes).outerHTML = '';
+		_(`listed tab[alt="${tab}"]`, smileSett).outerHTML = '';
+		_(`tab[alt="${tab}"]`, smileList).outerHTML = '';
+		
+		array = [];
+		
+		Object.keys(cath).forEach
+		( function (a) {
+			b = cath[a];
+			
+			if (b.name != tab)
+				array.push(b);
+		});
+		
+		cath = array;
+		localStorage.setItem('cath', JSON.stringify(cath));
+	}
+	else
+	{
+		openAlert
+		({
+			wait: true,
+			titleOf: 'Удаление категории',
+			text: `Вы уверены, что хотите удалить категорию ${tab}?<br>
+				Это действие невозможно отменить!<br><br>`,
+			button: [{ callback: `delTab('${tab}', true)`, value: "Удалить" }]
+		});
+	}
 }
 
 /**
@@ -291,8 +444,8 @@ function add (a)
  */
 function ahide (tab)
 {
-	var tab = smileList.querySelector('tab[alt="'+ tab +'"]'),
-		close = tab.querySelector('hit close');
+	var tab = _(`tab[alt="${tab}"]`, smileList),
+		close = _('hit close', tab);
 		
 	tab.classList.toggle('minimized');
 	
@@ -305,7 +458,7 @@ function ahide (tab)
  */
 function del (name)
 { 
-	var el = document.querySelector('list[data-smile="'+ name +'"]');
+	var el = _(`list[data-smile="${name}"]`);
 	
 	el.classList.remove('created')
 	setTimeout
@@ -319,18 +472,19 @@ function del (name)
  */
 function ch (name)
 {
-	var list = document.querySelector('list[data-smile="'+ name +'"] smile-settings'),
-		cha = document.querySelector('fullpage chan'),
-		canEdit = list.querySelector('canedit').innerHTML,
+	var list = _(`list[data-smile="${name}"] smile-settings`),
+		cha = _('fullpage chan'),
+		canEdit = _('canedit', list).innerHTML,
 		canEditText = (canEdit == 'true')? 'Изменение разрешено' : 'Не изменять размер смайла';
 		
-	cha.querySelector('canedit').textContent = canEditText;
-	cha.querySelector('canedit').classList = canEdit;
-	cha.querySelector('input[name=width]').value = list.querySelector('width').innerHTML;
-	cha.querySelector('input[name=height]').value = list.querySelector('height').innerHTML;
-	cha.querySelector('input[name=tab]').value = list.querySelector('tab').innerHTML;
+	_('canedit', cha).textContent = canEditText;
+	_('canedit', cha).classList = canEdit;
 	
-	cha.querySelector('bottom fing').setAttribute('onclick', "chan('"+ name +"')");
+	_('input[name=width]', cha).value = _('width', list).innerHTML;
+	_('input[name=height]', cha).value = _('height', list).innerHTML;
+	_('input[name=tab]', cha).value = _('tab', list).innerHTML;
+	
+	_('bottom fing', cha).setAttribute('onclick', `chan('${name}')`);
 	
 	adoor('chan');
 }
@@ -340,20 +494,20 @@ function ch (name)
  */
 function chan (name)
 {
-	var from = document.querySelector('fullpage chan'),
-		to = document.querySelector('list[data-smile="'+ name +'"] smile-settings'),
-		canEdit = from.querySelector('canEdit').classList[0];
+	var from = _('fullpage chan'),
+		to = _(`list[data-smile="${name}"] smile-settings`),
+		canEdit = _('canEdit', from).classList[0];
 	
-	to.querySelector('canEdit').textContent = canEdit;
-	to.querySelector('tab').textContent = from.querySelector('input[name=tab]').value;
+	_('canEdit', to).textContent = canEdit;
+	_('tab', to).textContent = _('input[name=tab]', from).value;
 	
 	if (canEdit == 'true')
 	{
-		if (Number.parseInt(from.querySelector('input[name=width]').value) != '' ||
-			Number.parseInt(from.querySelector('input[name=height]').value) != '')
+		if (Number.parseInt(_('input[name=width]', from).value) != '' ||
+			Number.parseInt(_('input[name=height]', from).value) != '')
 		{
-			to.querySelector('width').textContent = from.querySelector('input[name=width]').value;
-			to.querySelector('height').textContent = from.querySelector('input[name=height]').value;
+			_('width', to).textContent = _('input[name=width]', from).value;
+			_('height', to).textContent = _('input[name=height]', from).value;
 		}
 	}
 	
@@ -365,8 +519,8 @@ function chan (name)
  */
 function CEtoggle ()
 {
-	var obj = document.querySelector('chan canedit'),
-		helper = document.querySelector('chan helper');
+	var obj = _('chan canedit'),
+		helper = _('chan helper');
 	
 	if (obj.classList.contains('true'))
 	{
@@ -392,16 +546,16 @@ function save ()
 	var tabs = [], tabes = JSON.parse(localStorage.getItem('cath'));
 	localStorage.setItem(chess, JSON.stringify({}));
 	
-	smileList.querySelectorAll('list').forEach
+	$_('list', smileList).forEach
 	( function(a) {
 		var value = 
 		{
-			name: a.querySelector('input[data-name]').value,
-			src: a.querySelector('input[data-value]').value,
-			canEdit: a.querySelector('smile-settings canEdit').innerHTML,
-			width: a.querySelector('smile-settings width').innerHTML,
-			height: a.querySelector('smile-settings height').innerHTML,
-			tab: a.querySelector('smile-settings tab').innerHTML
+			name: _('input[data-name]', a).value,
+			src: _('input[data-value]', a).value,
+			canEdit: _('smile-settings canEdit', a).innerHTML,
+			width: _('smile-settings width', a).innerHTML,
+			height: _('smile-settings height', a).innerHTML,
+			tab: _('smile-settings tab', a).innerHTML
 		},	index = findOf(tabes, value.tab);
 		
 		if (index < 0)
@@ -410,7 +564,19 @@ function save ()
 		setStorage(value.name, JSON.stringify(value));
 	});
 	
-	localStorage.setItem('cath', JSON.stringify(tabes));
+	tabes.forEach
+	( function (a, b) {
+		var hddn = 'false';
+		
+		if (_(`tab[alt="${a.name}"]`, smileList).classList.contains('minimized'))
+			hddn = 'true';
+		
+		tabs[b] = {name: a.name, index: a.index, hidden: hddn}
+	});
+	
+	localStorage.setItem('cath', JSON.stringify(tabs));
+	cath = JSON.parse(localStorage.getItem('cath'));
+	
 	storageCache = _getStorage();
 	reload();
 	
@@ -443,9 +609,7 @@ function lastOf (obj)
 function saveTo ()
 {
 	save();
-	document.querySelector('fullpage saveTo textarea').value = JSON.stringify( _getStorage() );
-	
-	openAlert({text: 'Скопируйте Ваши смайлы, чтобы поделиться!'});
+	_('fullpage saveTo textarea').value = JSON.stringify( _getStorage() );
 }
 
 /**
@@ -456,8 +620,8 @@ function loadFrom (bool)
 	// Будет обидно, если изменения не сохранятся, верно?)
 	save();
 	
-	var area = (bool)? document.querySelector('blockquote.messageText .quoteContainer p')
-		: document.querySelector('fullpage loadfrom textarea'),
+	var area = (bool)? _('blockquote.messageText .quoteContainer p')
+		: _('fullpage loadfrom textarea'),
 		
 		your = (typeof storageCache == 'string')? JSON.parse(storageCache) : storageCache,
 		load = (bool)? ((typeof area.innerText == 'string')? JSON.parse(area.innerText) : area.innerText)
@@ -480,14 +644,14 @@ function loadFrom (bool)
  */
 function savePages ()
 {
-	var pages = document.querySelectorAll("asett pages[name='pagesetting'] page"),
-		tabs = document.querySelectorAll("asett pages[name='tabsetting'] page"),
+	var pages = $_("asett pages[name='pagesetting'] page"),
+		tabs = $_("asett pages[name='tabsetting'] page"),
 		arrayPage = {}, arrayTab = {}, j = 0;
 		
 	pages.forEach
 	( function (a) {
-		var input = a.querySelector('input[type="checkbox"]'),
-			name = a.querySelector('input[type="text"]').value;
+		var input = _('input[type="checkbox"]', a),
+			name = _('input[type="text"]', a).value;
 			
 		arrayPage[input.value] = {name: name, is: input.checked};
 	});
@@ -497,8 +661,8 @@ function savePages ()
 	
 	tabs.forEach
 	( function (a) {
-		var index = a.querySelector('input[name="index"]').value,
-			tab = a.querySelector('input[name="tab"]').value,
+		var index = _('input[name="index"]', a).value,
+			tab = _('input[name="tab"]', a).value,
 			oldtab = a.getAttribute('tab');
 			
 		arrayTab[j] = {name: tab, index: index};
@@ -525,7 +689,11 @@ function savePages ()
 	
 	reload();
 	
-	openAlert({text: 'Отображение изменено по вашему усмотрению!'});
+	openAlert
+	({
+		titleOf: 'Настройки',
+		text: 'Отображение изменено по вашему усмотрению!'
+	});
 }
 
 /**
@@ -534,7 +702,7 @@ function savePages ()
 function sendSmiles ({you, to, username})
 {
 	var you = you, user = to, username = username,
-		title = '[d2s] '+ you +' => '+ username,
+		title = `[d2s] ${you} => ${username}`,
 		content =
 		`<p><a href="https://dota2.ru/forum/threads/legalno-sozdajom-svoi-smajly-dlja-foruma.1275974/" data-mce-href="https://dota2.ru/forum/threads/legalno-sozdajom-svoi-smajly-dlja-foruma.1275974/" data-mce-selected="inline-boundary">У вас не установлено расширение для использования кастомных смайлов<br>Для продолжения проследуйте сюда.</a></p>
 		<div class="bbCodeBlock bbCodeQuote">
@@ -551,14 +719,18 @@ function sendSmiles ({you, to, username})
 		{
 			if (response.status == 'success')
 			{
-				openAlert({text: 'Пак смайлов отправлен!'});
+				openAlert
+				({
+					titleOf: 'Работа со смайлами',
+					text: 'Пак смайлов отправлен!'
+				});
 				
 				adoor('savetouser');
 				adoor('saveto');
 			}
 			else
 			{
-				openAlert({text: 'Ошибка: некорректный никнейм пользователя'});
+				openAlert({text: 'Ошибка'});
 				console.log(response);
 			}
 		}
@@ -570,22 +742,22 @@ function sendSmiles ({you, to, username})
  */
 function findUser ()
 {
-	var stu = document.querySelector('fullpage savetouser'),
-		info = stu.querySelector('information'),
-		username = stu.querySelector('input').value;
+	var stu = _('fullpage savetouser'),
+		info = _('information', stu),
+		username = _('input', stu).value;
 	
 	info.innerHTML = 'Загрузка..';
 	
-	fetch('https://dota2.ru/forum/search?type=user&keywords='+ username +'&sort_by=username')
+	fetch(`https://dota2.ru/forum/search?type=user&keywords=${username}&sort_by=username`)
 	.then(function(response){
 		return response.text();
 	})
 	.then(function(html){		
-		var you = document.querySelector('div.hello .username').innerHTML,
-			userdocument = dom(html).ownerDocument.querySelector('.member-list-item .avatar'),
+		var you = _('div.hello .username').innerHTML,
+			userdocument = _('.member-list-item .avatar', dom(html).ownerDocument),
 			href = userdocument.href.split('/'),
 			id = href[href.length - 2].split('.')[1],
-			avatar = userdocument.querySelector('img').src;
+			avatar = _('img', userdocument).src;
 	
 		info.innerHTML =
 		`<avatar><img src='${avatar}'></avatar>
@@ -605,36 +777,36 @@ function adoor (elem)
 {
 	var flag = '';
 	
-	if (!afullpage.querySelector('.open'))
+	if (!_('.open', afp))
 	{
-		afullpage.classList.toggle('open');
-		afullpage.classList.toggle('margin');
+		afp.classList.toggle('open');
+		afp.classList.toggle('margin');
 	}
 	
-	afullpage.querySelector('backfon.'+ elem).classList.toggle('open');
-	if (flag = afullpage.querySelector(elem).classList.toggle('open'))
+	_(`backfon.${elem}`, afp).classList.toggle('open');
+	if (flag = _(elem, afp).classList.toggle('open'))
 	{
-		afullpage.querySelector('backfon.'+ elem).classList.toggle('margin');
-		afullpage.querySelector(elem).classList.toggle('margin');
+		_(`backfon.${elem}`, afp).classList.toggle('margin');
+		_(elem, afp).classList.toggle('margin');
 	}
 	else
 	{
 		setTimeout
 		( function () {
-			afullpage.querySelector('backfon.'+ elem).classList.toggle('margin');
-			afullpage.querySelector(elem).classList.toggle('margin');
+			_(`backfon.${elem}`, afp).classList.toggle('margin');
+			_(elem, afp).classList.toggle('margin');
 		}, 400);
 	}
 	
 	if (elem == 'saveto' && flag)
 		saveTo();
 	
-	if (!afullpage.querySelector('.open'))
+	if (!_('.open', afp))
 	{
 		setTimeout
 		( function () {
-			afullpage.classList.toggle('open');
-			afullpage.classList.toggle('margin');
+			afp.classList.toggle('open');
+			afp.classList.toggle('margin');
 		}, 400);
 	}
 }
@@ -642,16 +814,45 @@ function adoor (elem)
 /**
  *	Управление уведомлениями
  */
-function openAlert ({text, wait})
+function openAlert ({text, wait, button, titleOf})
 {
-	alert.querySelector('middle').textContent = text;
+	if (titleOf == 'none') _('top', alert).style.setProperty('display', 'none');
+	var header = titleOf || 'Уведомление';
+	
+	_('top', alert).textContent = header;
+	_('middle', alert).innerHTML = text;
 	
 	adoor('alert');
 	
 	if (wait)
 	{
+		if (button)
+		{
+			alert.appendChild
+			( dom (`
+				<bottom></bottom>
+			`));
+			
+			bottom = _('bottom', alert);
+			
+			button.forEach
+			( function (a) { 
+				console.log(a);
+				bottom.appendChild
+				( dom(`
+					<fing onclick="${a.callback}; adoor('alert'); this.parentElement.outerHTML = '';">
+						${a.value}
+					</fing>
+				`));
+			});
+		}
+		
 		// На случай бесконечного уведомления возможность закрыть
-		document.querySelector('fullpage backfon.alert').setAttribute('onclick', `adoor('alert'); this.onclick = 'return false;'`);
+		_('fullpage backfon.alert').setAttribute
+		(
+			'onclick',
+			`adoor('alert'); this.querySelector('bottom').outerHTML = ''; this.querySelector('top').style = ''; this.onclick = 'return false;'`
+		);
 	}
 	else
 	{
@@ -663,12 +864,13 @@ function openAlert ({text, wait})
 	}
 }
 
+/**
+ *	С любовью к Negezor
+ */
+
 function dom (html)
 {
-	return new DOMParser()
-				.parseFromString(html, 'text/html')
-				.querySelector('body')
-				.childNodes[0];
+	return _('body', new DOMParser().parseFromString(html, 'text/html')).childNodes[0];
 }
 
 function putStorage (key, value)
@@ -713,4 +915,43 @@ function _getStorage ()
 		storage = JSON.parse(storage);
 
 	return storage;
+}
+
+/**
+ * 	Сниппет для одного элемента
+ *
+ * 	@param string selector
+ * 	@param object context
+ *
+ * 	@return nodeElement
+ */
+function _ (selector,context) {
+	return $_(selector,context)[0] || null;
+}
+
+/**
+ * 	Производительный QuerySelector
+ *
+ * 	@param string selector
+ * 	@param object context
+ *
+ * 	@return array
+ */
+function $_ (selector,context) {
+	context = context || document;
+
+	if (!/^(#?[\w-]+|\.[\w-.]+)$/.test(selector)) {
+		return Array.prototype.slice.call(context.querySelectorAll(selector));
+	}
+
+	switch (selector.charAt(0)) {
+		case '#':
+			return [context.getElementById(selector.substr(1))];
+		case '.':
+			return Array.prototype.slice.call(context.getElementsByClassName(
+				selector.substr(1).replace(/\./g,' ')
+			));
+		default:
+			return Array.prototype.slice.call(context.getElementsByTagName(selector));
+	}
 }

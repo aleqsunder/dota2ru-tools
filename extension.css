@@ -1,5 +1,14 @@
 /* Стили */
 
+body
+{
+	--scroll-width: 6px;
+	--scroll-track-bg: rgba(100,100,100,0);
+    --scroll-thumb-bg: #2b2c32;
+	
+	transition: all .3s;
+}
+
 .smile-content
 {
 	display: inline-block!important;
@@ -64,7 +73,7 @@ backfon.asett, backfon.chan
 	z-index: 10003;
 }
 
-backfon.alert, backfon.savetouser
+backfon.alert, backfon.savetouser, backfon.wellcome
 {
 	margin-top: -1000%;
 	z-index: 10005;
@@ -78,7 +87,7 @@ fullpage *
 fullpage.open, smiles.open,
 loadfrom.open, saveto.open, savetouser.open,
 alert.open, asett.open, backfon.open,
-chan.open
+chan.open, wellcome.open
 {
 	opacity: 1;
 }
@@ -86,12 +95,12 @@ chan.open
 fullpage.margin, smiles.margin,
 loadfrom.margin, saveto.margin, savetouser.margin,
 alert.margin, asett.margin, backfon.margin,
-chan.margin
+chan.margin, wellcome.margin
 {
 	margin-top: 0;
 }
 
-smiles, loadfrom, saveto, savetouser, asett, alert, chan
+smiles, loadfrom, saveto, savetouser, asett, alert, chan, wellcome
 {
 	position: absolute;
 	
@@ -110,7 +119,7 @@ smiles, loadfrom, saveto, savetouser, asett, alert, chan
 
 smiles { margin-top: -1000%; z-index: 10002; }
 loadfrom, saveto, asett, chan { margin-top: -1000%; z-index: 10004; }
-alert, savetouser { margin-top: -1000%; z-index: 10006; }
+alert, savetouser, wellcome { margin-top: -1000%; z-index: 10006; }
 
 fullpage top
 {
@@ -125,9 +134,11 @@ fullpage top
 	align-items: center;
 }
 
-fullpage close
+fullpage close, fullpage remove
 {
 	border-radius: 3px;
+	padding: 3px;
+	margin: 0 3px;
 	background: #121215;
 }
 
@@ -147,7 +158,7 @@ fullpage middle
 		height: 100%;
 	}
 	
-	alert, savetouser
+	alert, savetouser, wellcome
 	{
 		width: 100%;
 	}
@@ -304,20 +315,6 @@ smile-list
 	overflow: auto;
 }
 
-::-webkit-scrollbar {
-    width: 6px;
-}
- 
-::-webkit-scrollbar-track {
-    background: rgba(100,100,100,0); 
-    border-radius: 10px;
-}
- 
-::-webkit-scrollbar-thumb {
-    border-radius: 10px;
-    background: #2b2c32;
-}
-
 smile-list tab
 {
 	flex-direction: column;
@@ -449,6 +446,7 @@ list red, list del
 	justify-content: center;
 	
 	cursor: pointer;
+	text-decoration: none;
 }
 
 list red:hover, list del:hover
@@ -560,4 +558,57 @@ fullpage input[mode="withoutfone"]:focus
 smiles finder input[mode="withoutfone"]:focus
 {
     background: #0e0e0e!important;
+}
+
+category
+{
+	flex-direction: column;
+    position: relative;
+}
+
+category listed
+{
+    flex-direction: column;
+    position: absolute;
+    margin-top: 30px;
+    padding: 5px;
+	background: #000;
+    border-radius: 3px;
+    z-index: 10000;
+    width: 150%;
+	overflow: hidden;
+	transition: .4s;
+	
+	max-height: 0;
+	opacity: 0;
+}
+
+category listed > *
+{
+	border-radius: 3px;
+	padding: 6px 9px;
+	margin: 3px 0;
+	border: 1px solid #343434;
+	
+	cursor: pointer;
+}
+
+smiles finder category:hover listed 
+{
+	max-height: 600px;
+	opacity: 1;
+}
+
+wellcome
+{
+	padding: 10px;
+    align-items: center;
+    text-align: center;
+}
+
+wellcome qn
+{
+	max-height: 0px;
+	opacity: 0;
+	transition: .4s;
 }
