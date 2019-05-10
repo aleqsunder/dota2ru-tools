@@ -330,8 +330,8 @@ function add ({a, bool})
 	{
 		if (bool == 'true' && tab != '')
 		{
-			var itis = (hidden == 'true')? 'plus' : 'minus',
-				classed = (hidden == 'true')? 'class="minimized"' : '';
+			var itis = 'minus',
+				classed = '';
 			
 			smileList.appendChild( dom(
 			`<tab alt='${tab}' ${classed}>
