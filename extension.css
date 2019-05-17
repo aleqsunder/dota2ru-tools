@@ -6,6 +6,8 @@ body
 	--scroll-track-bg: rgba(100,100,100,0);
     --scroll-thumb-bg: #2b2c32;
 	
+	--f-color: #1a1a1a;
+	
 	transition: all .3s;
 }
 
@@ -611,4 +613,278 @@ wellcome qn
 	max-height: 0px;
 	opacity: 0;
 	transition: .4s;
+}
+
+.chatMessages > li
+{
+	display: flex;
+}
+
+.chatMessages > li[type="your message"]
+{
+	justify-content: flex-end;
+}
+
+.loggedNick
+{
+	font-weight: 700;
+	background-color: #0a0d12;
+	
+	padding: 2px;
+}
+
+.chatAvatar
+{
+	display: flex;
+	position: absolute;
+	
+	top: 0;
+	padding: 0 1px 12px 0;
+}
+
+.chatAvatar av
+{
+	display: block;
+	position: relative;
+	
+	width: 40px;
+	height: 40px;
+	border-radius: 3px;
+}
+
+.chatAvatar av .avatarController
+{
+	display: flex;
+	flex-direction: row;
+	justify-content: space-evenly;
+	align-items: center;
+	height: 100%;
+	
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+	
+	background: rgba(0,0,0,.7);
+	font-size: 16px;
+	
+	opacity: 0;
+	transition: all .3s;
+}
+
+.chatAvatar av .avatarController:hover
+{
+	opacity: 1;
+}
+
+.chatAvatar av .avatarController > *:hover
+{
+	color: #fff;
+}
+
+.fullContentMessage
+{
+	position: relative;
+	
+	padding: 3px 8px;
+	margin-left: 50px;
+	border-radius: 0px 3px 3px 3px;
+	
+	background: var(--f-color)!important;
+}
+
+.chatMessages > li[type="your message"] .fullContentMessage
+{
+	text-align: right;
+}
+
+.chatMessages > li:not(.glued):not([type="your message"]) .fullContentMessage:before
+{
+    content: '';
+	
+    background-image: radial-gradient(circle at 0 10px, rgba(204,0,0,0) 9px, var(--f-color) 10px);
+    background-size: 10px 10px;
+    background-repeat: no-repeat;
+	
+    width: 10px;
+    height: 10px;
+	
+    top: 0;
+    position: absolute;
+    left: -10px;
+}
+
+.chatMessage
+{
+	display: block;
+}
+
+/* Перекрыл стили, необходимо заменить */
+
+#chatBlock
+{
+	background: #282828!important;
+}
+
+#chatFull
+{
+	transition: all .4s;
+	width: 100%;
+}
+
+#chatFull .chatContainer
+{
+	border: none!important;
+	background: none!important;
+	height: 250px!important;
+}
+
+#chatFull li
+{
+	display: flex;
+	position: relative;
+	overflow: visible!important;
+	margin-bottom: 7px;
+}
+
+#chatFull li.my
+{
+	justify-content: flex-end;
+}
+
+/* Режим на полный экран, переписать под SCSS */
+
+#chatFull.fullpage
+{
+	position: fixed;
+	margin: 0;
+    top: 0;
+    left: 0;
+	
+    height: 100vh;
+    z-index: 10000;
+	
+    background: rgba(0,0,0,.6);
+}
+
+#chatFull.fullpage #chatBlock
+{
+    position: relative;
+    display: flex;
+    flex-direction: column;
+	
+	margin: 0;
+    height: 100vh;
+	width: 100%;
+}
+
+#chatFull.fullpage .chatContainer
+{
+	height: 100vh!important;
+}
+
+/* Режим на фиксацию к нижнему краю экрана со сворачиванием */
+
+#chatFull.bottomfixed
+{
+	position: fixed;
+	margin: 0!important;
+    bottom: 0;
+    left: 0;
+	
+    z-index: 10000;
+	
+    background: rgba(0,0,0,.6);
+}
+
+#chatFull.bottomfixed #chatBlock
+{
+    position: relative;
+    display: flex;
+    flex-direction: column;
+	
+	margin: 0;
+}
+
+#chatFull.bottomfixed .chatContainer
+{
+	height: 260px!important;
+}
+
+#chatFull input
+{
+	background: none!important;
+	border-color: #333!important;
+}
+
+#chatFull input:focus
+{
+	background: #333!important;
+}
+
+#chatFull button
+{
+	background: #333!important;
+}
+
+.content-title .right
+{
+	width: 25px;
+	height: 25px;
+    margin-top: 10px!important;
+	float: right!important;
+}
+
+.chatSmile
+{
+    position: relative;
+    display: inline-flex;
+    vertical-align: middle;
+}
+
+.chatSmile img 
+{
+	margin: -3px 0;
+}
+
+/* Чтобы не смешивать с обычными title назову их так, изменить можно спокойно */
+[data-title]
+{
+    position: relative;
+}
+
+[data-title]:after
+{
+	overflow: hidden;
+	z-index: 1000;
+	
+    position: absolute;
+    content: attr(data-title);
+	
+    background: #000;
+    padding: 3px 9px;
+	border-radius: 3px;
+    bottom: 110%;
+	left: -9999px;
+	
+    color: #fff;
+    white-space: nowrap;
+	
+	opacity: 0;
+	
+	font-family: "Comic Sans MS", cursive;
+	font-size: 11px;
+    transition: opacity .3s;
+}
+
+[data-title]:hover:after
+{
+    left: -9px;
+	
+	opacity: .8;
+}
+
+.messageText img
+{
+	margin: -8px 0;
+    vertical-align: middle;
 }

@@ -1,9 +1,9 @@
 {
 	"manifest_version": 2,
-	"version": "0.0.5.2",
+	"version": "0.1.0.0",
 	
-	"name": "Dota2Ru",
-	"description": "Использование сторонних смайлов для форума",
+	"name": "Dota2Ru-smiles",
+	"description": "Использование сторонних смайлов для форума и новый чат",
 	"content_scripts": [ {
 		"css": [ "extension.css" ],
 		"js": [ "extension.js" ],

@@ -1,7 +1,7 @@
 /**
  *	Неизменяемые переменные
  */
-const version = '0.0.5.1', tinyMods = [ 'threads', 'conversation', 'settings' ],
+const version = '0.1.0.0', tinyMods = [ 'threads', 'conversation', 'settings' ],
 	otherMods = [ 'conversations', 'category', 'forums', 'notifications', 'unknown' ];
 
 /**
@@ -18,6 +18,263 @@ var afp = _('fullpage'),
 	cath = JSON.parse(localStorage.getItem('cath')), 
 	alert = _('alert', afp), list = [], aflag = true,
 	mode = document.location.href.match(/forum\/(.*?)\//), mode = (mode != null)? mode[1] : 'unknown';
+
+/*
+	Отображение сообщений
+*/
+if (mode == 'unknown' && _('head title').innerText == 'Форум Dota 2')
+{
+	var old_time = '0';
+	
+	// Фикс момента опоздания присвоения appendToChat
+	_('ul.chatMessages').innerHTML = '';
+
+	Chat.appendToChat = function (data, scroll, skipDuplicates, hideControls)
+	{
+		scroll = scroll || 'false';
+		skipDuplicates = skipDuplicates || 'true';
+		
+		var can_new = true;
+		
+		if (old_time > 0)
+		{
+			if (data.date_sent - old_time > 60)
+			{
+				can_new = false;
+			}
+		}
+		
+		old_time = data.date_sent;
+		
+		if (skipDuplicates && $('#chatMessage' + data.id).length > 0)
+			$('#chatMessage' + data.id).remove();
+		
+		var chatBlock	= $(".chatMessages"),
+			liClass		= (data.visible !== undefined && !data.visible) ? 'not-visible' : '',
+			id			= (data.id !== undefined) ? `id="chatMessage${data.id}"` : '',
+			username	= (data.username && data.username.length > 0) ? Base64.encode(data.username) : 'NONE',
+			youser		= data.user_id == Utils.user_id,
+			repeater	= (youser) ? ` type='your message'` : '',
+			nickname	= Utils.username,
+			isGlued = "", html = "", moderation = "";
+		
+		if (!hideControls)
+		{
+			if (Utils.isAdmin || Utils.isSuperModerator || Utils.hasPrivilege(Utils.Privileges.chat_moderation))
+			{
+				if (data.visible !== undefined)
+				{
+					restoreVisible = !data.visible ? '' : 'display:none';
+					removeVisible = data.visible ? '' : 'display:none';
+					editVisible = data.edited_by ? '' : 'display:none';
+					
+					moderation = 
+					`<span style="${restoreVisible}" id="${data.id}-restore">
+						(<span class="muted">
+							Удалил 
+							<a id="${data.id}-removeUser" target="_blank" href="members/${data.removed_by_username_parsed}.${data.removed_by}/" style="color:${data.removed_by_nick_color}">
+								${data.removed_by_username}
+							</a>
+							<span id="${data.id}-removeTime" class="date-time" data-time="${data.date_removed}">
+								${data.date_removed_parsed}
+							</span>) 
+							
+							<a style="color:#03BE00" title="Восстановить" href="javascript:ChatAdmin.restoreChatMessageDialog(${data.id})">
+								[<i class="fa fa-reply"></i>]
+							</a>
+						</span>
+					</span>
+					
+					<span style="${removeVisible}" id="${data.id}-remove">
+						<a style="color:#D40000" title="Удалить" href="javascript:ChatAdmin.removeChatMessageDialog(${data.id})">
+							[<i class="fa fa-remove"></i>]
+						</a>
+					</span>
+					
+					<span id="${data.id}-edit">
+						<a style="color:#26a6a6" title="Редактировать" href="javascript:ChatAdmin.editChatMessageDialog(${data.id})">
+							[<i class="fa fa-pencil"></i>]
+						</a>
+					</span>
+					
+					<span id="${data.id}-editedby" style="${editVisible}">
+						(
+						<span class="muted">
+							Редактировал 
+							<a id="${data.id}-editUser" target="_blank" href="members/${data.edited_by_username_parsed}.${data.edited_by}/" style="color:${data.edited_by_nick_color}">
+								${data.edited_by_username}
+							</a> 
+							
+							<span id="${data.id}-editTime" class="date-time" data-time="${data.date_edited}">
+								${data.date_edited_parsed}
+							</span>
+							)
+						</span>
+					</span>`;
+				}
+			}
+		}
+			
+		var bgi_style = `background-image: url('${data.user_avatar}'); background-size: contain;`,
+			text_parsed = Base64.decode(data.content)
+				.replace(username, `<span class="loggedNick">${username}</span>`)
+				.replace(/<img[^>]*>/ig, "<div class='chatSmile'>$&</div>"),
+			last_message = $('li:last-child', chatBlock),
+			chat_avatar = $('.chatAvatar', last_message),
+			last_nickname = $('.username', last_message).html() == data.username,
+			user_href = `members/${data.username_parsed}.${data.user_id}/`,
+			user_nick_v = (youser) ? 'none' : 'inline',
+			user_style = `color: ${data.nick_color}; display: ${user_nick_v}`,
+			display = (last_nickname == true && can_new)? 'none' : 'inline',
+			avatar = 
+			`<div class='chatAvatar'>
+				<av style="${bgi_style}">
+					<div class='avatarController'>
+						<btn class='fa fa-user' data-title='Профиль' onclick="location.href = '${user_href}'"></btn>
+						<btn class='fa fa-flag' data-title='Жалоба' onclick="Chat.abuseMessageModal(${data.id})"></btn>
+					</div>
+				</av>
+			</div>`,
+			chat_message = 
+			`<div class="chatMessage" style='display: block'>
+				${text_parsed}
+			</div>`,
+			match_smile = text_parsed.match(/<div[^>]*>(.*?)<\/div>/ig), // Проверяем, есть ли вообще смайлы
+			smile_length = (match_smile) ? match_smile.length : 0,
+			smile_once = '';
+			
+		if (last_nickname && 0 < smile_length < 2)
+		{
+			// А так же есть ли лишний текст по краям
+			if (text_parsed.slice(0, 2) == '<d' && text_parsed.slice(-2) == 'v>')
+			{
+				smile_once = '--f-color: none';
+			}
+		}
+				
+			
+		if (last_nickname == true && can_new)
+		{
+			last_message.css('margin-bottom', '3px');
+			
+			if (chat_avatar) avatar = '';
+			
+			isGlued = 'glued';
+		}
+		
+		html = 
+		`<div id='message-${data.id}' class='fullContentMessage' style='${smile_once}'>
+			<div style='display: ${display}'>
+				<a style="${user_style}" class="username chat-user-link" data-username="${username}" data-title='Процитировать'>${data.username}</a>
+				<span class="muted chat-time">
+					<a class="date-time" data-id="${data.id}" data-time="${data.date_sent}" title="${data.date_sent_parsed}">
+						${data.date_sent_parsed}
+					</a>
+				</span>
+			</div>
+			${moderation}
+			${chat_message}
+		</div>`;
+		
+		if (data.username != nickname)
+		{
+			html = avatar + html;
+		}
+		
+		html = 
+		`<li ${id}${repeater} class="${liClass} ${isGlued}">
+			${html}
+		</li>`;
+		
+		chatBlock.append(html),
+		scroll && this.scrollChat();
+	}
+
+	/*
+		Фикс повторно отправляющихся сообщений
+	*/
+
+	Forum.sendChatMessage = function () {
+		var content = $("#chatMessageInput"),
+			contval = content.val();
+			
+		if (0 === contval.trim().length) return Utils.notify("Нельзя отправить пустое сообщение");
+		content.readOnly = true;
+		content.val("");
+		content.attr('placeholder', 'Идёт отправка сообщения...');
+		
+		requestHandler.ajaxRequest("/api/chat/sendMessage",
+		{
+			content: contval
+		}, 
+		function (response)
+		{
+			switch (response.status) {
+			case "success":
+				Chat.getChatMessagesWrapper(!1, !0);
+				break;
+			case "throttle":
+				Utils.notify("Нельзя отправлять сообщения так быстро");
+				break;
+			case "same":
+				Utils.notify("Текущее сообщение дублирует ваше предыдущее");
+				break;
+			case "contentLength":
+				Utils.notify("Слишком длинное сообщение");
+				break;
+			case "userNotActivated":
+				Utils.notify("Пользователь не активирован", "warning")
+			}
+			
+			content.readOnly = false;
+			content.attr('placeholder', 'Отправить сообщение');
+		})
+	}
+
+	/*
+		Всё ниже необходимо переписать под сайт и только
+	*/
+
+	var chatFulled = _('#chatFull'),
+		chatTitle = _('h3.content-title', chatFulled);
+
+	_('a.right').classList.remove('toggle');
+	_('a.right').classList.add('fa');
+	_('a.right').classList.add('fa-minus');
+
+	chatTitle.appendChild
+	(dom(
+		`<a onclick="onFullWindow(); return false" data-id="chatBlock" title="На весь экран" href="#" class="right fa fa-arrows"></a>`
+	));
+
+	chatTitle.appendChild
+	(dom(
+		`<a onclick="onBottomFixed(); return false" data-id="chatBlock" title="Прикрепить к нижней части сайта" href="#" class="right fa fa-angle-down"></a>`
+	));
+
+	function onFullWindow()
+	{
+		if (chatFulled.classList.contains('fullpage'))
+			chatFulled.classList.remove('fullpage');
+		else
+			chatFulled.classList.add('fullpage');
+		
+		if (chatFulled.classList.contains('bottomfixed'))
+			chatFulled.classList.remove('bottomfixed');
+			
+	}
+
+	function onBottomFixed()
+	{
+		if (chatFulled.classList.contains('bottomfixed'))
+			chatFulled.classList.remove('bottomfixed');
+		else
+			chatFulled.classList.add('bottomfixed');
+		
+		if (chatFulled.classList.contains('fullpage'))
+			chatFulled.classList.remove('fullpage');
+	}
+}
 
 /**
  *	Обновление элементов сайта под текущие значения
@@ -215,17 +472,14 @@ if (localStorage.getItem('version') != version)
 			wait: true,
 			
 			titleOf: `Обновление`,
-			text: `Добро пожаловать в новую версию ${version}!<br>
-			<br>
-			<a href='https://dota2.ru/forum/threads/legalno-sozdajom-svoi-smajly-dlja-foruma.1275974/'>Для ознакомления нажмите здесь</a><br>
-			Уведомление высвечивается лишь раз после каждого обновления, чтобы уведомить вас о том, что ваше расширение успешно обновлено<br>
-			<br>
-			Приятного использования!`
+			text: `Вот и вышла долгожданная версия 0.1.0.0!<br><br>
+			Вышло много всего нового, а возможно не много<br>
+			Все подробности и новые гайды в теме на форуме<br><br>
+			Хорошего дня)`
 		});
 	}
 }
 
-// Переносить ради такого фунцкцию из extension не вижу смысла, плюс нужно её переделать
 setInterval
 ( function () {
 	// Получаем активный tinyMCE
