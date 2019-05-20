@@ -2,11 +2,10 @@
 
 body
 {
-	--scroll-width: 6px;
-	--scroll-track-bg: rgba(100,100,100,0);
-    --scroll-thumb-bg: #2b2c32;
-	
-	--f-color: #1a1a1a;
+	--f-color: #989899;
+	--f-time-color: #989899;
+	--f-background: #1a1a1a;
+	--f-chat-background: #282828;
 	
 	transition: all .3s;
 }
@@ -192,6 +191,13 @@ pages page
 	background: #2b2c32;
 	justify-content: center;
 	align-items: center;
+}
+
+pages page .page-centered
+{
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 fullpage bottom
@@ -689,7 +695,7 @@ wellcome qn
 	margin-left: 50px;
 	border-radius: 0px 3px 3px 3px;
 	
-	background: var(--f-color)!important;
+	background: var(--f-background)!important;
 }
 
 .chatMessages > li[type="your message"] .fullContentMessage
@@ -701,7 +707,7 @@ wellcome qn
 {
     content: '';
 	
-    background-image: radial-gradient(circle at 0 10px, rgba(204,0,0,0) 9px, var(--f-color) 10px);
+    background-image: radial-gradient(circle at 0 10px, rgba(204,0,0,0) 9px, var(--f-background) 10px);
     background-size: 10px 10px;
     background-repeat: no-repeat;
 	
@@ -720,15 +726,26 @@ wellcome qn
 
 /* Перекрыл стили, необходимо заменить */
 
+.node .content-info, .content-list .categoryStrip
+{
+	overflow: visible!important;
+}
+
 #chatBlock
 {
-	background: #282828!important;
+	background: var(--f-chat-background)!important;
+	overflow: visible;
+	
+	display: flex;
+    flex-direction: column;
 }
 
 #chatFull
 {
 	transition: all .4s;
 	width: 100%;
+	
+	color: var(--f-color);
 }
 
 #chatFull .chatContainer
@@ -736,6 +753,9 @@ wellcome qn
 	border: none!important;
 	background: none!important;
 	height: 250px!important;
+	/* width: calc(100% - 26px)!important; */
+	margin: 0 15px 0!important;
+	padding: 0!important;
 }
 
 #chatFull li
@@ -829,7 +849,9 @@ wellcome qn
 .content-title .right
 {
 	width: 25px;
-	height: 25px;
+	height: 30px;
+	
+	font-size: 13px;
     margin-top: 10px!important;
 	float: right!important;
 }
@@ -872,7 +894,7 @@ wellcome qn
 	opacity: 0;
 	
 	font-family: "Comic Sans MS", cursive;
-	font-size: 11px;
+	font-size: 13px;
     transition: opacity .3s;
 }
 
@@ -883,8 +905,86 @@ wellcome qn
 	opacity: .8;
 }
 
-.messageText img
+.messageText img[data-smile]
 {
-	margin: -8px 0;
+	margin: -5px 0;
     vertical-align: middle;
+}
+
+.red
+{
+	color: #971010!important;
+}
+
+input.colorpicker
+{
+	width: 30px!important;
+	height: 30px!important;
+	padding: 0!important;
+}
+
+pages[name="colorpicker"] page
+{
+	justify-content: space-between!important;
+}
+
+#chatFull .date-time
+{
+	color: var(--f-time-color)!important;
+}
+
+.idle-image
+{
+	position: relative;
+	display: inline-flex;
+}
+
+.chat-image
+{
+	max-height: 150px;
+	max-width: 600px;
+}
+
+.helper:before
+{
+	position: absolute;
+	left: 0;
+	top: 0;
+	
+	width: 100%;
+	height: 100%;
+	background: #000;
+	
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	
+	opacity: 0;
+	
+	transition: all .2s;
+}
+
+.idle-image:hover .helper:before
+{
+	opacity: .4;
+}
+
+alemg
+{
+	position: fixed;
+	top: 0;
+	left: 0;
+	
+	width: 100vw;
+	height: 100vh;
+	
+	z-index: 10010;
+	overflow: hidden;
+	
+	background: rgba(0, 0, 0, .6) center center;
+	background-repeat: no-repeat;
+	background-size: contain;
+	
+	transition: .3s;
+	opacity: 0;
 }

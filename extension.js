@@ -90,7 +90,7 @@ fetch(getURL('/assets/sett.html'))
 				<a class='icon' onclick="adoor('smiles')">
 					<i class="fa fa-wrench"></i>
 				</a>
-			`), el.querySelector('a[title="Настройки"]'));
+			`), el.querySelector('a[title="Сообщения"]'));
 			 
 			fetch(getURL('/assets/integr.js'))
 			.then(function(response){

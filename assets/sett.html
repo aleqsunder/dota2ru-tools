@@ -75,6 +75,38 @@
 	<asett>
 		<top>Настройки <close class='fa fa-times' onclick="adoor('asett')"></close></top>
 		<middle>
+			<top>Настройка чата</top>
+			<pages name='colorpicker'>
+				<page class='f-color'>
+					Текст сообщения
+					<div class='page-centered'>
+						<input type="color" var='f-color' class='colorpicker' mode="withoutfone" value=''>
+						<div type='button' onclick="toDefault.call(this)" class="fa fa-undo"></div>
+					</div>
+				</page>
+				<page class='f-time-color'>
+					Время сообщения
+					<div class='page-centered'>
+						<input type="color" var='f-time-color' class='colorpicker' mode="withoutfone" value=''>
+						<div type='button' onclick="toDefault.call(this)" class="fa fa-undo"></div>
+					</div>
+				</page>
+				<page class='f-background'>
+					Фон сообщения
+					<div class='page-centered'>
+						<input type="color" var='f-background' class='colorpicker' mode="withoutfone" value=''>
+						<div type='button' onclick="toDefault.call(this)" class="fa fa-undo"></div>
+					</div>
+				</page>
+				<page class='f-chat-background'>
+					Фон чата
+					<div class='page-centered'>
+						<input type="color" var='f-chat-background' class='colorpicker' mode="withoutfone" value=''>
+						<div type='button' onclick="toDefault.call(this)" class="fa fa-undo"></div>
+					</div>
+				</page>
+			</pages>
+			
 			<top>Видимые разделы</top>
 			<pages name='pagesetting'>
 				Для изменения отображения используется чекбокс (галочка рядом с пунктом), для изменения 

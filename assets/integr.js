@@ -17,17 +17,68 @@ var afp = _('fullpage'),
 	storagePage = JSON.parse(localStorage.getItem('page')), 
 	cath = JSON.parse(localStorage.getItem('cath')), 
 	alert = _('alert', afp), list = [], aflag = true,
-	mode = document.location.href.match(/forum\/(.*?)\//), mode = (mode != null)? mode[1] : 'unknown';
+	mode = document.location.href.match(/forum\/(.*?)\//), mode = (mode != null)? mode[1] : 'unknown',
+	default_vars = {
+		'f-color': '#989899',
+		'f-time-color': '#989899',
+		'f-background': '#1a1a1a',
+		'f-chat-background': '#282828'
+	},
+	vars = {
+		'f-color': localStorage.getItem('f-color') || default_vars['f-color'],
+		'f-time-color': localStorage.getItem('f-time-color') || default_vars['f-time-color'],
+		'f-background': localStorage.getItem('f-background') || default_vars['f-background'],
+		'f-chat-background': localStorage.getItem('f-chat-background') || default_vars['f-chat-background']
+	};
 
 /*
 	Отображение сообщений
 */
 if (mode == 'unknown' && _('head title').innerText == 'Форум Dota 2')
 {
-	var old_time = '0';
+	function changebodycolor(){
+		var attr = this.getAttribute('var'),
+			color = this.value || vars[attr];
+			
+		localSet(attr, color);
+		styleSet(attr, color);
+		
+		vars[attr] = color;
+	}
+
+	$_(`pages[name='colorpicker'] input`).forEach
+	(function (a) {
+		a.addEventListener("change", changebodycolor, false);
+		a.value = vars[a.getAttribute('var')];
+	});
 	
-	// Фикс момента опоздания присвоения appendToChat
-	_('ul.chatMessages').innerHTML = '';
+	styleSet('f-color', vars['f-color']);
+	styleSet('f-time-color', vars['f-time-color']);
+	styleSet('f-background', vars['f-background']);
+	styleSet('f-chat-background', vars['f-chat-background']);
+	
+	function styleSet (name, value)
+	{ _('body').style.setProperty(`--${name}`, value) }
+	
+	function localSet (name, value)
+	{ localStorage.setItem(name, value) }
+	
+	function toDefault ()
+	{
+		console.log(this, this.parentElement);
+		var input = this.parentElement.querySelector('input'),
+			name = input.getAttribute('var');
+		
+		input.value = default_vars[name];
+		
+		styleSet(name, default_vars[name]);
+		localSet(name, default_vars[name]);
+		
+		vars[name] = default_vars[name];
+	}
+	
+	var old_time = '0',
+		array_notify = [];
 
 	Chat.appendToChat = function (data, scroll, skipDuplicates, hideControls)
 	{
@@ -116,9 +167,17 @@ if (mode == 'unknown' && _('head title').innerText == 'Форум Dota 2')
 		}
 			
 		var bgi_style = `background-image: url('${data.user_avatar}'); background-size: contain;`,
-			text_parsed = Base64.decode(data.content)
-				.replace(username, `<span class="loggedNick">${username}</span>`)
-				.replace(/<img[^>]*>/ig, "<div class='chatSmile'>$&</div>"),
+			st_var = `<div class='idle-image'><img src='`,
+			end_var = `' class='chat-image'><div class='helper fa fa-search' onclick='open_image.call(this)'></div></div>`,
+			text_parsed = Base64.decode(data.content),
+			text_parsed = text_parsed
+				.replace(nickname, `<span class="loggedNick">${nickname}</span>`)
+				.replace(/<img[^>]*>/ig, "<div class='chatSmile'>$&</div>")
+				.replace(/<a[^>]*>(.*?).jpg<\/a>/ig, st_var +"$1.jpg"+ end_var)
+				.replace(/<a[^>]*>(.*?).png<\/a>/ig, st_var +"$1.png"+ end_var)
+				.replace(/<a[^>]*>(.*?).gif<\/a>/ig, st_var +"$1.gif"+ end_var)
+				.replace(/<a href\=\"https\:\/\/imgur\.com\/(.*?)\"[^>]*>(.*?)<\/a>/ig,
+							st_var +"https://i.imgur.com/$1.jpg"+ end_var),
 			last_message = $('li:last-child', chatBlock),
 			chat_avatar = $('.chatAvatar', last_message),
 			last_nickname = $('.username', last_message).html() == data.username,
@@ -143,12 +202,12 @@ if (mode == 'unknown' && _('head title').innerText == 'Форум Dota 2')
 			smile_length = (match_smile) ? match_smile.length : 0,
 			smile_once = '';
 			
-		if (last_nickname && 0 < smile_length < 2)
+		if (last_nickname)
 		{
 			// А так же есть ли лишний текст по краям
 			if (text_parsed.slice(0, 2) == '<d' && text_parsed.slice(-2) == 'v>')
 			{
-				smile_once = '--f-color: none';
+				smile_once = '--f-background: none';
 			}
 		}
 				
@@ -166,7 +225,7 @@ if (mode == 'unknown' && _('head title').innerText == 'Форум Dota 2')
 		`<div id='message-${data.id}' class='fullContentMessage' style='${smile_once}'>
 			<div style='display: ${display}'>
 				<a style="${user_style}" class="username chat-user-link" data-username="${username}" data-title='Процитировать'>${data.username}</a>
-				<span class="muted chat-time">
+				<span class="chat-time">
 					<a class="date-time" data-id="${data.id}" data-time="${data.date_sent}" title="${data.date_sent_parsed}">
 						${data.date_sent_parsed}
 					</a>
@@ -189,10 +248,121 @@ if (mode == 'unknown' && _('head title').innerText == 'Форум Dota 2')
 		chatBlock.append(html),
 		scroll && this.scrollChat();
 	}
+	
+	// Фикс момента опоздания присвоения appendToChat
+	if (!document.querySelector('#chatBlock .fullContentMessage'))
+	{
+		loading();
+		Chat.getChatMessages(true);
+		
+		var load_interval = setInterval
+		( () => {
+			if (document.querySelector('#chatBlock .fullContentMessage'))
+			{
+				loading(false);
+				clearInterval(load_interval);
+			}
+		}, 1000);
+	}
+	
+	// Переназначим ф-ию ради уведомлений
+	Chat.getChatMessages = function (full, scroll)
+	{
+		var chatBlock = $(".chatMessages");
+		void 0 === full && (full = !1),
+		void 0 === scroll && (scroll = !1);
+		var currentMessages = chatBlock.find("li").length;
+		Logger.debug(`[chat] getChatMessages(): currently there is ${currentMessages} messages in chat. Is scroll? ${scroll}`),
+		full && (Logger.debug("[chat] Clearing chat messages"), chatBlock.find("li").remove()),
+		requestHandler.ajaxRequest("/api/chat/getMessages", {
+		}, function (response)
+		{
+			if ("success" !== response.status && (Logger.error("[chat] error getting messages!"), Logger.error("[chat] status: " + response.status)), lastUpdate = Math.floor(Date.now() / 1e3), void 0 !== response.data.length && 0 !== response.data.length)
+			{
+				if (Logger.debug("[chat] loaded " + response.data.length + " messages"), Logger.debug("[chat] last msg: " + JSON.stringify(response.data[response.data.length - 1])), $("ul.chatMessages").find("li").last().attr("id") === "chatMessage" + response.data[response.data.length - 1].id) Logger.debug("[chat] Skipping appending.");
+				else
+				{
+					for (var i = 0; i < response.data.length; i++) Chat.appendToChat(response.data[i], scroll);
+					
+					if (localStorage.getItem('chatTurn') == "true")
+					{
+						var data = response.data[response.data.length-1],
+							text = Base64.decode(data.content),
+							id = data.id.toString(),
+							notify = localStorage.getItem('notify');
+						
+						if (notify)
+						{
+							notify = notify.split(',');
+							
+							if (!Array.isArray(notify))
+							{
+								notify = [];
+							}
+							else
+							{
+								for (var i = 0; i < notify.length; i++)
+								{
+									if (+id - +notify[i] > 40)
+									{
+										notify.splice(i, 1);
+									}
+								}
+								
+								localStorage.setItem('notify', notify.join());
+							}
+						}
+						else notify = [];
+						
+						if (notify.indexOf(id) < 0)
+						{
+							notify.push(id);
+							localStorage.setItem('notify', notify.join());
+								
+							text = text.replace(/<a(.*?)<\/a>/ig, "[ссылка]")
+									.replace(/<img data\-shortcut\=\"(.*?)\"[^>]*>/ig, "$1");
+										
+							var note = new Notification 
+							(
+								data.username,
+								{
+									body: text,
+									tab: data.id,
+									icon: data.user_avatar
+								}
+							);
+							
+							setTimeout( () =>
+							{
+								note.close();
+								
+								setTimeout( () =>
+								{
+									notify[id] = true;
+									
+									var deleteNotify = localStorage.getItem('notify').split(',');
+									deleteNotify.splice(deleteNotify.indexOf(id), 1);
+									
+									localStorage.setItem('notify', deleteNotify.join());
+								}, 30000);
+							}, 5000);
+						}
+					}
+					
+					Chat._scroll_at_end && Chat.scrollChat()
+				}
+				Chat.lastMessageDate = moment.unix(response.data[response.data.length - 1].date_sent),
+				Chat.updateInterval !== Utils.config.chatUpdateInterval && (Chat.updateInterval = Utils.config.chatUpdateInterval, clearInterval(Chat.chatInterval), Chat.chatUpdateRunning = !1, Chat.runChatInterval())
+			}
+			else Logger.debug("[chat] no new message loaded. last message received at " + Chat.lastMessageDate.format("HH:mm:ss")),
+			Logger.debug("[chat] diff between last msg and current time is " + moment().diff(Chat.lastMessageDate, "seconds") + " seconds"),
+			moment().diff(Chat.lastMessageDate, "seconds") >= Utils.config.chatIdleStartInterval && (Logger.debug("[chat] diff more than " + Utils.config.chatIdleStartInterval + " sec. adding updateInterval"), Chat.updateInterval === Utils.config.chatUpdateInterval && (Chat.updateInterval = 0), Chat.updateInterval < 1e4 * Utils.config.chatIdleIntervalLimit && (Chat.updateInterval += Utils.config.chatIdleInterval, clearInterval(Chat.chatInterval), Chat.chatUpdateRunning = !1, Chat.runChatInterval()));
+			app.checkTime(),
+			(0 === currentMessages || scroll) && Chat.scrollChat()
+		})
+	}
 
-	/*
-		Фикс повторно отправляющихся сообщений
-	*/
+	// Фикс повторно отправляющихся сообщений
 
 	Forum.sendChatMessage = function () {
 		var content = $("#chatMessageInput"),
@@ -244,12 +414,23 @@ if (mode == 'unknown' && _('head title').innerText == 'Форум Dota 2')
 
 	chatTitle.appendChild
 	(dom(
-		`<a onclick="onFullWindow(); return false" data-id="chatBlock" title="На весь экран" href="#" class="right fa fa-arrows"></a>`
+		`<a onclick="onFullWindow(); return false" data-id="chatBlock" data-title="На весь экран" href="#" class="right fa fa-arrows"></a>`
 	));
 
 	chatTitle.appendChild
 	(dom(
-		`<a onclick="onBottomFixed(); return false" data-id="chatBlock" title="Прикрепить к нижней части сайта" href="#" class="right fa fa-angle-down"></a>`
+		`<a onclick="onBottomFixed(); return false" data-id="chatBlock" data-title="Прикрепить к нижней части сайта" href="#" class="right fa fa-angle-down"></a>`
+	));
+	
+	chatTitle.appendChild
+	(dom(
+		`<a onclick="adoor('asett'); return false" data-id="chatBlock" data-title="Настройки расширения" href="#" class="right fa fa-wrench"></a>`
+	));
+	
+	var red = (localStorage.getItem('chatTurn') == 'true') ? '' : ' red';
+	chatTitle.appendChild
+	(dom(
+		`<a onclick="notify_turn(); return false" data-id="chatBlock" data-title="Уведомления" href="#" class="right fa fa-bell${red}"></a>`
 	));
 
 	function onFullWindow()
@@ -1118,6 +1299,119 @@ function openAlert ({text, wait, button, titleOf})
 	}
 }
 
+function loading (bool)
+{
+	if (bool)
+	{
+		if (!(typeof bool == boolean)) return;
+	}
+	else
+	{
+		
+	}
+	
+	var loader = document.createElement('div');
+	loader.className = 'chatLoader';
+	loader.innetHTML = '';
+}
+
+function notify_turn ()
+{
+	var turn = localStorage.getItem('chatTurn') || 'false',
+		chatFull = _('#chatFull h3.content-title .fa-bell');
+	
+	if (turn == 'false')
+	{
+		if (Notification.permission != 'granted')
+		{
+			Notification.requestPermission
+			( function (permission) {
+				switch (permission)
+				{
+					case "granted":
+						localStorage.setItem('chatTurn', true);
+						
+						openAlert
+						({
+							titleOf: 'Чат',
+							text: 'Уведомления чата включены!'
+						});
+						
+						if (chatFull.classList.contains('red'))
+						{
+							chatFull.classList.remove('red');
+						}
+						break;
+					case "denied":
+						openAlert
+						({
+							titleOf: 'Чат',
+							text: `<p>Вы отключили уведомления в табе!</p>
+							<p style='display: inline-flex;'>Я не смогу включить их сам <img data-shortcut=":IllyaShock:" data-smile="1" title=":IllyaShock:" src="/img/forum/emoticons/IllyaShock.png" style="width: 30px; display: inline-flex; vertical-align: center; margin: -5px 0;"></p><br>
+							<p>Для их включения тебе придётся в настройках своего браузера убрать запрет на уведомления с сайта dota2.ru</p>`
+						});
+						break;
+				}
+			});
+		}
+		else
+		{
+			localStorage.setItem('chatTurn', true);
+			
+			openAlert
+			({
+				titleOf: 'Чат',
+				text: 'Уведомления включены!'
+			});
+			
+			if (chatFull.classList.contains('red'))
+			{
+				chatFull.classList.remove('red');
+			}
+		}
+	}
+	else
+	{
+		localStorage.setItem('chatTurn', false);
+		
+		openAlert
+		({
+			titleOf: 'Чат',
+			text: 'Уведомления отключены!'
+		});
+		
+		if (!chatFull.classList.contains('red'))
+		{
+			chatFull.classList.add('red');
+		}
+	}
+}
+
+function open_image ()
+{
+	var src = this.parentElement.querySelector('img').src,
+		img = document.createElement('alemg');
+	
+	img.style = `background-image: url('${src}');`;
+	img.setAttribute('onclick', `close_image.call(this)`);
+	document.body.appendChild(img);
+	
+	setTimeout
+	( () => {
+		img.style.setProperty('opacity', '1');
+	}, 1);
+}
+
+function close_image ()
+{
+	this.style.setProperty('opacity', '0');
+	
+	setTimeout
+	( () => {
+		this.outerHTML = '';
+	}, 300);
+}
+
 /**
  *	С любовью к Negezor
  */
@@ -1171,26 +1465,10 @@ function _getStorage ()
 	return storage;
 }
 
-/**
- * 	Сниппет для одного элемента
- *
- * 	@param string selector
- * 	@param object context
- *
- * 	@return nodeElement
- */
 function _ (selector,context) {
 	return $_(selector,context)[0] || null;
 }
 
-/**
- * 	Производительный QuerySelector
- *
- * 	@param string selector
- * 	@param object context
- *
- * 	@return array
- */
 function $_ (selector,context) {
 	context = context || document;
 
