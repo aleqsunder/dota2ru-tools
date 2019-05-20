@@ -1,6 +1,6 @@
 {
 	"manifest_version": 2,
-	"version": "0.1.0.0",
+	"version": "0.1.1.0",
 	
 	"name": "Dota2Ru-smiles",
 	"description": "Использование сторонних смайлов для форума и новый чат",
