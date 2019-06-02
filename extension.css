@@ -726,7 +726,7 @@ wellcome qn
 
 /* Перекрыл стили, необходимо заменить */
 
-.node .content-info, .content-list .categoryStrip
+.node .content-info:not(.forumNodeInfo), .content-list .categoryStrip
 {
 	overflow: visible!important;
 }
@@ -972,8 +972,12 @@ pages[name="colorpicker"] page
 alemg
 {
 	position: fixed;
+	display: flex!important;
 	top: 0;
 	left: 0;
+	
+	align-items: center;
+	justify-content: center;
 	
 	width: 100vw;
 	height: 100vh;
@@ -987,4 +991,43 @@ alemg
 	
 	transition: .3s;
 	opacity: 0;
+}
+
+alemg:before
+{
+	position: absolute;
+	font-size: 32px!important;
+	
+	animation: rotate 1s linear infinite;
+}
+
+alemg.endAnimate:before
+{
+	opacity: 0;
+}
+
+@keyframes rotate
+{
+	from
+	{
+		transform: rotate(0deg);
+	}
+	
+	to
+	{
+		transform: rotate(360deg);
+	}
+}
+
+alemg img
+{
+	opacity: 0;
+	transition: all .3s;
+}
+
+#chatBlock audio
+{
+	width: 185px!important;
+    height: 20px!important;
+	filter: invert(93.5%);
 }

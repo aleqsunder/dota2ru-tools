@@ -1,22 +1,22 @@
 /**
  *	Неизменяемые переменные
  */
-const version = '0.1.0.0', tinyMods = [ 'threads', 'conversation', 'settings' ],
+const version = '0.1.1.1', tinyMods = [ 'threads', 'conversation', 'settings' ],
 	otherMods = [ 'conversations', 'category', 'forums', 'notifications', 'unknown' ];
 
 /**
  *	Все основные переменные для удобства
  */
-var afp = _('fullpage'),
-	smileSett = _('smiles category', afp),
-	smileList = _('smile-list', afp),
+var afp = __('fullpage'),
+	smileSett = __('smiles category', afp),
+	smileList = __('smile-list', afp),
 	asspages = $_('asett pages[name="pagesetting"] page', afp),
-	asstabes = _('asett pages[name="tabsetting"]', afp),
-	assscroll = _('asett pages[name="scrollbar"]', afp),
+	asstabes = __('asett pages[name="tabsetting"]', afp),
+	assscroll = __('asett pages[name="scrollbar"]', afp),
 	chess = 'a-dota2smile', storageCache = _getStorage(), 
 	storagePage = JSON.parse(localStorage.getItem('page')), 
 	cath = JSON.parse(localStorage.getItem('cath')), 
-	alert = _('alert', afp), list = [], aflag = true,
+	alert = __('alert', afp), list = [], aflag = true,
 	mode = document.location.href.match(/forum\/(.*?)\//), mode = (mode != null)? mode[1] : 'unknown',
 	default_vars = {
 		'f-color': '#989899',
@@ -34,7 +34,7 @@ var afp = _('fullpage'),
 /*
 	Отображение сообщений
 */
-if (mode == 'unknown' && _('head title').innerText == 'Форум Dota 2')
+if (mode == 'unknown' && __('head title').innerText == 'Форум Dota 2')
 {
 	function changebodycolor(){
 		var attr = this.getAttribute('var'),
@@ -58,7 +58,7 @@ if (mode == 'unknown' && _('head title').innerText == 'Форум Dota 2')
 	styleSet('f-chat-background', vars['f-chat-background']);
 	
 	function styleSet (name, value)
-	{ _('body').style.setProperty(`--${name}`, value) }
+	{ __('body').style.setProperty(`--${name}`, value) }
 	
 	function localSet (name, value)
 	{ localStorage.setItem(name, value) }
@@ -167,17 +167,37 @@ if (mode == 'unknown' && _('head title').innerText == 'Форум Dota 2')
 		}
 			
 		var bgi_style = `background-image: url('${data.user_avatar}'); background-size: contain;`,
-			st_var = `<div class='idle-image'><img src='`,
-			end_var = `' class='chat-image'><div class='helper fa fa-search' onclick='open_image.call(this)'></div></div>`,
+			img_str = `<div class='idle-image'><img src='`,
+			img_end = `' class='chat-image'><div class='helper fa fa-search' onclick='open_image.call(this)'></div></div>`,
+			aud_str = `<audio src='`,
+			aud_end = `' controls preload></audio>`,
 			text_parsed = Base64.decode(data.content),
+			
+			// Парс картинок
 			text_parsed = text_parsed
-				.replace(nickname, `<span class="loggedNick">${nickname}</span>`)
-				.replace(/<img[^>]*>/ig, "<div class='chatSmile'>$&</div>")
-				.replace(/<a[^>]*>(.*?).jpg<\/a>/ig, st_var +"$1.jpg"+ end_var)
-				.replace(/<a[^>]*>(.*?).png<\/a>/ig, st_var +"$1.png"+ end_var)
-				.replace(/<a[^>]*>(.*?).gif<\/a>/ig, st_var +"$1.gif"+ end_var)
-				.replace(/<a href\=\"https\:\/\/imgur\.com\/(.*?)\"[^>]*>(.*?)<\/a>/ig,
-							st_var +"https://i.imgur.com/$1.jpg"+ end_var),
+				.replace(nickname, `<span class="loggedNick">${nickname}</span>`) 	// Определение вашего никнейма
+				.replace(/<img[^>]*>/ig, "<div class='chatSmile'>$&</div>")			// Обрамление смайлов
+				
+				.replace(/<a[^>]*>(.*?).jpg<\/a>/ig, img_str +"$1.jpg"+ img_end) 	// jpg
+				.replace(/<a[^>]*>(.*?).jpeg<\/a>/ig, img_str +"$1.jpeg"+ img_end) 	// jpeg
+				.replace(/<a[^>]*>(.*?).png<\/a>/ig, img_str +"$1.png"+ img_end) 	// png
+				.replace(/<a[^>]*>(.*?).gif<\/a>/ig, img_str +"$1.gif"+ img_end) 	// gif
+				
+				.replace(/<a href\=\"https\:\/\/imgur.com\/(.*?)\"[^>]*>(.*?)<\/a>/ig,
+							img_str +"https://i.imgur.com/$1.jpg"+ img_end)			// imgur
+				.replace(/<a href\=\"https\:\/\/static-cdn.jtvnw.net\/(.*?)\"[^>]*>(.*?)<\/a>/ig,
+							img_str + "$2" + img_end)								// steam
+				.replace(/<a href\=\"http:\/\/skrinshoter.ru\/[^\/]\/(.*?)"[^>]*>(.*?)<\/a>/ig,
+							img_str +"http://skrinshoter.ru/i/$1.png"+ img_end),	// skrinshoter
+							
+			// Парс голосовых и музыки
+			text_parsed = text_parsed
+				.replace(/<a[^>]*>https\:\/\/vocaroo\.com\/i\/(.*?)<\/a>/ig, 
+				"<audio src='https://s1.vocaroo.com/media/download_temp/Vocaroo_$1.mp3' controls preload></audio>")
+				.replace(/<a[^>]*>(.*?).mp3<\/a>/ig, aud_str +"$1.mp3"+ aud_end)
+				.replace(/<a[^>]*>(.*?).ogg<\/a>/ig, aud_str +"$1.ogg"+ aud_end)
+				.replace(/<a[^>]*>(.*?).wav<\/a>/ig, aud_str +"$1.wav"+ aud_end),
+				
 			last_message = $('li:last-child', chatBlock),
 			chat_avatar = $('.chatAvatar', last_message),
 			last_nickname = $('.username', last_message).html() == data.username,
@@ -204,8 +224,9 @@ if (mode == 'unknown' && _('head title').innerText == 'Форум Dota 2')
 			
 		if (last_nickname)
 		{
-			// А так же есть ли лишний текст по краям
-			if (text_parsed.slice(0, 2) == '<d' && text_parsed.slice(-2) == 'v>')
+			var last_message_text = text_parsed.replace(/<div(.*?)[<\/]div>/ig, '');
+			
+			if (last_message_text.trim() == '')
 			{
 				smile_once = '--f-background: none';
 			}
@@ -319,7 +340,9 @@ if (mode == 'unknown' && _('head title').innerText == 'Форум Dota 2')
 							notify.push(id);
 							localStorage.setItem('notify', notify.join());
 								
-							text = text.replace(/<a(.*?)<\/a>/ig, "[ссылка]")
+							text = text
+									.replace(/<a(.*?)vocaroo.com\/i\/(.*?)<\/a>/ig, "[Голосовое]")
+									.replace(/<a(.*?)<\/a>/ig, "[Ссылка]")
 									.replace(/<img data\-shortcut\=\"(.*?)\"[^>]*>/ig, "$1");
 										
 							var note = new Notification 
@@ -405,12 +428,12 @@ if (mode == 'unknown' && _('head title').innerText == 'Форум Dota 2')
 		Всё ниже необходимо переписать под сайт и только
 	*/
 
-	var chatFulled = _('#chatFull'),
-		chatTitle = _('h3.content-title', chatFulled);
+	var chatFulled = __('#chatFull'),
+		chatTitle = __('h3.content-title', chatFulled);
 
-	_('a.right').classList.remove('toggle');
-	_('a.right').classList.add('fa');
-	_('a.right').classList.add('fa-minus');
+	__('a.right').classList.remove('toggle');
+	__('a.right').classList.add('fa');
+	__('a.right').classList.add('fa-minus');
 
 	chatTitle.appendChild
 	(dom(
@@ -474,8 +497,8 @@ function reload ()
 	// Переприсваиваем все разрешённые вкладки смайлов
 	asspages.forEach
 	( function (a) {
-		var input = _('input[type="checkbox"]', a),
-			name = _('input[type="text"]', a);
+		var input = __('input[type="checkbox"]', a),
+			name = __('input[type="text"]', a);
 			
 		name.value = storagePage[input.value.toString()].name;
 		input.checked = storagePage[input.value.toString()].is;
@@ -493,7 +516,7 @@ function reload ()
 	
 	var arraytabes = [];
 	
-	_('listed', smileSett).innerHTML = '';
+	__('listed', smileSett).innerHTML = '';
 	
 	Object.keys(cath).forEach
 	(function (tab) {
@@ -537,7 +560,7 @@ function reload ()
 				</hit>
 			</tab>`));
 			
-			_('listed', smileSett).appendChild
+			__('listed', smileSett).appendChild
 			(dom(`<tab alt='${a.name}' index='${a.index}' onclick="takeTab('${a.name}')">${a.name}</tab>`));
 		});
 	}
@@ -653,8 +676,8 @@ if (localStorage.getItem('version') != version)
 			wait: true,
 			
 			titleOf: `Обновление`,
-			text: `Вот и вышла долгожданная версия 0.1.0.0!<br><br>
-			Вышло много всего нового, а возможно не много<br>
+			text: `Вот и вышла долгожданная версия ${version}<br><br>
+			Пытаюсь сделать чат лучше для Вас, но без ваших советов не обойтись<br>
 			Все подробности и новые гайды в теме на форуме<br><br>
 			Хорошего дня)`
 		});
@@ -669,7 +692,7 @@ setInterval
 	
 	if (content)
 	{
-		var head = _('head style:not(.resized)', content);
+		var head = __('head style:not(.resized)', content);
 		
 		// Проверяем, существуют ли (для стабильности, проскакивает "of null")
 		if (head)
@@ -733,18 +756,18 @@ function add ({a, bool})
 {
 	if (typeof a == 'object')
 	{
-		var	name = a.name || _('fullpage finder input[name="name"]').value,
-			tab = a.tab || _('fullpage finder input[name="tab"]').value,
-			value = a.src || _('fullpage finder input[name="src"]').value,
+		var	name = a.name || __('fullpage finder input[name="name"]').value,
+			tab = a.tab || __('fullpage finder input[name="tab"]').value,
+			value = a.src || __('fullpage finder input[name="src"]').value,
 			canEdit = (a.canEdit == 'true')? 'true' : 'false',
 			width = a.width || '',
 			height = a.height || '';
 	}
 	else
 	{
-		var	name = a || _('fullpage finder input[name="name"]').value,
-			tab = _('fullpage finder input[name="tab"]').value || 'Без категории',
-			value = storageCache[a] || _('fullpage finder input[name="src"]').value,
+		var	name = a || __('fullpage finder input[name="name"]').value,
+			tab = __('fullpage finder input[name="tab"]').value || 'Без категории',
+			value = storageCache[a] || __('fullpage finder input[name="src"]').value,
 			canEdit = 'false',
 			width = '',
 			height = '';
@@ -758,10 +781,10 @@ function add ({a, bool})
 		if (tab == '')
 			tab = 'Без категории';
 	
-	_('fullpage finder input[name="name"]').value = '';
-	_('fullpage finder input[name="src"]').value = '';
+	__('fullpage finder input[name="name"]').value = '';
+	__('fullpage finder input[name="src"]').value = '';
 	
-	if (!_(`tab[alt="${tab}"]`, smileList))
+	if (!__(`tab[alt="${tab}"]`, smileList))
 	{
 		if (bool == 'true' && tab != '')
 		{
@@ -780,7 +803,7 @@ function add ({a, bool})
 				</hit>
 			</tab>`));
 			
-			_('listed', smileSett).appendChild( dom(
+			__('listed', smileSett).appendChild( dom(
 			`<tab alt='${tab}' index="100" onclick="takeTab('${tab}')">${tab}</tab>`));
 			
 			asstabes.appendChild
@@ -808,7 +831,7 @@ function add ({a, bool})
 		}
 	}
 	
-	_(`tab[alt='${tab}']`, smileList).appendChild( dom(`
+	__(`tab[alt='${tab}']`, smileList).appendChild( dom(`
 			<list data-smile='${name}'>
 				<input name='name' data-name='${name}' value='${name}'>
 				<img src='${value}'>
@@ -827,7 +850,7 @@ function add ({a, bool})
 	
 	setTimeout
 	( function () {
-		_(`list[data-smile="${name}"]`, smileList).classList.add('created');
+		__(`list[data-smile="${name}"]`, smileList).classList.add('created');
 	});
 }
 
@@ -835,7 +858,7 @@ function add ({a, bool})
  *	Взятие категории
  */
 function takeTab (tab)
-{ _('input', smileSett).value = tab }
+{ __('input', smileSett).value = tab }
 
 /**
  *	Удаление категории
@@ -844,9 +867,9 @@ function delTab (tab, bool)
 {
 	if (bool === true)
 	{
-		_(`page[tab="${tab}"]`, asstabes).outerHTML = '';
-		_(`listed tab[alt="${tab}"]`, smileSett).outerHTML = '';
-		_(`tab[alt="${tab}"]`, smileList).outerHTML = '';
+		__(`page[tab="${tab}"]`, asstabes).outerHTML = '';
+		__(`listed tab[alt="${tab}"]`, smileSett).outerHTML = '';
+		__(`tab[alt="${tab}"]`, smileList).outerHTML = '';
 		
 		array = [];
 		
@@ -879,8 +902,8 @@ function delTab (tab, bool)
  */
 function ahide (tab)
 {
-	var tab = _(`tab[alt="${tab}"]`, smileList),
-		close = _('hit close', tab);
+	var tab = __(`tab[alt="${tab}"]`, smileList),
+		close = __('hit close', tab);
 		
 	tab.classList.toggle('minimized');
 	
@@ -893,7 +916,7 @@ function ahide (tab)
  */
 function del (name)
 { 
-	var el = _(`list[data-smile="${name}"]`);
+	var el = __(`list[data-smile="${name}"]`);
 	
 	el.classList.remove('created')
 	setTimeout
@@ -907,19 +930,19 @@ function del (name)
  */
 function ch (name)
 {
-	var list = _(`list[data-smile="${name}"] smile-settings`),
-		cha = _('fullpage chan'),
-		canEdit = _('canedit', list).innerHTML,
+	var list = __(`list[data-smile="${name}"] smile-settings`),
+		cha = __('fullpage chan'),
+		canEdit = __('canedit', list).innerHTML,
 		canEditText = (canEdit == 'true')? 'Изменение разрешено' : 'Не изменять размер смайла';
 		
-	_('canedit', cha).textContent = canEditText;
-	_('canedit', cha).classList = canEdit;
+	__('canedit', cha).textContent = canEditText;
+	__('canedit', cha).classList = canEdit;
 	
-	_('input[name=width]', cha).value = _('width', list).innerHTML;
-	_('input[name=height]', cha).value = _('height', list).innerHTML;
-	_('input[name=tab]', cha).value = _('tab', list).innerHTML;
+	__('input[name=width]', cha).value = __('width', list).innerHTML;
+	__('input[name=height]', cha).value = __('height', list).innerHTML;
+	__('input[name=tab]', cha).value = __('tab', list).innerHTML;
 	
-	_('bottom fing', cha).setAttribute('onclick', `chan('${name}')`);
+	__('bottom fing', cha).setAttribute('onclick', `chan('${name}')`);
 	
 	adoor('chan');
 }
@@ -929,20 +952,20 @@ function ch (name)
  */
 function chan (name)
 {
-	var from = _('fullpage chan'),
-		to = _(`list[data-smile="${name}"] smile-settings`),
-		canEdit = _('canEdit', from).classList[0];
+	var from = __('fullpage chan'),
+		to = __(`list[data-smile="${name}"] smile-settings`),
+		canEdit = __('canEdit', from).classList[0];
 	
-	_('canEdit', to).textContent = canEdit;
-	_('tab', to).textContent = _('input[name=tab]', from).value;
+	__('canEdit', to).textContent = canEdit;
+	__('tab', to).textContent = __('input[name=tab]', from).value;
 	
 	if (canEdit == 'true')
 	{
-		if (Number.parseInt(_('input[name=width]', from).value) != '' ||
-			Number.parseInt(_('input[name=height]', from).value) != '')
+		if (Number.parseInt(__('input[name=width]', from).value) != '' ||
+			Number.parseInt(__('input[name=height]', from).value) != '')
 		{
-			_('width', to).textContent = _('input[name=width]', from).value;
-			_('height', to).textContent = _('input[name=height]', from).value;
+			__('width', to).textContent = __('input[name=width]', from).value;
+			__('height', to).textContent = __('input[name=height]', from).value;
 		}
 	}
 	
@@ -954,8 +977,8 @@ function chan (name)
  */
 function CEtoggle ()
 {
-	var obj = _('chan canedit'),
-		helper = _('chan helper');
+	var obj = __('chan canedit'),
+		helper = __('chan helper');
 	
 	if (obj.classList.contains('true'))
 	{
@@ -985,12 +1008,12 @@ function save ()
 	( function(a) {
 		var value = 
 		{
-			name: _('input[data-name]', a).value,
-			src: _('input[data-value]', a).value,
-			canEdit: _('smile-settings canEdit', a).innerHTML,
-			width: _('smile-settings width', a).innerHTML,
-			height: _('smile-settings height', a).innerHTML,
-			tab: _('smile-settings tab', a).innerHTML
+			name: __('input[data-name]', a).value,
+			src: __('input[data-value]', a).value,
+			canEdit: __('smile-settings canEdit', a).innerHTML,
+			width: __('smile-settings width', a).innerHTML,
+			height: __('smile-settings height', a).innerHTML,
+			tab: __('smile-settings tab', a).innerHTML
 		},	index = findOf(tabes, value.tab);
 		
 		if (index < 0)
@@ -1003,7 +1026,7 @@ function save ()
 	( function (a, b) {
 		var hddn = 'false';
 		
-		if (_(`tab[alt="${a.name}"]`, smileList).classList.contains('minimized'))
+		if (__(`tab[alt="${a.name}"]`, smileList).classList.contains('minimized'))
 			hddn = 'true';
 		
 		tabs[b] = {name: a.name, index: a.index, hidden: hddn}
@@ -1044,7 +1067,7 @@ function lastOf (obj)
 function saveTo ()
 {
 	save();
-	_('fullpage saveTo textarea').value = JSON.stringify( _getStorage() );
+	__('fullpage saveTo textarea').value = JSON.stringify( _getStorage() );
 }
 
 /**
@@ -1055,8 +1078,8 @@ function loadFrom (bool)
 	// Будет обидно, если изменения не сохранятся, верно?)
 	save();
 	
-	var area = (bool)? _('blockquote.messageText .quoteContainer p')
-		: _('fullpage loadfrom textarea'),
+	var area = (bool)? __('blockquote.messageText .quoteContainer p')
+		: __('fullpage loadfrom textarea'),
 		
 		your = (typeof storageCache == 'string')? JSON.parse(storageCache) : storageCache,
 		load = (bool)? ((typeof area.innerText == 'string')? JSON.parse(area.innerText) : area.innerText)
@@ -1070,6 +1093,8 @@ function loadFrom (bool)
 	// Ну и сразу получаем готовенькое
 	storageCache = _getStorage();
 	reload();
+	
+	save();
 	
 	openAlert({text: 'Смайлы загружены!'});
 }
@@ -1085,8 +1110,8 @@ function savePages ()
 		
 	pages.forEach
 	( function (a) {
-		var input = _('input[type="checkbox"]', a),
-			name = _('input[type="text"]', a).value;
+		var input = __('input[type="checkbox"]', a),
+			name = __('input[type="text"]', a).value;
 			
 		arrayPage[input.value] = {name: name, is: input.checked};
 	});
@@ -1096,8 +1121,8 @@ function savePages ()
 	
 	tabs.forEach
 	( function (a) {
-		var index = _('input[name="index"]', a).value,
-			tab = _('input[name="tab"]', a).value,
+		var index = __('input[name="index"]', a).value,
+			tab = __('input[name="tab"]', a).value,
 			oldtab = a.getAttribute('tab');
 			
 		arrayTab[j] = {name: tab, index: index};
@@ -1177,9 +1202,9 @@ function sendSmiles ({you, to, username})
  */
 function findUser ()
 {
-	var stu = _('fullpage savetouser'),
-		info = _('information', stu),
-		username = _('input', stu).value;
+	var stu = __('fullpage savetouser'),
+		info = __('information', stu),
+		username = __('input', stu).value;
 	
 	info.innerHTML = 'Загрузка..';
 	
@@ -1188,11 +1213,11 @@ function findUser ()
 		return response.text();
 	})
 	.then(function(html){		
-		var you = _('div.hello .username').innerHTML,
-			userdocument = _('.member-list-item .avatar', dom(html).ownerDocument),
+		var you = __('div.hello .username').innerHTML,
+			userdocument = __('.member-list-item .avatar', dom(html).ownerDocument),
 			href = userdocument.href.split('/'),
 			id = href[href.length - 2].split('.')[1],
-			avatar = _('img', userdocument).src;
+			avatar = __('img', userdocument).src;
 	
 		info.innerHTML =
 		`<avatar><img src='${avatar}'></avatar>
@@ -1212,31 +1237,31 @@ function adoor (elem)
 {
 	var flag = '';
 	
-	if (!_('.open', afp))
+	if (!__('.open', afp))
 	{
 		afp.classList.toggle('open');
 		afp.classList.toggle('margin');
 	}
 	
-	_(`backfon.${elem}`, afp).classList.toggle('open');
-	if (flag = _(elem, afp).classList.toggle('open'))
+	__(`backfon.${elem}`, afp).classList.toggle('open');
+	if (flag = __(elem, afp).classList.toggle('open'))
 	{
-		_(`backfon.${elem}`, afp).classList.toggle('margin');
-		_(elem, afp).classList.toggle('margin');
+		__(`backfon.${elem}`, afp).classList.toggle('margin');
+		__(elem, afp).classList.toggle('margin');
 	}
 	else
 	{
 		setTimeout
 		( function () {
-			_(`backfon.${elem}`, afp).classList.toggle('margin');
-			_(elem, afp).classList.toggle('margin');
+			__(`backfon.${elem}`, afp).classList.toggle('margin');
+			__(elem, afp).classList.toggle('margin');
 		}, 400);
 	}
 	
 	if (elem == 'saveto' && flag)
 		saveTo();
 	
-	if (!_('.open', afp))
+	if (!__('.open', afp))
 	{
 		setTimeout
 		( function () {
@@ -1251,11 +1276,11 @@ function adoor (elem)
  */
 function openAlert ({text, wait, button, titleOf})
 {
-	if (titleOf == 'none') _('top', alert).style.setProperty('display', 'none');
+	if (titleOf == 'none') __('top', alert).style.setProperty('display', 'none');
 	var header = titleOf || 'Уведомление';
 	
-	_('top', alert).textContent = header;
-	_('middle', alert).innerHTML = text;
+	__('top', alert).textContent = header;
+	__('middle', alert).innerHTML = text;
 	
 	adoor('alert');
 	
@@ -1268,7 +1293,7 @@ function openAlert ({text, wait, button, titleOf})
 				<bottom></bottom>
 			`));
 			
-			bottom = _('bottom', alert);
+			bottom = __('bottom', alert);
 			
 			button.forEach
 			( function (a) { 
@@ -1283,7 +1308,7 @@ function openAlert ({text, wait, button, titleOf})
 		}
 		
 		// На случай бесконечного уведомления возможность закрыть
-		_('fullpage backfon.alert').setAttribute
+		__('fullpage backfon.alert').setAttribute
 		(
 			'onclick',
 			`adoor('alert'); this.querySelector('bottom').outerHTML = ''; this.querySelector('top').style = ''; this.onclick = 'return false;'`
@@ -1318,7 +1343,7 @@ function loading (bool)
 function notify_turn ()
 {
 	var turn = localStorage.getItem('chatTurn') || 'false',
-		chatFull = _('#chatFull h3.content-title .fa-bell');
+		chatFull = __('#chatFull h3.content-title .fa-bell');
 	
 	if (turn == 'false')
 	{
@@ -1389,16 +1414,32 @@ function notify_turn ()
 
 function open_image ()
 {
-	var src = this.parentElement.querySelector('img').src,
-		img = document.createElement('alemg');
+	var src = __('img', this.parentElement).src,
+		alemg = document.createElement('alemg'),
+		img = document.createElement('img');
+		
+	alemg.setAttribute('onclick', `close_image.call(this)`);
+	alemg.className = 'fa fa-spinner';
+	img.src = src;
+	img.onload = () =>
+	{
+		var offsetW = img.width / (window.outerWidth - 50),
+			offsetH = img.height / (window.outerHeight - 50),
+			offset = (offsetW > offsetH) ? offsetW : offsetH;
+			
+		if (offset > 1)
+			img.style.setProperty('zoom', 1 / offset);
+		
+		alemg.classList.add('endAnimate');
+		img.style.setProperty('opacity', '1');
+	}
 	
-	img.style = `background-image: url('${src}');`;
-	img.setAttribute('onclick', `close_image.call(this)`);
-	document.body.appendChild(img);
+	alemg.appendChild(img);
+	document.body.appendChild(alemg);
 	
 	setTimeout
 	( () => {
-		img.style.setProperty('opacity', '1');
+		alemg.style.setProperty('opacity', '1');
 	}, 1);
 }
 
@@ -1418,7 +1459,7 @@ function close_image ()
 
 function dom (html)
 {
-	return _('body', new DOMParser().parseFromString(html, 'text/html')).childNodes[0];
+	return __('body', new DOMParser().parseFromString(html, 'text/html')).childNodes[0];
 }
 
 function putStorage (key, value)
@@ -1465,7 +1506,7 @@ function _getStorage ()
 	return storage;
 }
 
-function _ (selector,context) {
+function __ (selector,context) {
 	return $_(selector,context)[0] || null;
 }
 
