@@ -1,7 +1,7 @@
 /**
  *	Неизменяемые переменные
  */
-const version = '0.1.1.2', tinyMods = [ 'threads', 'conversation', 'settings' ],
+const version = '0.1.1.3', tinyMods = [ 'threads', 'conversation', 'settings' ],
 	otherMods = [ 'conversations', 'category', 'forums', 'notifications', 'unknown' ];
 
 /**
