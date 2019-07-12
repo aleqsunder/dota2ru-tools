@@ -1,7 +1,7 @@
-/**
+﻿/**
  *	Переменные
  */
-var index = -2, button, tabs, name = 'Собственные', chess = 'a-dota2smile', storageCache = _getStorage(),
+var index = -2, button, tabs, name_title = 'Собственные', chess = 'a-dota2smile', storageCache = _getStorage(),
 	list = [], reloadInterval = setInterval(reload, 3000),
 	mode = document.location.href.match(/forum\/(.*?)\//),
 	mode = (mode != null)? mode[1] : 'unknown',
@@ -107,84 +107,92 @@ fetch(getURL('/assets/sett.html'))
 });
 
 /**
- *	Шаг первый - отслеживание timyMCE и присваивание кнопке второго шага
+ *	Если tinyMCE есть на страницах, то продолжить
  */
-watching
-({
-	elem: 'div[aria-label="Смайлы"]',
-	bool: true,
-	
-	callback: function (el)
-	{
-		el.addEventListener('click', createPanel, false);
-	}
-});
-
-/**
- *	Шаг второй - отслеживание появления блока смайлов
- */
-function createPanel ()
+if (tinyMods.indexOf(mode) > -1)
 {
+	/**
+	 *	Шаг первый - отслеживание timyMCE и присваивание кнопке второго шага
+	 */
 	watching
 	({
-		elem: 'div.smiles-panel ul.tabs',
+		elem: 'div[aria-label="Смайлы"]',
+		bool: true,
 		
-		callback: function ()
+		callback: function (el)
 		{
-			el.querySelectorAll('a').forEach
-			( function (a){
-				var page = JSON.parse(localStorage.getItem('page')),
-					a = a;
-					// получаемая переменная может работать только в пределах своей ф-ии
-				
-				// Проверяем, есть ли вообще такой объект в локалке
-				if (page)
-				{
-					Object.keys(page).forEach
-					( function (b, index) {
-						var index = a.dataset.cat.toString();
-						
-						a.textContent = page[index].name;
-						
-						if (page[index].is == false)
-							a.style = 'display: none';
-					});
-				}
-			});
-			
-			el.insertBefore( dom(`
-				<li class='tab-title'>
-					<a href="#smile-cat-${index}" data-cat="${index}">${name}</a>
-				</li>
-			`), el.firstChild);
-			
-			// Приступаем к созданию контента
-			var content = document.querySelector('div.smiles-panel div.tabs-content'),
-				div = dom(`<div id='smile-cat-${index}' class='content'></div>`);
-			
-			// Перебираем все смайлы
-			for (var i = 0; i < list.length; i++)
-			{
-				/**
-				 *	Чтобы не ловить фейспалмы потом от canEdit='hooe' и прочее
-				 */
-				var v = list[i],
-					shortcut = (v.canEdit == 'true')
-					? `canEdit=true&height=${v.height}&width=${v.width}`
-					: `canEdit=false`;
-				
-				div.appendChild( dom(`
-					<div class='smile-content'>
-						<a href="#" data-shortcut="${shortcut}" data-mce-url="${v.src}" tabindex="${index}" title=":${v.name}:">
-							<img src="${v.src}" role="presentation">
-						</a>
-					</div>
-				`));
-			}
-			
-			content.appendChild(div);
+			el.addEventListener('click', createPanel, false);
 		}
 	});
+
+	/**
+	 *	Шаг второй - отслеживание появления блока смайлов
+	 */
+	function createPanel ()
+	{
+		watching
+		({
+			elem: 'div.smiles-panel ul.tabs',
+			
+			callback: function ()
+			{
+				el.querySelectorAll('a').forEach
+				( function (a){
+					var page = JSON.parse(localStorage.getItem('page')),
+						a = a;
+						// получаемая переменная может работать только в пределах своей ф-ии
+					
+					// Проверяем, есть ли вообще такой объект в локалке
+					if (page)
+					{
+						Object.keys(page).forEach
+						( function (b, index) {
+							var index = a.dataset.cat.toString();
+							
+							a.textContent = page[index].name;
+							
+							if (page[index].is == false)
+								a.style = 'display: none';
+						});
+					}
+				});
+				
+				el.insertBefore( dom(`
+					<li class='tab-title'>
+						<a href="#smile-cat-${index}" data-cat="${index}">${name_title}</a>
+					</li>
+				`), el.firstChild);
+				
+				console.log(name);
+				
+				// Приступаем к созданию контента
+				var content = document.querySelector('div.smiles-panel div.tabs-content'),
+					div = dom(`<div id='smile-cat-${index}' class='content'></div>`);
+				
+				// Перебираем все смайлы
+				for (var i = 0; i < list.length; i++)
+				{
+					/**
+					 *	Чтобы не ловить фейспалмы потом от canEdit='hooe' и прочее
+					 */
+					var v = list[i],
+						shortcut = (v.canEdit == 'true')
+						? `canEdit=true&height=${v.height}&width=${v.width}`
+						: `canEdit=false`;
+					
+					div.appendChild( dom(`
+						<div class='smile-content'>
+							<a href="#" data-shortcut="${shortcut}" data-mce-url="${v.src}" tabindex="${index}" title=":${v.name}:">
+								<img src="${v.src}" role="presentation">
+							</a>
+						</div>
+					`));
+				}
+				
+				content.appendChild(div);
+			}
+		});
+	}
 }
 
 /**

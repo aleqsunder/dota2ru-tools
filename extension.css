@@ -68,7 +68,7 @@ backfon
 }
 
 backfon.loadfrom, backfon.saveto,
-backfon.asett, backfon.chan
+backfon.asett, backfon.asettchat, backfon.chan
 {
 	margin-top: -1000%;
 	z-index: 10003;
@@ -87,7 +87,7 @@ fullpage *
 
 fullpage.open, smiles.open,
 loadfrom.open, saveto.open, savetouser.open,
-alert.open, asett.open, backfon.open,
+alert.open, asett.open, asettchat.open, backfon.open,
 chan.open, wellcome.open
 {
 	opacity: 1;
@@ -95,13 +95,13 @@ chan.open, wellcome.open
 
 fullpage.margin, smiles.margin,
 loadfrom.margin, saveto.margin, savetouser.margin,
-alert.margin, asett.margin, backfon.margin,
+alert.margin, asett.margin, asettchat.margin, backfon.margin,
 chan.margin, wellcome.margin
 {
 	margin-top: 0;
 }
 
-smiles, loadfrom, saveto, savetouser, asett, alert, chan, wellcome
+smiles, loadfrom, saveto, savetouser, asett, asettchat, alert, chan, wellcome
 {
 	position: absolute;
 	
@@ -119,7 +119,7 @@ smiles, loadfrom, saveto, savetouser, asett, alert, chan, wellcome
 }
 
 smiles { margin-top: -1000%; z-index: 10002; }
-loadfrom, saveto, asett, chan { margin-top: -1000%; z-index: 10004; }
+loadfrom, saveto, asett, asettchat, chan { margin-top: -1000%; z-index: 10004; }
 alert, savetouser, wellcome { margin-top: -1000%; z-index: 10006; }
 
 fullpage top
@@ -153,7 +153,7 @@ fullpage middle
 
 @media (max-width: 600px)
 {
-	smiles, loadfrom, saveto, asett, chan
+	smiles, loadfrom, saveto, asett, asettchat, chan
 	{
 		width: 100%;
 		height: 100%;
@@ -191,6 +191,24 @@ pages page
 	background: #2b2c32;
 	justify-content: center;
 	align-items: center;
+}
+
+pages page.fullstroke
+{
+	width: 100%;
+	padding: 0px 9px;
+	margin: 3px;
+	border-radius: 3px;
+	background: #2b2c32;
+	justify-content: center;
+	align-items: center;
+}
+
+.fullstroke gotcha
+{
+	width: 100%;
+	padding: 9px;
+	padding-left: 5px;
 }
 
 pages page .page-centered

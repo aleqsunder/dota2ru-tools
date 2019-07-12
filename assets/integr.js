@@ -1,7 +1,7 @@
 /**
  *	Неизменяемые переменные
  */
-const version = '0.1.1.1', tinyMods = [ 'threads', 'conversation', 'settings' ],
+const version = '0.1.1.2', tinyMods = [ 'threads', 'conversation', 'settings' ],
 	otherMods = [ 'conversations', 'category', 'forums', 'notifications', 'unknown' ];
 
 /**
@@ -13,6 +13,7 @@ var afp = __('fullpage'),
 	asspages = $_('asett pages[name="pagesetting"] page', afp),
 	asstabes = __('asett pages[name="tabsetting"]', afp),
 	assscroll = __('asett pages[name="scrollbar"]', afp),
+	asschat = __('asettchat pages[name="st"]', afp),
 	chess = 'a-dota2smile', storageCache = _getStorage(), 
 	storagePage = JSON.parse(localStorage.getItem('page')), 
 	cath = JSON.parse(localStorage.getItem('cath')), 
@@ -45,6 +46,35 @@ if (mode == 'unknown' && __('head title').innerText == 'Форум Dota 2')
 		
 		vars[attr] = color;
 	}
+	
+	setInterval
+	( function () {
+		var stab = __('div.smiles-panel ul.tabs');
+		
+		if (stab)
+		{
+			stab.querySelectorAll('a').forEach
+			( function (a){
+				var page = JSON.parse(localStorage.getItem('page')),
+					a = a;
+					// получаемая переменная может работать только в пределах своей ф-ии
+				
+				// Проверяем, есть ли вообще такой объект в локалке
+				if (page)
+				{
+					Object.keys(page).forEach
+					( function (b, index) {
+						var index = a.dataset.cat.toString();
+						
+						a.textContent = page[index].name;
+						
+						if (page[index].is == false)
+							a.style = 'display: none';
+					});
+				}
+			});
+		}
+	}, 200);
 
 	$_(`pages[name='colorpicker'] input`).forEach
 	(function (a) {
@@ -56,6 +86,9 @@ if (mode == 'unknown' && __('head title').innerText == 'Форум Dota 2')
 	styleSet('f-time-color', vars['f-time-color']);
 	styleSet('f-background', vars['f-background']);
 	styleSet('f-chat-background', vars['f-chat-background']);
+	
+	__('input[caller="chat-avatar"]', asschat).checked
+		= JSON.parse(localStorage.getItem('--chat-avatar')) === true;
 	
 	function styleSet (name, value)
 	{ __('body').style.setProperty(`--${name}`, value) }
@@ -75,6 +108,15 @@ if (mode == 'unknown' && __('head title').innerText == 'Форум Dota 2')
 		localSet(name, default_vars[name]);
 		
 		vars[name] = default_vars[name];
+	}
+	
+	function chatSetting ()
+	{
+		console.log(this);
+		var name = this.getAttribute('caller');
+		
+		localSet(`--${name}`, this.checked);
+		Chat.getChatMessages(true);
 	}
 	
 	var old_time = '0',
@@ -100,12 +142,13 @@ if (mode == 'unknown' && __('head title').innerText == 'Форум Dota 2')
 		if (skipDuplicates && $('#chatMessage' + data.id).length > 0)
 			$('#chatMessage' + data.id).remove();
 		
-		var chatBlock	= $(".chatMessages"),
+		var enableUserAvatar = JSON.parse(localStorage.getItem('--chat-avatar')) === true,
+			chatBlock	= $(".chatMessages"),
 			liClass		= (data.visible !== undefined && !data.visible) ? 'not-visible' : '',
 			id			= (data.id !== undefined) ? `id="chatMessage${data.id}"` : '',
 			username	= (data.username && data.username.length > 0) ? Base64.encode(data.username) : 'NONE',
 			youser		= data.user_id == Utils.user_id,
-			repeater	= (youser) ? ` type='your message'` : '',
+			repeater	= !!enableUserAvatar ? (youser ? ` type='your message'` : '') : '',
 			nickname	= Utils.username,
 			isGlued = "", html = "", moderation = "";
 		
@@ -202,7 +245,7 @@ if (mode == 'unknown' && __('head title').innerText == 'Форум Dota 2')
 			chat_avatar = $('.chatAvatar', last_message),
 			last_nickname = $('.username', last_message).html() == data.username,
 			user_href = `members/${data.username_parsed}.${data.user_id}/`,
-			user_nick_v = (youser) ? 'none' : 'inline',
+			user_nick_v = enableUserAvatar ? (youser ? 'none' : 'inline') : 'inline',
 			user_style = `color: ${data.nick_color}; display: ${user_nick_v}`,
 			display = (last_nickname == true && can_new)? 'none' : 'inline',
 			avatar = 
@@ -256,7 +299,7 @@ if (mode == 'unknown' && __('head title').innerText == 'Форум Dota 2')
 			${chat_message}
 		</div>`;
 		
-		if (data.username != nickname)
+		if (data.username != nickname || enableUserAvatar != 'inline')
 		{
 			html = avatar + html;
 		}
@@ -447,7 +490,7 @@ if (mode == 'unknown' && __('head title').innerText == 'Форум Dota 2')
 	
 	chatTitle.appendChild
 	(dom(
-		`<a onclick="adoor('asett'); return false" data-id="chatBlock" data-title="Настройки расширения" href="#" class="right fa fa-wrench"></a>`
+		`<a onclick="adoor('asettchat'); return false" data-id="chatBlock" data-title="Настройки расширения" href="#" class="right fa fa-wrench"></a>`
 	));
 	
 	var red = (localStorage.getItem('chatTurn') == 'true') ? '' : ' red';
@@ -510,7 +553,7 @@ function reload ()
 	
 	if (!cath)
 	{
-		localStorage.setItem('cath', `{"0":{"name":"Без категории","index":"100","hidden":"false"}}`);
+		localStorage.setItem('cath', `[{"name":"Без категории","index":"100","hidden":"false"}]`);
 		cath = JSON.parse(localStorage.getItem('cath'));
 	}
 	
@@ -997,12 +1040,22 @@ function CEtoggle ()
 }
 
 /**
- *	Сохранение смайлов в LS
+ *	Сохранение смайлов
  */
 function save ()
 {
 	var tabs = [], tabes = JSON.parse(localStorage.getItem('cath'));
 	localStorage.setItem(chess, JSON.stringify({}));
+	
+	/**
+	 *	Костыльное избавление от бага прошлых версий
+	 *	Уберу через парочку версий, когда исправится у всех
+	 */
+	 
+	try
+	{ tabes.forEach() }
+	catch (e)
+	{ savePages(`Ошибка ${e.name} исправлена, обновите страницу:<br>${e.message}`) }
 	
 	$_('list', smileList).forEach
 	( function(a) {
@@ -1102,11 +1155,11 @@ function loadFrom (bool)
 /**
  *	Сохранение списка страниц
  */
-function savePages ()
+function savePages (output)
 {
 	var pages = $_("asett pages[name='pagesetting'] page"),
 		tabs = $_("asett pages[name='tabsetting'] page"),
-		arrayPage = {}, arrayTab = {}, j = 0;
+		arrayPage = {}, arrayTab = [], j = 0;
 		
 	pages.forEach
 	( function (a) {
@@ -1152,7 +1205,7 @@ function savePages ()
 	openAlert
 	({
 		titleOf: 'Настройки',
-		text: 'Отображение изменено по вашему усмотрению!'
+		text: output || 'Отображение изменено по вашему усмотрению!'
 	});
 }
 

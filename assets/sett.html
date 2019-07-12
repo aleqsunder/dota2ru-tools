@@ -71,9 +71,9 @@
 		</middle>
 	</savetouser>
 	
-	<backfon class='asett' onclick="adoor('asett')"></backfon>
-	<asett>
-		<top>Настройки <close class='fa fa-times' onclick="adoor('asett')"></close></top>
+	<backfon class='asettchat' onclick="adoor('asettchat')"></backfon>
+	<asettchat>
+		<top>Настройки <close class='fa fa-times' onclick="adoor('asettchat')"></close></top>
 		<middle>
 			<top>Настройка чата</top>
 			<pages name='colorpicker'>
@@ -107,6 +107,19 @@
 				</page>
 			</pages>
 			
+			<pages name='st'>
+				<page class='check fullstroke'>
+					<input type="checkbox" caller="chat-avatar" onchange="chatSetting.call(this)">
+					<gotcha>Отображать свои сообщения отдельно</gotcha>
+				</page>
+			</pages>
+		</middle>
+	</asettchat>
+	
+	<backfon class='asett' onclick="adoor('asett')"></backfon>
+	<asett>
+		<top>Настройки <close class='fa fa-times' onclick="adoor('asett')"></close></top>
+		<middle>
 			<top>Видимые разделы</top>
 			<pages name='pagesetting'>
 				Для изменения отображения используется чекбокс (галочка рядом с пунктом), для изменения 
