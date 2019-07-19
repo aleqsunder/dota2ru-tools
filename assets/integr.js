@@ -1,7 +1,7 @@
 /**
  *	Неизменяемые переменные
  */
-const version = '0.1.1.3', tinyMods = [ 'threads', 'conversation', 'settings' ],
+const version = '0.1.1.4', tinyMods = [ 'threads', 'conversation', 'settings' ],
 	otherMods = [ 'conversations', 'category', 'forums', 'notifications', 'unknown' ];
 
 /**
@@ -1046,16 +1046,6 @@ function save ()
 {
 	var tabs = [], tabes = JSON.parse(localStorage.getItem('cath'));
 	localStorage.setItem(chess, JSON.stringify({}));
-	
-	/**
-	 *	Костыльное избавление от бага прошлых версий
-	 *	Уберу через парочку версий, когда исправится у всех
-	 */
-	 
-	try
-	{ tabes.forEach() }
-	catch (e)
-	{ savePages(`Ошибка ${e.name} исправлена, обновите страницу:<br>${e.message}`) }
 	
 	$_('list', smileList).forEach
 	( function(a) {
