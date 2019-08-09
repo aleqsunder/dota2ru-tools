@@ -1,0 +1,76 @@
+/*Редактор*/
+
+.a-button
+{
+	padding: 1px 5px!important;
+    line-height: 20px!important;
+    overflow: visible;
+	display: inline-flex;
+}
+
+.a-input
+{
+	margin: 0 5px!important;
+	color: #aaa!important;
+	padding: 0!important;
+	height: 20px!important;
+	min-height: 0px!important;
+	font-size: 14px!important;
+}
+
+font-size.opened
+{
+	max-height: 100vh!important;
+}
+
+font-size
+{
+	position: absolute!important;
+    margin-top: 22px!important;
+    width: 100%!important;
+	border: 1px solid #343434!important;
+	margin-left: -5px!important;
+	
+	max-height: 0px!important;
+	overflow: hidden!important;
+}
+
+font-size *
+{
+	width: calc(100% - 12px)!important;
+	
+	display: inline-flex!important;
+    flex-direction: row!important;
+	
+	padding: 3px 6px!important;
+	
+	background-color: #1b1c20!important;
+}
+
+font-size is:after
+{
+	content: "px";
+}
+
+.aq-color
+{
+	text-align: right!important;
+	float: right!important;
+	min-width: 10px!important;
+	background: #222!important;
+	max-width: 50px!important;
+	
+	color: #fff!important;
+    font-family: monospace!important;
+    min-height: 0!important;
+    max-height: 16px!important;
+    padding: 0!important;
+    margin: 0!important;
+}
+
+.dota-color before
+{
+	color: #fff!important;
+	float: right!important;
+	margin-right: 2px!important;
+}

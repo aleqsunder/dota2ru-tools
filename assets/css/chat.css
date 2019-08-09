@@ -1,0 +1,364 @@
+body
+{
+	--f-color: #989899;
+	--f-time-color: #989899;
+	--f-background: #1a1a1a;
+	--f-chat-background: #282828;
+	
+	transition: all .3s;
+}
+
+.chatMessages > li
+{
+	display: flex;
+}
+
+.chatMessages > li[type="your message"]
+{
+	justify-content: flex-end;
+}
+
+.loggedNick
+{
+	font-weight: 700;
+	background-color: #0a0d12;
+	
+	padding: 2px;
+}
+
+.chatAvatar
+{
+	display: flex;
+	position: absolute;
+	
+	top: 0;
+	padding: 0 1px 12px 0;
+}
+
+.chatAvatar av
+{
+	display: block;
+	position: relative;
+	
+	width: 40px;
+	height: 40px;
+	border-radius: 3px;
+}
+
+.chatAvatar av .avatarController
+{
+	display: flex;
+	flex-direction: row;
+	justify-content: space-evenly;
+	align-items: center;
+	height: 100%;
+	
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+	
+	background: rgba(0,0,0,.7);
+	font-size: 16px;
+	
+	opacity: 0;
+	transition: all .3s;
+}
+
+.chatAvatar av .avatarController:hover
+{
+	opacity: 1;
+}
+
+.chatAvatar av .avatarController > *:hover
+{
+	color: #fff;
+}
+
+.fullContentMessage
+{
+	position: relative;
+	
+	padding: 3px 8px;
+	margin-left: 50px;
+	border-radius: 0px 3px 3px 3px;
+	
+	background: var(--f-background)!important;
+}
+
+.chatMessages > li[type="your message"] .fullContentMessage
+{
+	text-align: right;
+}
+
+.chatMessages > li:not(.glued):not([type="your message"]) .fullContentMessage:before
+{
+    content: '';
+	
+    background-image: radial-gradient(circle at 0 10px, rgba(204,0,0,0) 9px, var(--f-background) 10px);
+    background-size: 10px 10px;
+    background-repeat: no-repeat;
+	
+    width: 10px;
+    height: 10px;
+	
+    top: 0;
+    position: absolute;
+    left: -10px;
+}
+
+.chatMessage
+{
+	display: block;
+}
+
+/* Перекрыл стили, необходимо заменить */
+
+.node .content-info:not(.forumNodeInfo), .content-list .categoryStrip
+{
+	overflow: visible!important;
+}
+
+#chatBlock
+{
+	background: var(--f-chat-background)!important;
+	overflow: visible;
+	
+	display: flex;
+    flex-direction: column;
+}
+
+#chatFull
+{
+	transition: all .4s;
+	width: 100%;
+	
+	color: var(--f-color);
+}
+
+#chatFull .chatContainer
+{
+	border: none!important;
+	background: none!important;
+	height: 250px!important;
+	/* width: calc(100% - 26px)!important; */
+	margin: 0 15px 0!important;
+	padding: 0!important;
+}
+
+#chatFull li
+{
+	display: flex;
+	position: relative;
+	overflow: visible!important;
+	margin-bottom: 7px;
+}
+
+#chatFull li.my
+{
+	justify-content: flex-end;
+}
+
+/* Режим на полный экран, переписать под SCSS */
+
+#chatFull.fullpage
+{
+	position: fixed;
+	margin: 0;
+    top: 0;
+    left: 0;
+	
+    height: 100vh;
+    z-index: 10000;
+	
+    background: rgba(0,0,0,.6);
+}
+
+#chatFull.fullpage #chatBlock
+{
+    position: relative;
+    display: flex;
+    flex-direction: column;
+	
+	margin: 0;
+    height: 100vh;
+	width: 100%;
+}
+
+#chatFull.fullpage .chatContainer
+{
+	height: 100vh!important;
+}
+
+/* Режим на фиксацию к нижнему краю экрана со сворачиванием */
+
+#chatFull.bottomfixed
+{
+	position: fixed;
+	margin: 0!important;
+    bottom: 0;
+    left: 0;
+	
+    z-index: 10000;
+	
+    background: rgba(0,0,0,.6);
+}
+
+#chatFull.bottomfixed #chatBlock
+{
+    position: relative;
+    display: flex;
+    flex-direction: column;
+	
+	margin: 0;
+}
+
+#chatFull.bottomfixed .chatContainer
+{
+	height: 260px!important;
+}
+
+#chatFull input
+{
+	background: none!important;
+	border-color: #333!important;
+}
+
+#chatFull input:focus
+{
+	background: #333!important;
+}
+
+#chatFull button
+{
+	background: #333!important;
+}
+
+.content-title .right
+{
+	width: 25px;
+	height: 30px;
+	
+	font-size: 13px;
+    margin-top: 10px!important;
+	float: right!important;
+}
+
+.chatSmile
+{
+    position: relative;
+    display: inline-flex;
+    vertical-align: middle;
+}
+
+.chatSmile img 
+{
+	margin: -3px 0;
+}
+
+/* Чтобы не смешивать с обычными title назову их так, изменить можно спокойно */
+[data-title]
+{
+    position: relative;
+}
+
+[data-title]:after
+{
+	overflow: hidden;
+	z-index: 1000;
+	
+    position: absolute;
+    content: attr(data-title);
+	
+    background: #000;
+    padding: 3px 9px;
+	border-radius: 3px;
+    bottom: 110%;
+	left: -9999px;
+	
+    color: #fff;
+    white-space: nowrap;
+	
+	opacity: 0;
+	
+	font-family: "Comic Sans MS", cursive;
+	font-size: 13px;
+    transition: opacity .3s;
+}
+
+[data-title]:hover:after
+{
+    left: -9px;
+	
+	opacity: .8;
+}
+
+.messageText img[data-smile]
+{
+	margin: -5px 0;
+    vertical-align: middle;
+}
+
+.red
+{
+	color: #971010!important;
+}
+
+input.colorpicker
+{
+	width: 30px!important;
+	height: 30px!important;
+	padding: 0!important;
+}
+
+pages[name="colorpicker"] page
+{
+	justify-content: space-between!important;
+}
+
+#chatFull .date-time
+{
+	color: var(--f-time-color)!important;
+}
+
+.idle-image
+{
+	position: relative;
+	display: inline-flex;
+}
+
+.chat-image
+{
+	max-height: 150px;
+	max-width: 600px;
+}
+
+.helper:before
+{
+	position: absolute;
+	left: 0;
+	top: 0;
+	
+	width: 100%;
+	height: 100%;
+	background: #000;
+	
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	
+	opacity: 0;
+	
+	transition: all .2s;
+}
+
+.idle-image:hover .helper:before
+{
+	opacity: .4;
+}
+
+#chatBlock audio
+{
+	width: 185px!important;
+    height: 20px!important;
+	filter: invert(93.5%);
+}

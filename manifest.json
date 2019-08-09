@@ -1,19 +1,23 @@
 {
 	"manifest_version": 2,
-	"version": "0.1.1.4",
+	"version": "0.1.2.0",
 	
-	"name": "Dota2Ru-smiles",
-	"description": "Использование сторонних смайлов для форума и новый чат",
+	"name": "D2S - форумный редактор",
+	"description": "Кастомные смайлы, новый чат, редактор текста и прочее!",
 	"content_scripts": [ {
 		"css": [ "extension.css" ],
-		"js": [ "extension.js" ],
+		"js":
+		[
+			"assets/js/footerfunctions.js",
+			"extension.js"
+		],
 		"matches": [ "*://dota2.ru/forum*" ],
-		"run_at": "document_end"
+		"run_at": "document_start"
 	} ],
 	"icons": {
-		"128": "/assets/favicon_128.png",
-		"16": "/assets/favicon_16.png",
-		"48": "/assets/favicon_48.png"
+		"128": "assets/images/favicon_128.png",
+		"16": "assets/images/favicon_16.png",
+		"48": "assets/images/favicon_48.png"
 	},
 	"web_accessible_resources": [ "/assets/*" ]
 }

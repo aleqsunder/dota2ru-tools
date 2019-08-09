@@ -1,327 +1,224 @@
 ﻿/**
- *	Переменные
+ *	Загрузка разрешённых стилей и скриптов
  */
-var index = -2, button, tabs, name_title = 'Собственные', chess = 'a-dota2smile', storageCache = _getStorage(),
-	list = [], reloadInterval = setInterval(reload, 3000),
-	mode = document.location.href.match(/forum\/(.*?)\//),
-	mode = (mode != null)? mode[1] : 'unknown',
-	tinyMods = [ 'threads', 'conversation' ],
-	otherMods = [ 'conversations', 'category', 'forums', 'notifications', 'settings', 'unknown' ];
-	
-if (mode == 'conversation')
-{
-	var butt = document.querySelector('blockquote.messageText.baseHtml');
-	
-	if (butt)
-	{
-		if (butt.querySelector('p').innerHTML
-			.indexOf('У вас не установлено расширение для использования кастомных смайлов') > -1)
-		{
-			butt.querySelector('p').outerHTML = '';
-			butt.appendChild
-			(dom(
-			`<quotebutton onclick='loadFrom(true)'>
-				Активировать себе
-			</quotebutton>`
-			));
-		}
-	}
-};
 
-/**
- *	Обновление элементов и сортировка по алфавиту
- */
-function reload ()
+/* Скрипты */
+load ('footerfunctions.js');
+load ('queryfinder.js');
+load ('reservecopy.js');
+load ('smiles.js');
+load ('categories.js');
+
+/* Форумные сообщения */
+if (forumpostMods.indexOf(mode) > -1)
 {
-	list = [];
-	Object.keys(storageCache).forEach
-	( function (name) {
-		var sc = JSON.parse(storageCache[name]);
-		
-		if (sc.name)
-		{
-			// Раскрыл для наглядности
-			if (sc.canEdit == 'true')
-			{
-				list.push
-				({
-					'name': sc.name,
-					'src': sc.src,
-					'canEdit': sc.canEdit,
-					'width': sc.width,
-					'height': sc.height
-				});
-			}
-			else
-			{
-				list.push
-				({
-					'name': sc.name,
-					'src': sc.src,
-					'canEdit': sc.canEdit
-				});
-			}
-		}
-	});
-	
-	list.sort((a, b) => (a.name.toLowerCase() > b.name.toLowerCase()) ? 1 : -1);
+	load ('forumpost.css');
+	load ('forumpost.js');
 }
 
-reload();
+/* Форумный редактор */
+load ('forumredactor.css');
+load ('forumredactor.js');
 
-/**
- *	Шаг нулевой - определение страницы настроек
- */
-fetch(getURL('/assets/sett.html'))
-.then(function(response){
-	return response.text();
-})
-.then(function(html){
-	html = dom(html);
+/* Чат на главной */
+watching
+({
+	elem: 'head title',
 	
-	document.body.insertBefore(html, document.body.firstChild);
-	
-	watching
-	({
-		elem: 'div.userbar',
-		callback: function (el)
+	callback: function (el)
+	{
+		if (mode == 'unknown' && document.querySelector('head title').innerHTML == 'Форум Dota 2')
 		{
-			el.insertBefore( dom(`
-				<a class='icon' onclick="adoor('smiles')">
-					<i class="fa fa-wrench"></i>
-				</a>
-			`), el.querySelector('a[title="Сообщения"]'));
-			 
-			fetch(getURL('/assets/integr.js'))
-			.then(function(response){
-				return response.text();
-			})
-			.then(function(body){
-				var script = document.createElement('script');
-				script.innerHTML = body;
-				
-				document.head.appendChild(script);
-			});
+			load ('chat.css');
+			load ('chat.js');
 		}
-	});
+	}
 });
 
 /**
- *	Если tinyMCE есть на страницах, то продолжить
+ *	Начало
  */
-if (tinyMods.indexOf(mode) > -1)
-{
-	/**
-	 *	Шаг первый - отслеживание timyMCE и присваивание кнопке второго шага
-	 */
-	watching
-	({
-		elem: 'div[aria-label="Смайлы"]',
-		bool: true,
+
+document.addEventListener
+("DOMContentLoaded", () => {
+	var index = -2, button, tabs, name_title = 'Собственные',
+		reloadInterval = setInterval(reload, 3000);
 		
-		callback: function (el)
+		
+	if (mode == 'conversation')
+	{
+		var butt = document.querySelector('blockquote.messageText.baseHtml');
+		
+		if (butt)
 		{
-			el.addEventListener('click', createPanel, false);
+			if (butt.querySelector('p').innerHTML
+				.indexOf('У вас не установлено расширение для использования кастомных смайлов') > -1)
+			{
+				butt.querySelector('p').outerHTML = '';
+				butt.appendChild
+				(dom(
+				`<quotebutton onclick='loadFrom(true)'>
+					Активировать себе
+				</quotebutton>`
+				));
+			}
 		}
+	};
+
+	/**
+	 *	Обновление элементов и сортировка по алфавиту
+	 */
+	function reload ()
+	{
+		list = [];
+		Object.keys(storageCache).forEach
+		( function (name) {
+			var sc = JSON.parse(storageCache[name]);
+			
+			if (sc.name)
+			{
+				// Раскрыл для наглядности
+				if (sc.canEdit == 'true')
+				{
+					list.push
+					({
+						'name': sc.name,
+						'src': sc.src,
+						'canEdit': sc.canEdit,
+						'width': sc.width,
+						'height': sc.height
+					});
+				}
+				else
+				{
+					list.push
+					({
+						'name': sc.name,
+						'src': sc.src,
+						'canEdit': sc.canEdit
+					});
+				}
+			}
+		});
+		
+		list.sort((a, b) => (a.name.toLowerCase() > b.name.toLowerCase()) ? 1 : -1);
+	}
+
+	reload();
+
+	/**
+	 *	Шаг нулевой - определение страницы настроек
+	 */
+	fetch(getURL('/assets/settings.html'))
+	.then(function(response){
+		return response.text();
+	})
+	.then(function(html){
+		html = dom(html);
+		
+		document.body.insertBefore(html, document.body.firstChild);
+		
+		watching
+		({
+			elem: 'div.userbar',
+			callback: function (el)
+			{
+				el.insertBefore( dom(`
+					<a class='icon' onclick="adoor('smiles')">
+						<i class="fa fa-wrench"></i>
+					</a>
+				`), el.querySelector('a[title="Сообщения"]'));
+				 
+				load ('integrate.js');
+				load ('checkversion.js');
+			}
+		});
 	});
 
 	/**
-	 *	Шаг второй - отслеживание появления блока смайлов
+	 *	Если tinyMCE есть на страницах, то продолжить
 	 */
-	function createPanel ()
+	if (tinyMods.indexOf(mode) > -1)
 	{
+		/**
+		 *	Шаг первый - отслеживание timyMCE и присваивание кнопке второго шага
+		 */
 		watching
 		({
-			elem: 'div.smiles-panel ul.tabs',
+			elem: 'div[aria-label="Смайлы"]',
+			bool: true,
 			
-			callback: function ()
+			callback: function (el)
 			{
-				el.querySelectorAll('a').forEach
-				( function (a){
-					var page = JSON.parse(localStorage.getItem('page')),
-						a = a;
-						// получаемая переменная может работать только в пределах своей ф-ии
-					
-					// Проверяем, есть ли вообще такой объект в локалке
-					if (page)
-					{
-						Object.keys(page).forEach
-						( function (b, index) {
-							var index = a.dataset.cat.toString();
-							
-							a.textContent = page[index].name;
-							
-							if (page[index].is == false)
-								a.style = 'display: none';
-						});
-					}
-				});
-				
-				el.insertBefore( dom(`
-					<li class='tab-title'>
-						<a href="#smile-cat-${index}" data-cat="${index}">${name_title}</a>
-					</li>
-				`), el.firstChild);
-				
-				console.log(name);
-				
-				// Приступаем к созданию контента
-				var content = document.querySelector('div.smiles-panel div.tabs-content'),
-					div = dom(`<div id='smile-cat-${index}' class='content'></div>`);
-				
-				// Перебираем все смайлы
-				for (var i = 0; i < list.length; i++)
-				{
-					/**
-					 *	Чтобы не ловить фейспалмы потом от canEdit='hooe' и прочее
-					 */
-					var v = list[i],
-						shortcut = (v.canEdit == 'true')
-						? `canEdit=true&height=${v.height}&width=${v.width}`
-						: `canEdit=false`;
-					
-					div.appendChild( dom(`
-						<div class='smile-content'>
-							<a href="#" data-shortcut="${shortcut}" data-mce-url="${v.src}" tabindex="${index}" title=":${v.name}:">
-								<img src="${v.src}" role="presentation">
-							</a>
-						</div>
-					`));
-				}
-				
-				content.appendChild(div);
+				el.addEventListener('click', createPanel, false);
 			}
 		});
-	}
-}
 
-/**
- *	Создаёт DOM объект из string
- *
- *	@param string html
- *
- *	@return HTMLElement
- */
-function dom (html)
-{
-	return new DOMParser()
-				.parseFromString(html, 'text/html')
-				.querySelector('body')
-				.childNodes[0];
-}
-
-/**
- *	Следит за появлением объекта в DOM сайта
- *	Цикл не прекращается, если указан флаг bool
- *
- *	@param string elem
- *	@param function callback
- *	@param boolean bool
- */ 
-function watching ({doc, elem, callback, bool})
-{
-	var interval = setInterval
-	( function () {
-		doc = (doc)? doc : document;
-		
-		if (el = doc.querySelector(`${elem}:not(.watched)`))
+		/**
+		 *	Шаг второй - отслеживание появления блока смайлов
+		 */
+		function createPanel ()
 		{
-			callback(el);
-			el.classList.add('watched');
-			
-			if (!bool) clearInterval(interval);
+			watching
+			({
+				elem: 'div.smiles-panel ul.tabs',
+				
+				callback: function ()
+				{
+					el.querySelectorAll('a').forEach
+					( function (a){
+						var page = JSON.parse(localStorage.getItem('page')),
+							a = a;
+							// получаемая переменная может работать только в пределах своей ф-ии
+						
+						// Проверяем, есть ли вообще такой объект в локалке
+						if (page)
+						{
+							Object.keys(page).forEach
+							( function (b, index) {
+								var index = a.dataset.cat.toString();
+								
+								a.textContent = page[index].name;
+								
+								if (page[index].is == false)
+									a.style = 'display: none';
+							});
+						}
+					});
+					
+					el.insertBefore( dom(`
+						<li class='tab-title'>
+							<a href="#smile-cat-${index}" data-cat="${index}">${name_title}</a>
+						</li>
+					`), el.firstChild);
+					
+					// Приступаем к созданию контента
+					var content = document.querySelector('div.smiles-panel div.tabs-content'),
+						div = dom(`<div id='smile-cat-${index}' class='content'></div>`);
+					
+					// Перебираем все смайлы
+					for (var i = 0; i < list.length; i++)
+					{
+						/**
+						 *	Чтобы не ловить фейспалмы потом от canEdit='hooe' и прочее
+						 */
+						var v = list[i],
+							shortcut = (v.canEdit == 'true')
+							? `canEdit=true&height=${v.height}&width=${v.width}`
+							: `canEdit=false`;
+						
+						div.appendChild( dom(`
+							<div class='smile-content'>
+								<a href="#" data-shortcut="${shortcut}" data-mce-url="${v.src}" tabindex="${index}" title=":${v.name}:">
+									<img src="${v.src}" role="presentation">
+								</a>
+							</div>
+						`));
+					}
+					
+					content.appendChild(div);
+				}
+			});
 		}
-	}, 100);
-}
-
-/**
- * Возвращает URL от расширения
- *
- * @param string path
- *
- * @return string
- */
-function getURL (path)
-{ return chrome.extension.getURL(path) }
-
-/**
- * Возвращает значение иначе сохраняет его
- *
- * @param string key
- * @param mixed  value
- *
- * @return mixed
- */
-function putStorage (key, value)
-{
-	var storage = getStorage(key);
-
-	if (storage === null) 
-		return setStorage(key, value);
-
-	return storage;
-}
-
-/**
- * Проверяет наличие в локальном хранилище
- *
- * @param string key
- *
- * @return boolean
- */
-function hasStorage (key)
-{ return key in storageCache }
-
-/**
- * Возвращает их хранилища
- *
- * @param string key
- * @param mixed  value
- *
- * @return mixed
- */
-function getStorage (key, value)
-{
-	if (hasStorage(key))
-		return storageCache[key];
-
-	return value !== undefined? value : null;
-}
-
-/**
- * Устанавливает значение в хранилище
- *
- * @param string key
- * @param mixed  value
- *
- * @return mixed
- */
-function setStorage (key, value)
-{
-	storageCache = _getStorage();
-	storageCache[key] = value;
-
-	localStorage.setItem(chess, JSON.stringify(storageCache));
-
-	return storageCache[key];
-}
-
-/**
- * Возвращает полностью хранилище
- *
- * @private
- *
- * @return object
- */
-function _getStorage ()
-{
-	var storage = localStorage.getItem(chess);
-
-	if (storage === null)
-		storage = {};
-	
-	else
-		storage = JSON.parse(storage);
-
-	return storage;
-}
+	}
+});
