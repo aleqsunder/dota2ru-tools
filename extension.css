@@ -102,7 +102,7 @@ smiles, loadfrom, saveto, savetouser, asett, asettchat, alert, chan, wellcome
 	
 	width: 600px;
 	height: auto;
-	max-height: 600px;
+    max-height: 100%;
 	border-radius: 3px;
 	
 	background: #121215;

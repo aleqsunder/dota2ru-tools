@@ -1,4 +1,4 @@
-const version = '0.1.2.0';
+const version = '0.1.2.1';
 
 // Если новая версия
 if (localStorage.getItem('version') != version)

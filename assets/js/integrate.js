@@ -609,7 +609,7 @@ setInterval
 		if (head)
 		{
 			// Добавляем стили и присваиваем класс, чтобы больше на глаза не попадался
-			head.innerHTML += 'img[data-smile][data-shortcut="canEdit=false"] { width: auto; height: 30px; }';
+			head.innerHTML += 'img[data-smile]:not(.resized)[data-shortcut="canEdit=false"] { width: auto; height: 30px; }';
 			head.classList.add('resized');
 		}
 		
@@ -641,8 +641,6 @@ setInterval
 						
 						a.width = (list.width != '')? list.width : a.width;
 						a.height = (list.height != '')? list.height : a.height;
-						
-						a.classList.add('resized');
 					}
 					else
 					{
@@ -655,7 +653,9 @@ setInterval
 					a.height = '30';
 					a.width = a.width;
 				}
-			})
+				
+				a.classList.add('resized');
+			});
 		}
 	}
 }, 200);
