@@ -26,7 +26,7 @@ function delTab (tab, bool)
 		});
 		
 		cath = array;
-		localStorage.setItem('cath', JSON.stringify(cath));
+		set('cath', JSON.stringify(cath), true);
 	}
 	else
 	{
@@ -69,7 +69,7 @@ function savePages (output)
 	( function (a) {
 		var input = __('input[type="checkbox"]', a);
 		
-		localStorage.setItem(`setting--${input.value}`, input.checked);
+		set(input.value, input.checked);
 	});
 		
 	pages.forEach
@@ -80,7 +80,7 @@ function savePages (output)
 		arrayPage[input.value] = {name: name, is: input.checked};
 	});
 	
-	localStorage.setItem('page', JSON.stringify(arrayPage));
+	set('page', JSON.stringify(arrayPage), true);
 	storagePage = arrayPage;
 	
 	tabs.forEach
@@ -98,7 +98,7 @@ function savePages (output)
 			( function (a) {
 				var el = JSON.parse(storageCache[a]);
 				
-				console.log(el.tab, tab);
+				log(el.tab, tab);
 				if (el.tab == oldtab)
 				{
 					el.tab = tab;
@@ -108,7 +108,7 @@ function savePages (output)
 		}
 	});
 	
-	localStorage.setItem('cath', JSON.stringify(arrayTab));
+	set('cath', JSON.stringify(arrayTab), true);
 	cath = arrayTab;
 	
 	reload();
@@ -120,96 +120,7 @@ function savePages (output)
 	});
 }
 
-/**
- *	Смена страниц
- */
-function adoor (elem)
+function userStyles()
 {
-	var flag = '';
-	
-	if (!__('.open', afp))
-	{
-		afp.classList.toggle('open');
-		afp.classList.toggle('margin');
-	}
-	
-	__(`backfon.${elem}`, afp).classList.toggle('open');
-	if (flag = __(elem, afp).classList.toggle('open'))
-	{
-		__(`backfon.${elem}`, afp).classList.toggle('margin');
-		__(elem, afp).classList.toggle('margin');
-	}
-	else
-	{
-		setTimeout
-		( function () {
-			__(`backfon.${elem}`, afp).classList.toggle('margin');
-			__(elem, afp).classList.toggle('margin');
-		}, 400);
-	}
-	
-	if (elem == 'saveto' && flag)
-		saveTo();
-	
-	if (!__('.open', afp))
-	{
-		setTimeout
-		( function () {
-			afp.classList.toggle('open');
-			afp.classList.toggle('margin');
-		}, 400);
-	}
-}
-
-/**
- *	Управление уведомлениями
- */
-function openAlert ({text, wait, button, titleOf})
-{
-	if (titleOf == 'none') __('top', alert).style.setProperty('display', 'none');
-	var header = titleOf || 'Уведомление';
-	
-	__('top', alert).textContent = header;
-	__('middle', alert).innerHTML = text;
-	
-	adoor('alert');
-	
-	if (wait)
-	{
-		if (button)
-		{
-			alert.appendChild
-			( dom (`
-				<bottom></bottom>
-			`));
-			
-			bottom = __('bottom', alert);
-			
-			button.forEach
-			( function (a) { 
-				console.log(a);
-				bottom.appendChild
-				( dom(`
-					<fing onclick="${a.callback}; adoor('alert'); this.parentElement.outerHTML = '';">
-						${a.value}
-					</fing>
-				`));
-			});
-		}
-		
-		// На случай бесконечного уведомления возможность закрыть
-		__('fullpage backfon.alert').setAttribute
-		(
-			'onclick',
-			`adoor('alert'); this.querySelector('bottom').outerHTML = ''; this.querySelector('top').style = ''; this.onclick = 'return false;'`
-		);
-	}
-	else
-	{
-		// Временное уведомление закрывается само
-		setTimeout
-		(function () {
-			adoor('alert');
-		}, 2000);
-	}
+    set('userstyles-css', JSON.stringify(__('[userstyles]').value));
 }

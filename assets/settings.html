@@ -209,6 +209,7 @@
 		</middle>
 		
 		<bottom>
+            <fing onclick="adoor('userstyles')">Редактор стилей</fing>
 			<fing onclick="savePages()">Сохранить</fing>
 		</bottom>
 	</asett>
@@ -250,4 +251,16 @@
 		<qn>В шапке темы тебя ждут несколько обучающих гайдов, чтобы ты смог свободно разобраться в интерфейсе!</qn>
 		<qn>Эти сообщения (кроме упоминаний обновлений) отображаются лишь раз, так что желаю удачи :)</qn>
 	</wellcome>
+    
+	<backfon class='userstyles'></backfon>
+	<userstyles>
+		<top>Редактор стилей <close class='fa fa-times' onclick="adoor('userstyles')"></close></top>
+		<middle>
+			Тут вы можете редактировать стили форума под себя<br><br>
+			<textarea userstyles></textarea>
+		</middle>
+        <bottom>
+			<fing onclick="userStyles()">Сохранить стили</fing>
+		</bottom>
+	</userstyles>
 </fullpage>

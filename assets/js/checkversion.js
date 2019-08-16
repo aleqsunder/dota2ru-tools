@@ -1,9 +1,9 @@
-const version = '0.1.2.1';
+const version = '0.1.2.2';
 
 // Если новая версия
-if (localStorage.getItem('version') != version)
+if (get('version', true) != version)
 {
-	if (!localStorage.getItem('first'))
+	if (!get('first', true))
 	{
 		adoor('wellcome');
 		
@@ -37,8 +37,8 @@ if (localStorage.getItem('version') != version)
 				( function () {
 					adoor('wellcome');
 					
-					localStorage.setItem('first', 'est zhi');
-					localStorage.setItem('version', version);
+					set('first', 'est zhi', true);
+					set('version', version, true);
 				}, timer)
 			}
 		}
@@ -47,7 +47,7 @@ if (localStorage.getItem('version') != version)
 	}
 	else
 	{
-		localStorage.setItem('version', version);
+		set('version', version, true);
 		openAlert({
 			wait: true,
 			

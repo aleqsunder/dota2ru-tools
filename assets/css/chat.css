@@ -292,7 +292,7 @@ body
 	opacity: .8;
 }
 
-.messageText img[data-smile]
+img[data-smile]
 {
 	margin: -5px 0;
     vertical-align: middle;

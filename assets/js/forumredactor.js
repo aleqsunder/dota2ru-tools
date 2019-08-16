@@ -248,7 +248,7 @@ if (tinyMods.indexOf(mode) > -1)
 					title = ob.getAttribute('dota-title'),
 					mcet = document.querySelector('div.mce-tooltip');
 					
-				console.log(event, this);
+				log(event, this);
 					
 				if (!mcet)
 				{

@@ -72,7 +72,7 @@ function add ({a, bool})
 			})
 			
 			arraytab.push({ "name": tab, "index": "100", "hidden": "false" })
-			localStorage.setItem('cath', JSON.stringify(arraytab));
+			set('cath', JSON.stringify(arraytab), true);
 		}
 		else
 		{
@@ -193,8 +193,8 @@ function CEtoggle ()
  */
 function save ()
 {
-	var tabs = [], tabes = JSON.parse(localStorage.getItem('cath'));
-	localStorage.setItem(chess, JSON.stringify({}));
+	var tabs = [], tabes = JSON.parse(get('cath', true));
+	set(chess, JSON.stringify({}), true);
 	
 	$_('list', smileList).forEach
 	( function(a) {
@@ -224,8 +224,8 @@ function save ()
 		tabs[b] = {name: a.name, index: a.index, hidden: hddn}
 	});
 	
-	localStorage.setItem('cath', JSON.stringify(tabs));
-	cath = JSON.parse(localStorage.getItem('cath'));
+	set('cath', JSON.stringify(tabs), true);
+	cath = JSON.parse(get('cath', true));
 	
 	storageCache = _getStorage();
 	reload();
@@ -279,7 +279,7 @@ function loadFrom (bool)
 		
 		oth = Object.assign(load, your);
 		
-	localStorage.setItem(chess, JSON.stringify(oth));
+	set(chess, JSON.stringify(oth), true);
 	area.value = '';
 	
 	// Ну и сразу получаем готовенькое
@@ -326,7 +326,7 @@ function sendSmiles ({you, to, username})
 			else
 			{
 				openAlert({text: 'Ошибка'});
-				console.log(response);
+				log(response);
 			}
 		}
 	)

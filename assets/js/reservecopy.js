@@ -3,7 +3,7 @@ const reserve =
 	massive:
 	[
 		'a-dota2smile',
-		'--chat-avatar',
+		'chat-avatar',
 		'cath', 'chatTurn',
 		'first', 'page'
 	],
@@ -27,7 +27,7 @@ const reserve =
 	{
 		if (a != true)
 		{
-			if (this.get('reserve-first'))
+			if (get('reserve-first', true))
 			{
 				openAlert
 				({
@@ -54,14 +54,14 @@ const reserve =
 		{
 			this.massive.forEach
 			( function (a) {
-				reserve.set(`reserve-${a}`, reserve.get(a));
+				set(`reserve-${a}`, reserve.get(a), true);
 			});
 			
 			var d = new Date(),
 				month = d.getMonth() < 10 ? `0` : ``,
 				minutes = d.getMinutes() < 10 ? `0` : ``;
 			
-			this.set('reserve-time', `${d.getDate()}.${month}${d.getMonth()}.${d.getFullYear()} в ${d.getHours()}:${minutes}${d.getMinutes()}`);
+			set('reserve-time', `${d.getDate()}.${month}${d.getMonth()}.${d.getFullYear()} в ${d.getHours()}:${minutes}${d.getMinutes()}`, true);
 			
 			openAlert
 			({
@@ -77,7 +77,7 @@ const reserve =
 	{
 		if (a != true)
 		{
-			if (!this.get('reserve-first'))
+			if (!get('reserve-first', true))
 			{
 				openAlert
 				({
@@ -109,13 +109,13 @@ const reserve =
 		{
 			this.massive.forEach
 			( function (a) {
-				reserve.set(a, reserve.get(`reserve-${a}`));
+				set(a, reserve.get(`reserve-${a}`), true);
 			});
 			
-			if (reserve.get('a-dota2smile') == 'null')
+			if (has('a-dota2smile', true))
 			{
-				reserve.set('a-dota2smile', '{}');
-				reserve.set('reserve-a-dota2smile', '{}');
+				set('a-dota2smile', '{}', true);
+				set('reserve-a-dota2smile', '{}', true);
 			}
 			
 			openAlert
@@ -149,11 +149,11 @@ const reserve =
 		{
 			this.massive.forEach
 			( function (a) {
-				reserve.remove(a);
-				reserve.remove(`reserve-${a}`);
+				remove(a, true);
+				remove(`reserve-${a}`, true);
 			});
 			
-			reserve.remove('reserve-time');
+			remove('reserve-time', true);
 			
 			openAlert
 			({

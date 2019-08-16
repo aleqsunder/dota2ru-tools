@@ -8,6 +8,7 @@ load ('queryfinder.js');
 load ('reservecopy.js');
 load ('smiles.js');
 load ('categories.js');
+load ('alert.js');
 
 /* Форумные сообщения */
 if (forumpostMods.indexOf(mode) > -1)
@@ -16,9 +17,19 @@ if (forumpostMods.indexOf(mode) > -1)
 	load ('forumpost.js');
 }
 
+/* Хлебные крошки */
+if (mode == 'threads')
+{
+	load ('breadcrumb.css');
+	load ('breadcrumb.js');
+}
+
 /* Форумный редактор */
 load ('forumredactor.css');
 load ('forumredactor.js');
+
+/* Стили пользователя */
+load ('userstyles');
 
 /* Чат на главной */
 watching
@@ -167,7 +178,7 @@ document.addEventListener
 				{
 					el.querySelectorAll('a').forEach
 					( function (a){
-						var page = JSON.parse(localStorage.getItem('page')),
+						var page = JSON.parse(get('page', this)),
 							a = a;
 							// получаемая переменная может работать только в пределах своей ф-ии
 						
@@ -175,13 +186,22 @@ document.addEventListener
 						if (page)
 						{
 							Object.keys(page).forEach
-							( function (b, index) {
-								var index = a.dataset.cat.toString();
+							( function (b) {
+								var index = parseInt(a.dataset.cat.toString());
 								
-								a.textContent = page[index].name;
-								
-								if (page[index].is == false)
-									a.style = 'display: none';
+                                if (page[index] != undefined)
+                                {
+                                    a.textContent = page[index].name;
+
+                                    if (page[index].is == false)
+                                        a.style = 'display: none';
+                                }
+                                else
+                                {
+                                    page[index] = {name: a.textContent, is: true};
+                                    set('page', JSON.stringify(page), true);
+                                    log(`Обнаружена новая вкладка - ${a.textContent}`);
+                                }
 							});
 						}
 					});

@@ -1,0 +1,139 @@
+.openbc_poule
+{
+    position: absolute;
+    
+    width: 100%;
+    max-width: 1220px;
+    
+    margin-left: calc((100% - 1220px) / 2);
+    
+    height: 100vh;
+    top: 0;
+    
+    display: none;
+}
+
+.displayed
+{
+    display: block;
+}
+
+.bc-fone
+{
+	position: fixed;
+	top: 0;
+	left: 0;
+	
+	width: 100vw;
+	height: 100vh;
+	background: #000;
+    opacity: 0;
+	
+	z-index: 15;
+    
+    transition: all .3s;
+}
+
+.bc-fone-opacity
+{
+    opacity: var(--blackout);
+}
+
+.bc-loaded-post
+{
+	position: absolute;
+    width: 100%;
+    max-width: 700px;
+    padding: 3px 0;
+    background: #171717;
+    border: 1px solid #333;
+    border-radius: 6px;
+    z-index: 15;
+	left: 100px;
+    top: 27px;
+	
+    overflow: hidden;
+    height: auto;
+    opacity: 0;
+    
+    max-height: 65px;
+    transition: all .4s cubic-bezier(1, 0.27, 0.93, 0.54), opacity .3s;
+}
+
+.bc-loaded-post-opacity
+{
+    opacity: 1;
+}
+
+.bc-loaded-post usercode
+{
+    display: block;
+    padding: 4px 10px;
+	border-bottom: 1px solid #333;
+	
+	font-size: 12px;
+}
+
+.bc-loaded-post postmessage
+{
+    display: block;
+	padding: 4px 8px;
+}
+
+.bc-loaded-post img
+{
+	max-width: 100%;
+}
+
+.bc-loaded-post postmessage > p {
+    font-size: 12px;
+    padding: 0px 5px;
+    line-height: 16px;
+}
+
+.bc-loaded-post loadpost
+{
+	position: relative;
+	display: block;
+	
+	background: #333;
+	border-radius: 6px;
+	margin: 4px 0;
+}
+
+
+
+.bc-loaded-post .bc-nickname
+{
+	padding: 0px 5px;
+    font-size: 12px;
+}
+
+.bc-loaded-post .bc-loadpost
+{
+	position: relative;
+	
+    font-size: 11px;
+    padding: 1px 6px;
+    background: #222;
+    border-radius: 6px;
+    max-height: 34px;
+    overflow: hidden;
+}
+
+.bc-loaded-post .bottomborder
+{
+    position: absolute;
+	
+    width: 100%;
+    height: 36px;
+    top: 0;
+    background: linear-gradient(to top, #222 0px, #fff0 12px, #fff0 100%);
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+}
+
+.max-height-auto
+{
+    max-height: 1000px;
+}

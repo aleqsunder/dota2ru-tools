@@ -10,9 +10,9 @@ var afp = __('fullpage'),
 	asstabes = __('asett pages[name="tabsetting"]', afp),
 	assscroll = __('asett pages[name="scrollbar"]', afp),
 	asschat = __('asettchat pages[name="st"]', afp),
-	getchat = localStorage.getItem('setting--chat'),
-	storagePage = JSON.parse(localStorage.getItem('page')), 
-	cath = JSON.parse(localStorage.getItem('cath')), 
+	getchat = get('chat'),
+	storagePage = JSON.parse(get('page', true)), 
+	cath = JSON.parse(get('cath', true)), 
 	alert = __('alert', afp), aflag = true;
 
 /*
@@ -28,7 +28,7 @@ if (mode == 'unknown' && __('head title').innerText == 'Форум Dota 2' && (g
 		{
 			stab.querySelectorAll('a').forEach
 			( function (a){
-				var page = JSON.parse(localStorage.getItem('page')),
+				var page = JSON.parse(get('page', true)),
 					a = a;
 					// получаемая переменная может работать только в пределах своей ф-ии
 				
@@ -61,7 +61,7 @@ if (mode == 'unknown' && __('head title').innerText == 'Форум Dota 2' && (g
 	styleSet('f-chat-background', vars['f-chat-background']);
 	
 	__('input[caller="chat-avatar"]', asschat).checked
-		= JSON.parse(localStorage.getItem('--chat-avatar')) === true;
+		= JSON.parse(get('chat-avatar')) === true;
 	
 	var old_time = '0',
 		array_notify = [];
@@ -86,7 +86,7 @@ if (mode == 'unknown' && __('head title').innerText == 'Форум Dota 2' && (g
 		if (skipDuplicates && $('#chatMessage' + data.id).length > 0)
 			$('#chatMessage' + data.id).remove();
 		
-		var enableUserAvatar = JSON.parse(localStorage.getItem('--chat-avatar')) === true,
+		var enableUserAvatar = JSON.parse(get('chat-avatar')) === true,
 			chatBlock	= $(".chatMessages"),
 			liClass		= (data.visible !== undefined && !data.visible) ? 'not-visible' : '',
 			id			= (data.id !== undefined) ? `id="chatMessage${data.id}"` : '',
@@ -292,12 +292,12 @@ if (mode == 'unknown' && __('head title').innerText == 'Форум Dota 2' && (g
 				{
 					for (var i = 0; i < response.data.length; i++) Chat.appendToChat(response.data[i], scroll);
 					
-					if (localStorage.getItem('chatTurn') == "true")
+					if (has('chatTurn'))
 					{
 						var data = response.data[response.data.length-1],
 							text = Base64.decode(data.content),
 							id = data.id.toString(),
-							notify = localStorage.getItem('notify');
+							notify = get('notify', true);
 						
 						if (notify)
 						{
@@ -317,7 +317,7 @@ if (mode == 'unknown' && __('head title').innerText == 'Форум Dota 2' && (g
 									}
 								}
 								
-								localStorage.setItem('notify', notify.join());
+								set('notify', notify.join(), true);
 							}
 						}
 						else notify = [];
@@ -325,7 +325,7 @@ if (mode == 'unknown' && __('head title').innerText == 'Форум Dota 2' && (g
 						if (notify.indexOf(id) < 0)
 						{
 							notify.push(id);
-							localStorage.setItem('notify', notify.join());
+							set('notify', notify.join(), true);
 								
 							text = text
 									.replace(/<a(.*?)vocaroo.com\/i\/(.*?)<\/a>/ig, "[Голосовое]")
@@ -350,10 +350,10 @@ if (mode == 'unknown' && __('head title').innerText == 'Форум Dota 2' && (g
 								{
 									notify[id] = true;
 									
-									var deleteNotify = localStorage.getItem('notify').split(',');
+									var deleteNotify = get('notify', true).split(',');
 									deleteNotify.splice(deleteNotify.indexOf(id), 1);
 									
-									localStorage.setItem('notify', deleteNotify.join());
+									set('notify', deleteNotify.join(), true);
 								}, 30000);
 							}, 5000);
 						}
@@ -361,6 +361,7 @@ if (mode == 'unknown' && __('head title').innerText == 'Форум Dota 2' && (g
 					
 					Chat._scroll_at_end && Chat.scrollChat()
 				}
+                
 				Chat.lastMessageDate = moment.unix(response.data[response.data.length - 1].date_sent),
 				Chat.updateInterval !== Utils.config.chatUpdateInterval && (Chat.updateInterval = Utils.config.chatUpdateInterval, clearInterval(Chat.chatInterval), Chat.chatUpdateRunning = !1, Chat.runChatInterval())
 			}
@@ -437,7 +438,7 @@ if (mode == 'unknown' && __('head title').innerText == 'Форум Dota 2' && (g
 		`<a onclick="adoor('asettchat'); return false" data-id="chatBlock" data-title="Настройки расширения" href="#" class="right fa fa-wrench"></a>`
 	));
 	
-	var red = (localStorage.getItem('chatTurn') == 'true') ? '' : ' red';
+	var red = (has('chatTurn')) ? '' : ' red';
 	chatTitle.appendChild
 	(dom(
 		`<a onclick="notify_turn(); return false" data-id="chatBlock" data-title="Уведомления" href="#" class="right fa fa-bell${red}"></a>`
@@ -449,23 +450,25 @@ if (mode == 'unknown' && __('head title').innerText == 'Форум Dota 2' && (g
  */
 function reload ()
 {
-	reservetime.innerText = localStorage.getItem('reserve-time');
+	reservetime.innerText = get('reserve-time', true);
 	
 	mainsetting.forEach
 	( function (a) {
 		var input = __('input[type="checkbox"]', a);
 		
-		input.checked = (localStorage.getItem(`setting--${input.value}`) == 'true');
+		input.checked = (get(input.value) == 'true');
 	});
 	
-	if (localStorage.getItem('pages'))
-		localStorage.removeItem('pages');
+	if (has('pages', true))
+		remove('pages', true);
 	
-	if (!localStorage.getItem('page'))
+	if (!has('page', true))
 	{
-		localStorage.setItem('page', `{"1":{"name":"Стандартные","is":true},"5":{"name":"Твич","is":true},"6":{"name":"Разное","is":true},"7":{"name":"Dota 2 анимированные","is":true},"9":{"name":"Dota 2 герои","is":true},"11":{"name":"Аниме","is":true},"14":{"name":"Пепа","is":true},"16":{"name":"Dota 2 предметы","is":true},"17":{"name":"LoL","is":true},"18":{"name":"Твич-герои","is":true},"-1":{"name":"Популярные","is":true}}`);
-		storagePage = JSON.parse(localStorage.getItem('page'));
+		set('page', `{"1":{"name":"Стандартные","is":true},"5":{"name":"Твич","is":true},"6":{"name":"Разное","is":true},"7":{"name":"Dota 2 анимированные","is":true},"9":{"name":"Dota 2 герои","is":true},"11":{"name":"Аниме","is":true},"14":{"name":"Пепа","is":true},"16":{"name":"Dota 2 предметы","is":true},"17":{"name":"LoL","is":true},"18":{"name":"Твич-герои","is":true},"-1":{"name":"Популярные","is":true}}`, true);
+		storagePage = JSON.parse(get('page', true));
 	}
+    
+    __('[userstyles]').value = JSON.parse(get('userstyles-css')) || ``;
 	
 	// Переприсваиваем все разрешённые вкладки смайлов
 	asspages.forEach
@@ -483,8 +486,8 @@ function reload ()
 	
 	if (!cath)
 	{
-		localStorage.setItem('cath', `[{"name":"Без категории","index":"100","hidden":"false"}]`);
-		cath = JSON.parse(localStorage.getItem('cath'));
+		set('cath', `[{"name":"Без категории","index":"100","hidden":"false"}]`, true);
+		cath = JSON.parse(get('cath', true));
 	}
 	
 	var arraytabes = [];
@@ -494,7 +497,7 @@ function reload ()
 	Object.keys(cath).forEach
 	(function (tab) {
 		tab = cath[tab];
-		console.log(tab, tab.name, tab.index);
+		log(tab, tab.name, tab.index);
 		
 		arraytabes.push({ name: tab.name, index: tab.index, hidden: tab.hidden });
 		
@@ -537,19 +540,19 @@ function reload ()
 	}
 	
 	// Если обнаружены смайлы старого образца - конвертация в новый и обновление
-	if (localStorage.getItem('a-dota2smiles'))
+	if (get('a-dota2smiles', true))
 	{
 		chess = 'a-dota2smiles';
 		storageCache = _getStorage();
 		
 		Object.keys(storageCache).forEach
 		( function (name) { add({a: name}) });
-		localStorage.removeItem('a-dota2smiles');
+		remove('a-dota2smiles', true);
 		
 		chess = 'a-dota2smile';
 		save();
 		
-		console.log(_getStorage);
+		log(_getStorage);
 		
 		document.location.reload();
 		return false;

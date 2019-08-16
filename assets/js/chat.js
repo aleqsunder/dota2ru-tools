@@ -7,17 +7,18 @@ var default_vars =
 },
 vars =
 {
-	'f-color': localStorage.getItem('f-color') || default_vars['f-color'],
-	'f-time-color': localStorage.getItem('f-time-color') || default_vars['f-time-color'],
-	'f-background': localStorage.getItem('f-background') || default_vars['f-background'],
-	'f-chat-background': localStorage.getItem('f-chat-background') || default_vars['f-chat-background']
+	'f-color': get('f-color', true) || default_vars['f-color'],
+	'f-time-color': get('f-time-color', true) || default_vars['f-time-color'],
+	'f-background': get('f-background', true) || default_vars['f-background'],
+	'f-chat-background': get('f-chat-background', true) || default_vars['f-chat-background']
 }
 	
-function changebodycolor(){
+function changebodycolor()
+{
 	var attr = this.getAttribute('var'),
 		color = this.value || vars[attr];
 		
-	localSet(attr, color);
+	set(attr, color);
 	styleSet(attr, color);
 	
 	vars[attr] = color;
@@ -26,29 +27,26 @@ function changebodycolor(){
 function styleSet (name, value)
 { __('body').style.setProperty(`--${name}`, value) }
 
-function localSet (name, value)
-{ localStorage.setItem(name, value) }
-
 function toDefault ()
 {
-	console.log(this, this.parentElement);
+	log(this, this.parentElement);
 	var input = this.parentElement.querySelector('input'),
 		name = input.getAttribute('var');
 	
 	input.value = default_vars[name];
 	
 	styleSet(name, default_vars[name]);
-	localSet(name, default_vars[name]);
+	set(name, default_vars[name]);
 	
 	vars[name] = default_vars[name];
 }
 
 function chatSetting ()
 {
-	console.log(this);
+	log(this);
 	var name = this.getAttribute('caller');
 	
-	localSet(`--${name}`, this.checked);
+	set(name, this.checked);
 	Chat.getChatMessages(true);
 }
 
@@ -89,7 +87,7 @@ function loading (bool)
 
 function notify_turn ()
 {
-	var turn = localStorage.getItem('chatTurn') || 'false',
+	var turn = get('chatTurn') || 'false',
 		chatFull = __('#chatFull h3.content-title .fa-bell');
 	
 	if (turn == 'false')
@@ -101,7 +99,7 @@ function notify_turn ()
 				switch (permission)
 				{
 					case "granted":
-						localStorage.setItem('chatTurn', true);
+						set('chatTurn', true);
 						
 						openAlert
 						({
@@ -128,7 +126,7 @@ function notify_turn ()
 		}
 		else
 		{
-			localStorage.setItem('chatTurn', true);
+			set('chatTurn', true);
 			
 			openAlert
 			({
@@ -144,7 +142,7 @@ function notify_turn ()
 	}
 	else
 	{
-		localStorage.setItem('chatTurn', false);
+		set('chatTurn', false);
 		
 		openAlert
 		({

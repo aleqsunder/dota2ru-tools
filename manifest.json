@@ -1,11 +1,11 @@
 {
 	"manifest_version": 2,
-	"version": "0.1.2.1",
+	"version": "0.1.2.2",
 	
 	"name": "D2S - форумный редактор",
 	"description": "Кастомные смайлы, новый чат, редактор текста и прочее!",
 	"content_scripts": [ {
-		"css": [ "extension.css" ],
+		"css": [ "extens.css" ],
 		"js":
 		[
 			"assets/js/footerfunctions.js",

@@ -44,30 +44,110 @@ var chess = 'a-dota2smile',
 	];
 	
 /**
+ * Кастомный log
+ *
+ * @param string item
+ */
+function log (text)
+{
+    console.log
+    (
+      `%cD2S - forumhelper%c ${text}`,
+      `background: #333; color:#FFF; padding: 3px 8px; border-radius: 6px;`, ``
+    );
+}
+
+/**
+ * Установка ключа localstorage
+ *
+ * @param string item
+ * @param string str
+ * @param boolean a
+ */
+function set (item, str, a)
+{
+    a = a == null ? 'setting--' : '';
+    localStorage.setItem(`${a}${item}`, str);
+}
+
+/**
+ * Получение ключа localstorage
+ *
+ * @param string item
+ * @param boolean a
+ *
+ * @return string
+ */
+function get (item, a)
+{
+    a = a == null ? 'setting--' : '';
+    return localStorage.getItem(`${a}${item}`);
+}
+
+/**
+ * Удаление ключа localstorage
+ *
+ * @param string item
+ * @param boolean a
+ */
+function remove (item, a)
+{
+    a = a == null ? 'setting--' : '';
+    localStorage.removeItem(`${a}${item}`);
+}
+
+/**
+ * Проверка наличия ключа localstorage
+ *
+ * @param string item
+ * @param boolean a
+ *
+ * @return string
+ */
+function has (item, a)
+{
+    a = a == null ? 'setting--' : '';
+    
+    var b = localStorage.getItem(`${a}${item}`);
+    
+    if (b == 'null')
+        return false;
+    else return b;
+}
+
+/**
  * Загрузка разрешённых стилей и скриптов
  *
  * @param string capt
  */
 function load (capt)
 {
-	var name = capt.split('.')[0],
-		type = capt.split('.')[1],
-		elem = type == 'css' ? 'style' : 'script';
-	
-	if (localStorage.getItem(`setting--${name}`) == 'false') return false;
-	else localStorage.setItem(`setting--${name}`, 'true');
-	
-	fetch(chrome.extension.getURL(`/assets/${type}/${name}.${type}`))
-	.then(function(response){
-		return response.text();
-	})
-	.then(function(html){
-		var el = document.createElement(elem);
-		el.innerHTML = html;
-		
-		document.head.appendChild(el);
-		console.log(`${name}.${type} загружен успешно`);
-	});
+    var name = capt.split('.')[0],
+        type = capt.split('.')[1],
+        elem = type == 'css' ? 'style' : type == 'js' ? 'script' : 'user';
+
+    if (get(name) == 'false') return false;
+    else set(name, 'true');
+    
+    if (capt.indexOf('.') > -1)
+    {
+        fetch(chrome.extension.getURL(`/assets/${type}/${name}.${type}`))
+        .then(function(response){
+            return response.text();
+        })
+        .then(function(html){
+            createDom(elem, html);
+            log(`${name}.${type} загружен успешно`);
+        });
+    }
+    else
+    {
+        setTimeout
+        ( () => {
+            let html = JSON.parse(get(`${capt}-css`));
+            createDom('style', html);
+        });
+    }
 }
 
 /**
@@ -96,6 +176,7 @@ function watching ({doc, elem, callback, bool})
 
 /**
  *	Создаёт DOM объект из string
+ *  Ограничение в одиночный тег
  *
  *	@param string html
  *
@@ -107,6 +188,21 @@ function dom (html)
 				.parseFromString(html, 'text/html')
 				.querySelector('body')
 				.childNodes[0];
+}
+
+/**
+ *	Создаёт DOM объект из html и отправляет в head
+ *
+ *	@param string html
+ *
+ *	@return HTMLElement
+ */
+function createDom (elem, html)
+{
+    var el = document.createElement(elem);
+        el.innerHTML = html;
+
+        document.head.appendChild(el);
 }
 
 /**
@@ -176,7 +272,7 @@ function setStorage (key, value)
 	storageCache = _getStorage();
 	storageCache[key] = value;
 
-	localStorage.setItem(chess, JSON.stringify(storageCache));
+	set(chess, JSON.stringify(storageCache), true);
 
 	return storageCache[key];
 }
@@ -190,7 +286,7 @@ function setStorage (key, value)
  */
 function _getStorage ()
 {
-	var storage = localStorage.getItem(chess);
+	var storage = get(chess, true);
 
 	if (storage === null)
 		storage = {};
