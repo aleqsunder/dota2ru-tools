@@ -29,7 +29,6 @@ function styleSet (name, value)
 
 function toDefault ()
 {
-	log(this, this.parentElement);
 	var input = this.parentElement.querySelector('input'),
 		name = input.getAttribute('var');
 	
@@ -43,7 +42,6 @@ function toDefault ()
 
 function chatSetting ()
 {
-	log(this);
 	var name = this.getAttribute('caller');
 	
 	set(name, this.checked);

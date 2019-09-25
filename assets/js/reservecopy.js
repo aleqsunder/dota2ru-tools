@@ -112,12 +112,6 @@ const reserve =
 				set(a, reserve.get(`reserve-${a}`), true);
 			});
 			
-			if (has('a-dota2smile', true))
-			{
-				set('a-dota2smile', '{}', true);
-				set('reserve-a-dota2smile', '{}', true);
-			}
-			
 			openAlert
 			({
 				titleOf: 'Резервная копия',
@@ -152,6 +146,12 @@ const reserve =
 				remove(a, true);
 				remove(`reserve-${a}`, true);
 			});
+			
+			if (has('a-dota2smile', true))
+			{
+				set('a-dota2smile', '{}', true);
+				set('reserve-a-dota2smile', '{}', true);
+			}
 			
 			remove('reserve-time', true);
 			

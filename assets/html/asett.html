@@ -1,0 +1,149 @@
+<top>
+    Настройки 
+    <close class='fa fa-times' onclick="openWindow('asett')"></close>
+</top>
+
+<middle>
+    <top>Автоматическая синхронизация ваших устройств</top>
+    <pages name='sync'>
+        Синхронизация ВСЕХ ваших смайлов на ВСЕХ устройствах вне зависимости от того, где и когда 
+        вы были авторизованы, будь то ваш домашний компьютер, зашли на форум на работе, с телефона 
+        или планшета.<br><br>
+        
+        Два единственных условия:<br>
+        1. Установленное расширение (есть возможность на мобильном)<br>
+        2. Быть авторизованным в Google в любом аккаунте<br><br>
+        
+        Авторизация браузера в Google необходима для того, чтобы у расширения был доступ к службам Google. 
+        Получив доступ расширение начинает автоматическую синхронизацию вашего аккаунта с Google Apps Script, 
+        с которого вы можете получать ваши смайлы либо сохранять на сервер.<br><br>
+        
+        Сохранять смайлы на сервер вы сможете сразу же.<br>
+        Чтобы защитить ваши смайлы от злоумышленников необходимо установить пароль. После установки пароля 
+        доступ к сохранению смайлов остаётся ТОЛЬКО на этом устройстве. Для предоставления разрешения 
+        сохранения смайлов на других устройствах необходимо ввести пароль и на них.<br><br>
+
+        <page class='check' style='width: 100%;' onclick="sendCall('authorize')">
+            Проверка авторизации в Google
+        </page>
+        <page class='check' onclick="openWindow('changepassword')">
+            Сменить пароль
+        </page>
+        <page class='check' onclick="openWindow('staypassword')">
+            Установка пароля для сохранения
+        </page>
+    </pages>
+    
+    <top>Локальное резервное копирование</top>
+    <pages name='reserve'>
+        Последнее резервное копирование: <reservetime>сохранения не было</reservetime><br>
+
+        При создании резерва сохраняются ваши смайлы, основные настройки, категории и прочее<br><br>
+
+        <page class='check' onclick='reserve.save()'>
+            Создать резерв
+        </page>
+        <page class='check' onclick='reserve.returnTo()'>
+            Загрузить резерв
+        </page>
+        <page class='check' onclick='reserve.toDefault()'>
+            Вернуться к заводским
+        </page>
+    </pages>
+
+    <top>Основные настройки</top>
+    <pages name='mainsetting'>
+        Данный пункт настроек будет применён после обновления страницы<br><br>
+
+        Отображение сообщений для ПК предоставляет новый вид форумных сообщений для экономии 
+        места и упрощенной навигации на форуме. Пункт для мобильных делает это, соответственно, 
+        для мобильных устройств (если установили расширение для мобильного или же просто 
+        используете маленькое окно браузера). Мобильные сообщения зависят от ПК версии, 
+        поэтому отключение ПК версии может привести к непредвиденным артефактам<br><br>
+        <page class='check'>
+            <p>Сообщения (ПК)</p>
+            <input type="checkbox" value="forumpost">
+        </page>
+        <page class='check'>
+            <p>Сообщения (мобильный)</p>
+            <input type="checkbox" value="mobileforumfix">
+        </page>
+        <br>
+
+        Новые функции форумного редактора позволяют гибко настраивать цвет в HEX 
+        формате (от #000000 до #ffffff), выделять нужный текст, создавать CODE area, 
+        который невозможно отредактировать, возможность создавать отступы клавишей 
+        TAB и убирать их с помощью SHIFT + TAB и прочее<br><br>
+        <page class='check'>
+            <p>Форумный редактор</p>
+            <input type="checkbox" value="forumredactor">
+        </page>
+        <br>
+
+        Новый дизайн чата, переписанный функционал, уведомления о новых сообщениях в чате 
+        и так далее<br><br>
+        <page class='check'>
+            <p>Новый чат</p>
+            <input type="checkbox" value="chat">
+        </page>
+    </pages>
+
+    <top>Видимые разделы</top>
+    <pages name='pagesetting'>
+        Для изменения отображения используется чекбокс (галочка рядом с пунктом), для изменения 
+        названия используется нажатие на название (изменяется как текстовое поле)<br><br>
+
+        <page class='check'>
+            <input type="checkbox" value="-1">
+            <input type='text' mode="withoutfone" value=''>
+        </page>
+        <page class='check'>
+            <input type="checkbox" value="1">
+            <input type='text' mode="withoutfone" value=''>
+        </page>
+        <page class='check'>
+            <input type="checkbox" value="5">
+            <input type='text' mode="withoutfone" value=''>
+        </page>
+        <page class='check'>
+            <input type="checkbox" value="6">
+            <input type='text' mode="withoutfone" value=''>
+        </page>
+        <page class='check'>
+            <input type="checkbox" value="7">
+            <input type='text' mode="withoutfone" value=''>
+        </page>
+        <page class='check'>
+            <input type="checkbox" value="9">
+            <input type='text' mode="withoutfone" value=''>
+        </page>
+        <page class='check'>
+            <input type="checkbox" value="11">
+            <input type='text' mode="withoutfone" value=''>
+        </page>
+        <page class='check'>
+            <input type="checkbox" value="14">
+            <input type='text' mode="withoutfone" value=''>
+        </page>
+        <page class='check'>
+            <input type="checkbox" value="16">
+            <input type='text' mode="withoutfone" value=''>
+        </page>
+        <page class='check'>
+            <input type="checkbox" value="17">
+            <input type='text' mode="withoutfone" value=''>
+        </page>
+        <page class='check'>
+            <input type="checkbox" value="18">
+            <input type='text' mode="withoutfone" value=''>
+        </page>
+    </pages>
+
+    <top>Настройка порядка категорий</top>
+    <pages name='tabsetting'></pages>
+</middle>
+
+<bottom>
+    <fing onclick="openWindow('userstyles')">Редактор стилей</fing>
+    <fing onclick="savePages()">Сохранить</fing>
+</bottom>

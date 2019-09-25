@@ -1,35 +1,40 @@
 ﻿/**
  *	Загрузка разрешённых стилей и скриптов
  */
-
-/* Скрипты */
-load ('footerfunctions.js');
-load ('queryfinder.js');
-load ('reservecopy.js');
-load ('smiles.js');
-load ('categories.js');
-load ('alert.js');
-
-/* Форумные сообщения */
-if (forumpostMods.indexOf(mode) > -1)
-{
-	load ('forumpost.css');
-	load ('forumpost.js');
-}
+load
+([
+    'footerfunctions.js',   // Основные ф-ии для работы расширения
+    'queryfinder.js',       // Упрощенный querySelector/all
+    
+    'reservecopy.js',       // Модуль - резервная копия
+    'smiles.js',            // Модуль - смайлы
+    'categories.js',        // Модуль - категории
+    'alert.js'              // Модуль - уведомления
+])
 
 /* Хлебные крошки */
-if (mode == 'threads')
+if (mode == 'threads') // Только форум
 {
-	load ('breadcrumb.css');
-	load ('breadcrumb.js');
+    load 
+    ([
+        'breadcrumb.css',
+        'breadcrumb.js'
+    ]);
 }
 
-/* Форумный редактор */
-load ('forumredactor.css');
-load ('forumredactor.js');
+if (tinyMods.indexOf(mode) > -1)
+    load
+    ([
+        // Форумные сообщения
+        'forumpost.css', 'forumpost.js',
+        // Форумный редактор
+        'forumredactor.css', 'forumredactor.js',
+        // Стили "Фикс сообщений на мобильном"
+        'mobileforumfix.css'
+    ]);
 
 /* Стили пользователя */
-load ('userstyles');
+load ([ 'userstyles' ]);
 
 /* Чат на главной */
 watching
@@ -40,8 +45,7 @@ watching
 	{
 		if (mode == 'unknown' && document.querySelector('head title').innerHTML == 'Форум Dota 2')
 		{
-			load ('chat.css');
-			load ('chat.js');
+			load ([ 'chat.css', 'chat.js' ]);
 		}
 	}
 });
@@ -49,12 +53,162 @@ watching
 /**
  *	Начало
  */
-
 document.addEventListener
 ("DOMContentLoaded", () => {
 	var index = -2, button, tabs, name_title = 'Собственные',
-		reloadInterval = setInterval(reload, 3000);
-		
+		reloadInterval = setInterval(reload, 3000), winn = null;
+    
+    const User = new datadocs ({
+        database_name: 'AKfycbyc5hHlcmND6XnrguiI4uegok1yAd2Mf78z5NzgfQ4uqN0TxpOo'
+    });
+
+    if (get('docs-username', true) != null)
+    {
+        User.username = get('docs-username', true);
+        User.password = has('docs-password', true) ? get('docs-password', true) 
+                        : get('docs-username', true);
+        
+        User.loadSmiles();
+    }
+    else
+    {
+        User.firstInit();
+    }
+    
+    function takeCall ()
+    {
+        let cV = JSON.parse(get('callerVariable', true)) || {};
+        
+        for (arg in cV)
+        {
+            switch (arg)
+            {
+                case 'getSmiles':
+                    let name = JSON.parse(cV[arg]).username || get('docs-username') || null;
+                    
+                    if (name != null || name != undefined)
+                        User.getSmiles(name).then(res => log(`getSmiles > ${res.type} > ${res.name}`));
+                    else User.getSmiles().then(res => log(`getSmiles > ${res.type} > ${res.name}`));
+                        
+                break;
+                    
+                case 'saveSmiles':
+                    User.saveSmiles()
+                    .then(res => log(`saveSmiles > ${res.type} > ${res.name}`));
+                break;
+                    
+                case 'changePassword':
+                    let oldpassword = JSON.parse(cV[arg]).old,
+                        newpassword = JSON.parse(cV[arg]).to;
+
+                    User.changePassword({
+                        old: oldpassword,
+                        to: newpassword
+                    });
+                break;
+                    
+                case 'stayPassword':
+                    let password = JSON.parse(cV[arg]).pass;
+
+                    User.stayPassword({
+                        password: password
+                    });
+                break;
+                    
+                case 'registration':
+                    let thispassword = JSON.parse(cV[arg]).password;
+                    
+                    User.registration({
+                        password: thispassword
+                    })
+                    .then ( function (res) { 
+                        if (res.type == 'Успешно')
+                        {
+                            User.password = password;
+                            set('docs-password', password, true);
+                            
+                            log('registration > Регистрация прошла успешно');
+                        }
+                    });
+                    
+                break;
+                
+                case 'google401':
+                    watching
+                    ({
+                        elem: 'information[smiles]',
+
+                        callback: function (el)
+                        {
+                            el.innerText = 'Необходима авторизация в Google для синхронизации!';
+                            el.classList.add('taked');
+                            el.setAttribute('onclick', "sendCall('authorize')");
+                        }
+                    });
+                    
+                break;
+                    
+                case 'authorize':
+                    winn = window.open(
+                        `https://script.google.com/macros/s/${User.database_name}/exec`,
+                        'window', "width=500px, height=400px, left=100px, top=100px"
+                    );
+                    
+                break;
+                
+                case 'findUsersmiles':
+                    User.getSmiles(JSON.parse(cV[arg]).username)
+                    .then ((res) => {
+                        if (res.type == 'Успешно')
+                        {
+                            let main = __('savetouser'),
+                                obj = __('information[savetouser]', main),
+                                bottom = __('bottom', main),
+                                div = document.createElement('div'),
+                                smiles = JSON.parse(res.value),
+                                coll, smilesDom = dom('<smilepreview></smilepreview>');
+
+                            for (smile in smiles)
+                            {
+                                let link = JSON.parse(smiles[smile]).src;
+                                
+                                smilesDom.appendChild(dom(`
+                                    <sp title='${smile}'>
+                                        <bgnd style="background: url('${link}')"></bgnd>
+                                        <ttl>${smile}</ttl>
+                                    </sp>
+                                `));
+                            }
+                            
+                            bottom.innerHTML = '';
+                            bottom.appendChild(dom(`<fing onclick="saveLoadedSmiles()">Сохранить</fing>`));
+                            
+                            obj.innerHTML = '';
+                            obj.appendChild(smilesDom);
+                            
+                            __('input[smiles]', main).value = res.value;
+                            __('input[cath]', main).value = res.cath;
+                        }
+                        else
+                        {
+                            log('sendCall > findUsersmiles > Несуществующий пользователь')
+                        }
+                    });
+                    
+                break;
+                    
+                default:
+                    log('sendCall > Несуществующий тип запроса');
+                break;
+            }
+            
+            delete cV[arg];
+        }
+        
+        set('callerVariable', JSON.stringify(cV), true);
+    }
+    
+    let callInterval = setInterval(takeCall, 500);
 		
 	if (mode == 'conversation')
 	{
@@ -68,8 +222,8 @@ document.addEventListener
 				butt.querySelector('p').outerHTML = '';
 				butt.appendChild
 				(dom(
-				`<quotebutton onclick='loadFrom(true)'>
-					Активировать себе
+				`<quotebutton>
+					Функция более недоступна, для добавления смайлов достаточно ввести никнейм
 				</quotebutton>`
 				));
 			}
@@ -120,32 +274,51 @@ document.addEventListener
 	/**
 	 *	Шаг нулевой - определение страницы настроек
 	 */
-	fetch(getURL('/assets/settings.html'))
-	.then(function(response){
-		return response.text();
-	})
-	.then(function(html){
-		html = dom(html);
-		
-		document.body.insertBefore(html, document.body.firstChild);
-		
-		watching
-		({
-			elem: 'div.userbar',
-			callback: function (el)
-			{
-				el.insertBefore( dom(`
-					<a class='icon' onclick="adoor('smiles')">
-						<i class="fa fa-wrench"></i>
-					</a>
-				`), el.querySelector('a[title="Сообщения"]'));
-				 
-				load ('integrate.js');
-				load ('checkversion.js');
-			}
-		});
-	});
+    let htmlResult = '',
+        htmlCount = 0,
+        htmlInterval = setInterval
+        (function () {
+            if (htmlCount === htmlCountNames)
+            {
+                document.body.insertBefore
+                (
+                    dom(`<fullpage>${htmlResult}</fullpage>`),
+                    document.body.firstChild
+                );
+                
+                watching
+                ({
+                    elem: 'div.userbar',
+                    callback: function (el)
+                    {
+                        el.insertBefore( dom(`
+                            <a class='icon' onclick="openWindow('smiles')">
+                                <i class="fa fa-wrench"></i>
+                            </a>
+                        `), el.querySelector('a[title="Сообщения"]'));
 
+                        load ([ 'integrate.js', 'checkversion.js' ]);
+                    }
+                });
+                
+                clearInterval (htmlInterval);
+            }
+        }, 200);
+    
+    htmlSettingNames.forEach 
+    (function(a) {
+        upload(`/assets/html/${a.name}.html`)
+        .then( function (tmp) {
+            htmlResult += 
+            `<backfon back${a.position} class="${a.name}" onclick="openWindow('${a.name}')"></backfon>
+            <${a.name} ${a.position}>
+                 ${tmp}
+            </${a.name}>`;
+            
+            htmlCount++;
+        });
+    });
+    
 	/**
 	 *	Если tinyMCE есть на страницах, то продолжить
 	 */

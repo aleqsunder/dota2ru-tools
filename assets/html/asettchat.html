@@ -1,0 +1,45 @@
+<top>
+    Настройки 
+    <close class='fa fa-times' onclick="openWindow('asettchat')"></close>
+</top>
+
+<middle>
+    <top>Настройка чата</top>
+    <pages name='colorpicker'>
+        <page class='f-color'>
+            Текст сообщения
+            <div class='page-centered'>
+                <input type="color" var='f-color' class='colorpicker' mode="withoutfone" value=''>
+                <div type='button' onclick="toDefault.call(this)" class="fa fa-undo"></div>
+            </div>
+        </page>
+        <page class='f-time-color'>
+            Время сообщения
+            <div class='page-centered'>
+                <input type="color" var='f-time-color' class='colorpicker' mode="withoutfone" value=''>
+                <div type='button' onclick="toDefault.call(this)" class="fa fa-undo"></div>
+            </div>
+        </page>
+        <page class='f-background'>
+            Фон сообщения
+            <div class='page-centered'>
+                <input type="color" var='f-background' class='colorpicker' mode="withoutfone" value=''>
+                <div type='button' onclick="toDefault.call(this)" class="fa fa-undo"></div>
+            </div>
+        </page>
+        <page class='f-chat-background'>
+            Фон чата
+            <div class='page-centered'>
+                <input type="color" var='f-chat-background' class='colorpicker' mode="withoutfone" value=''>
+                <div type='button' onclick="toDefault.call(this)" class="fa fa-undo"></div>
+            </div>
+        </page>
+    </pages>
+
+    <pages name='st'>
+        <page class='check fullstroke'>
+            <input type="checkbox" caller="chat-avatar" onchange="chatSetting.call(this)">
+            <gotcha>Отображать свои сообщения отдельно</gotcha>
+        </page>
+    </pages>
+</middle>

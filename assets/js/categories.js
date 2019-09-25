@@ -98,7 +98,6 @@ function savePages (output)
 			( function (a) {
 				var el = JSON.parse(storageCache[a]);
 				
-				log(el.tab, tab);
 				if (el.tab == oldtab)
 				{
 					el.tab = tab;
@@ -120,7 +119,121 @@ function savePages (output)
 	});
 }
 
-function userStyles()
+function userStyles ()
 {
-    set('userstyles-css', JSON.stringify(__('[userstyles]').value));
+    set('userstyles-css', JSON.stringify(__('textarea[userstyles]').value));
+    __('style[userstyles]').innerHTML = __('textarea[userstyles]').value;
+    
+	openAlert
+	({
+		titleOf: 'Редактор стилей',
+		text: 'Стили изменены!'
+	});
 }
+
+const startScanning = function (event)
+{ 
+    var puth = '',
+        el = event.target,
+        style = getComputedStyle(el),
+        
+        top = (parseInt(style.marginTop) - 1) + 'px',
+        right = (parseInt(style.marginRight) - 1) + 'px',
+        bottom = (parseInt(style.marginBottom) - 1) + 'px',
+        left = (parseInt(style.marginLeft) - 1) + 'px';
+
+    el.style.setProperty('border', '1px solid yellow', 'important');
+    el.style.setProperty('margin', `${top} ${right} ${bottom} ${left}`);
+
+    el.addEventListener
+    ('mouseout', function (event) {
+        var el = event.target;
+        
+        el.style.removeProperty('border');
+        el.style.removeProperty('margin');
+    });
+
+    while (el.nodeName != 'BODY')
+    {
+        var classes = el.className.replace(/\s+/g, ' ').trim().split(' ').join('.');
+
+        while (classes.indexOf('..') > -1)
+            classes = classes.replace('..', '.');
+
+        if (classes.length == 0)
+            puth = `${el.nodeName} ${puth}`;
+        
+        else
+            puth = `${el.nodeName}.<span style='font-size: 9px'>${classes}</span> ${puth}`;
+
+        el = el.parentElement;
+    }
+
+    __('bottomhelper').innerHTML = puth;
+}
+
+function animateClosing ()
+{
+    __('bottomhelper').style.setProperty('margin-top', '50px');
+    __('bottomhelper').style.setProperty('margin-left', '50%');
+    __('bottomhelper').style.setProperty('transform', 'translateX(-50%)');
+    __('bottomhelper').style.setProperty('width', 'auto');
+    __('bottomhelper').style.setProperty('text-align', 'center');
+    __('bottomhelper').style.setProperty('font-size', '13px');
+    
+    setTimeout (() => {
+        __('bottomhelper').style.setProperty('opacity', '0');
+        __('bottomhelper').style.setProperty('margin-top', '0px');
+        
+        setTimeout (() => {
+            
+            __('bottomhelper').outerHTML = '';
+        }, 300);
+    }, 500);
+}
+
+function scanDom ()
+{
+    var bottomhelper = document.createElement('bottomhelper'),
+        body = document.body;
+
+    body.appendChild(bottomhelper);
+    body.addEventListener('mouseover', startScanning);
+    
+    body.addEventListener
+    ('click', function (e) { 
+        e.preventDefault();
+        e.stopPropagation();
+        
+        body.removeEventListener('mouseover', startScanning);
+        animateClosing();
+        
+        this.removeEventListener('click', arguments.callee);
+    });
+}
+
+watching
+({
+	elem: 'textarea[userstyles]',
+	
+	callback: function (el)
+	{
+		el.addEventListener
+        ('keydown', function (e) {
+            if(e.keyCode === 9)
+            {
+                e.preventDefault();
+                
+                var start = this.selectionStart,
+                    end = this.selectionEnd,
+                    
+                    value = e.target.value,
+                    before = value.substring(0, start),
+                    after = value.substring(end);
+
+                e.target.value = `${before}\t${after}`;
+                this.selectionStart = this.selectionEnd = start + 1;
+            }
+        }, false);
+	}
+});

@@ -136,7 +136,7 @@ function ch (name)
 	
 	__('bottom fing', cha).setAttribute('onclick', `chan('${name}')`);
 	
-	adoor('chan');
+	openWindow('chan');
 }
 
 /**
@@ -229,6 +229,8 @@ function save ()
 	
 	storageCache = _getStorage();
 	reload();
+    
+    sendCall('saveSmiles');
 	
 	openAlert({text: 'Ваши смайлы сохранены!'});
 }
@@ -254,113 +256,98 @@ function lastOf (obj)
 }
 
 /**
- *	Отображение списка смайлов для того, чтобы поделиться с кем-либо
+ *	Объединение двух массивов с объектами
  */
-function saveTo ()
+function collapseObjects (array)
 {
-	save();
-	__('fullpage saveTo textarea').value = JSON.stringify( _getStorage() );
+    let a = array[0],
+        b = array[1];
+    
+    for (name in a)
+    {
+        if (b[name] === undefined)
+        {
+            b[name] = a[name];
+        }
+    }
+    
+    return b;
+}
+
+function collapseMassives (array)
+{
+    return array[0].concat(array[1].filter((one) => {
+       return !array[0].find((el) => el.name === one.name);
+    }))
 }
 
 /**
- *	Подгрузка смайлов с пака пользователя к своим смайлам
- */
-function loadFrom (bool)
-{
-	// Будет обидно, если изменения не сохранятся, верно?)
-	save();
-	
-	var area = (bool)? __('blockquote.messageText .quoteContainer p')
-		: __('fullpage loadfrom textarea'),
-		
-		your = (typeof storageCache == 'string')? JSON.parse(storageCache) : storageCache,
-		load = (bool)? ((typeof area.innerText == 'string')? JSON.parse(area.innerText) : area.innerText)
-		: ((typeof area.value == 'string')? JSON.parse(area.value) : area.value),
-		
-		oth = Object.assign(load, your);
-		
-	set(chess, JSON.stringify(oth), true);
-	area.value = '';
-	
-	// Ну и сразу получаем готовенькое
-	storageCache = _getStorage();
-	reload();
-	
-	save();
-	
-	openAlert({text: 'Смайлы загружены!'});
-}
-
-/**
- *	Автоматически поделиться с указанным пользователем
- */
-function sendSmiles ({you, to, username})
-{
-	var you = you, user = to, username = username,
-		title = `[d2s] ${you} => ${username}`,
-		content =
-		`<p><a href="https://dota2.ru/forum/threads/legalno-sozdajom-svoi-smajly-dlja-foruma.1275974/" data-mce-href="https://dota2.ru/forum/threads/legalno-sozdajom-svoi-smajly-dlja-foruma.1275974/" data-mce-selected="inline-boundary">У вас не установлено расширение для использования кастомных смайлов<br>Для продолжения проследуйте сюда.</a></p>
-		<div class="bbCodeBlock bbCodeQuote">
-			<blockquote class="quoteContainer">
-				<p>${JSON.stringify( _getStorage() )}</p>
-			</blockquote>
-		</div>`;
-	
-	void requestHandler.ajaxRequest
-	("/api/message/createConversation",
-		{ title: title, content: content, recipient: user },
-		
-		function (response)
-		{
-			if (response.status == 'success')
-			{
-				openAlert
-				({
-					titleOf: 'Работа со смайлами',
-					text: 'Пак смайлов отправлен!'
-				});
-				
-				adoor('savetouser');
-				adoor('saveto');
-			}
-			else
-			{
-				openAlert({text: 'Ошибка'});
-				log(response);
-			}
-		}
-	)
-}
-
-/**
- *	Проверка пользователя на существование
+ *	Проверка пользователя на существование + подгрузка смайлов
  */
 function findUser ()
 {
-	var stu = __('fullpage savetouser'),
-		info = __('information', stu),
-		username = __('input', stu).value;
+	var main = __('savetouser'),
+		info = __('information', main),
+		username = __('input[username]', main).value;
 	
 	info.innerHTML = 'Загрузка..';
 	
-	fetch(`https://dota2.ru/forum/search?type=user&keywords=${username}&sort_by=username`)
-	.then(function(response){
-		return response.text();
-	})
-	.then(function(html){		
-		var you = __('div.hello .username').innerHTML,
-			userdocument = __('.member-list-item .avatar', dom(html).ownerDocument),
-			href = userdocument.href.split('/'),
-			id = href[href.length - 2].split('.')[1],
-			avatar = __('img', userdocument).src;
-	
-		info.innerHTML =
-		`<avatar><img src='${avatar}'></avatar>
-		<pass>
-			<name><t>Имя</t> ${username}</name>
-			<id><t>ID</t> ${id}</id>
-			<confirmation>При подтверждении ниже будет создана переписка с пользователем, где ему будут предоставлены смайлы и кнопка, при нажатии на которую он сможет добавить смайлы себе. Вы уверены, что это тот самый пользователь?</confirmation>
-			<fing onclick="sendSmiles({you: '${you}', to: '${id}', username: '${username}'})">Да, отправить</fing>
-		</pass>`;
-	});
+    sendCall('findUsersmiles', {
+        username: __('input', main).value
+    });
+}
+
+/**
+ * Подгрузка смайлов - объединение и сохранение
+ */
+function saveLoadedSmiles ()
+{
+    var main = __('savetouser'),
+        obj = __('information[savetouser]', main),
+        bottom = __('bottom', main),
+        smiles = JSON.parse(__('input[smiles]', main).value),
+        cath = JSON.parse(__('input[cath]', main).value),
+        newSmiles = collapseObjects ([smiles, storageCache]),
+        newCath = collapseMassives ([JSON.parse(get('cath', true)), cath]);
+    
+    set('cath', JSON.stringify(newCath), true);
+    
+    set(chess, JSON.stringify(newSmiles), true);
+    storageCache = _getStorage();
+    
+	reload();
+    
+    openWindow('savetouser');
+    
+    bottom.innerHTML = '';
+    obj.innerHTML = '';
+    
+    openAlert({text: 'Смайлы пользователя добавлены к вашим!'});
+}
+
+function changePassword ()
+{
+    let v = 'changepassword';
+    
+    change('init', { text: `${v} ifpasschanged`, button: `${v} bottom fing` },
+       'Идёт отправка запроса на смену пароля'
+    );
+    
+    sendCall('changePassword', {
+        old: __('input[oldpass]').value,
+        to: __('input[newpass]').value
+    });
+}
+
+function stayPassword ()
+{
+    let v = 'staypassword';
+    
+    change('init', { text: `${v} ifpasschanged`, button: `${v} bottom fing` },
+       'Проверка правильности пароля'
+    );
+    
+    sendCall('stayPassword', {
+        pass: __('input[thispass]').value
+    });
 }

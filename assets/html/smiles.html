@@ -1,0 +1,37 @@
+<top>
+    Редактор смайлов 
+    <center>
+        <close class='fa fa-cog' onclick="openWindow('asett')" title='Настройка расширения'></close>
+        <close class='fa fa-times' onclick="openWindow('smiles')" title='Закрыть'></close>
+    </center>
+</top>
+
+<middle>
+    <information smiles>
+        
+    </information>
+    
+    <finder>
+        <category>
+            <input type='text' mode='withoutfone' name='tab' placeholder='Категория' value='Без категории'>
+            <listed>
+
+            </listed>
+        </category>
+        <input type='text' name='name' placeholder='Имя'>
+        <input type='text' name='src' placeholder='Ссылка'>
+        <fing onclick="add({bool: 'true'})">Добавить</fing>
+    </finder>
+
+    <smile-list>
+
+    </smile-list>
+</middle>
+
+<bottom>
+    <center>
+        <fing onclick="openWindow('savetouser')">Получить смайлы</fing>
+    </center>
+
+    <fing onclick="save()">Сохранить</fing>
+</bottom>

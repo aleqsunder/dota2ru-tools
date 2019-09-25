@@ -1,23 +1,24 @@
 /**
  *	Все основные переменные для удобства
  */
-var afp = __('fullpage'),
-	smileSett = __('smiles category', afp),
-	smileList = __('smile-list', afp),
-	reservetime = __('asett pages[name="reserve"] reservetime', afp),
-	mainsetting = $_('asett pages[name="mainsetting"] page', afp),
-	asspages = $_('asett pages[name="pagesetting"] page', afp),
-	asstabes = __('asett pages[name="tabsetting"]', afp),
-	assscroll = __('asett pages[name="scrollbar"]', afp),
-	asschat = __('asettchat pages[name="st"]', afp),
+var fullPageMain = __('fullpage'),
+	smileSett = __('smiles category', fullPageMain),
+	smileList = __('smile-list', fullPageMain),
+	reservetime = __('asett pages[name="reserve"] reservetime', fullPageMain),
+	mainsetting = $_('asett pages[name="mainsetting"] page', fullPageMain),
+	asspages = $_('asett pages[name="pagesetting"] page', fullPageMain),
+	asstabes = __('asett pages[name="tabsetting"]', fullPageMain),
+	assscroll = __('asett pages[name="scrollbar"]', fullPageMain),
+	asschat = __('asettchat pages[name="st"]', fullPageMain),
 	getchat = get('chat'),
 	storagePage = JSON.parse(get('page', true)), 
 	cath = JSON.parse(get('cath', true)), 
-	alert = __('alert', afp), aflag = true;
+	alert = __('alert', fullPageMain), aflag = true;
 
 /*
 	Отображение сообщений
 */
+
 if (mode == 'unknown' && __('head title').innerText == 'Форум Dota 2' && (getchat == 'true' || getchat == null))
 {	
 	setInterval
@@ -435,7 +436,7 @@ if (mode == 'unknown' && __('head title').innerText == 'Форум Dota 2' && (g
 	
 	chatTitle.appendChild
 	(dom(
-		`<a onclick="adoor('asettchat'); return false" data-id="chatBlock" data-title="Настройки расширения" href="#" class="right fa fa-wrench"></a>`
+		`<a onclick="openWindow('asettchat'); return false" data-id="chatBlock" data-title="Настройки расширения" href="#" class="right fa fa-wrench"></a>`
 	));
 	
 	var red = (has('chatTurn')) ? '' : ' red';
@@ -458,6 +459,26 @@ function reload ()
 		
 		input.checked = (get(input.value) == 'true');
 	});
+    
+    watching
+    ({
+        elem: 'input[oldpass]',
+
+        callback: function (el)
+        {
+            el.value = has('docs-password', true) ? get('docs-password', true) : get('docs-username', true);
+        }
+    });
+    
+    watching
+    ({
+        elem: 'input[thispass]',
+
+        callback: function (el)
+        {
+            el.value = has('docs-password', true) ? get('docs-password', true) : get('docs-username', true);
+        }
+    });
 	
 	if (has('pages', true))
 		remove('pages', true);
@@ -468,7 +489,7 @@ function reload ()
 		storagePage = JSON.parse(get('page', true));
 	}
     
-    __('[userstyles]').value = JSON.parse(get('userstyles-css')) || ``;
+    __('textarea[userstyles]').value = JSON.parse(get('userstyles-css')) || ``;
 	
 	// Переприсваиваем все разрешённые вкладки смайлов
 	asspages.forEach
@@ -497,7 +518,6 @@ function reload ()
 	Object.keys(cath).forEach
 	(function (tab) {
 		tab = cath[tab];
-		log(tab, tab.name, tab.index);
 		
 		arraytabes.push({ name: tab.name, index: tab.index, hidden: tab.hidden });
 		
@@ -551,8 +571,6 @@ function reload ()
 		
 		chess = 'a-dota2smile';
 		save();
-		
-		log(_getStorage);
 		
 		document.location.reload();
 		return false;

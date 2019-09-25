@@ -137,3 +137,10 @@
 {
     max-height: 1000px;
 }
+
+a[dialog]
+{
+    color: #989899!important;
+    margin: 4px 12px!important;
+    font-size: 12px;
+}

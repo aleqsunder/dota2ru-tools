@@ -1,0 +1,22 @@
+<top>
+    Настройки размера смайла 
+    <close class='fa fa-times' onclick="openWindow('chan')"></close>
+</top>
+
+<middle>
+    <helper>Включенный режим - управление размером<br>Выключенный режим - фиксированный размер</helper>
+    <canEdit onclick="CEtoggle()"></canEdit>
+    <finder name='hiddly'>
+        <input type='text' name='width' placeholder='Ширина'>
+        <input type='text' name='height' placeholder='Высота'>
+    </finder>
+
+    <helper>Укажите категорию смайла</helper>
+    <finder style='justify-content: center'>
+        <input type='text' name='tab' placeholder='Категория'>
+    </finder>
+</middle>
+
+<bottom>
+    <fing onclick="chan()">Сохранить</fing>
+</bottom>

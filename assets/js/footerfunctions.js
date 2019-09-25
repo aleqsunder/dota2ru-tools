@@ -1,3 +1,4 @@
+
 /**
  * Общие переменные
  */
@@ -43,6 +44,36 @@ var chess = 'a-dota2smile',
 		}
 	];
 	
+/**
+ * Загрузка локальных файлов
+ *
+ * @param string url
+ *
+ * @return promise
+ */
+function upload (url)
+{
+    return fetch(getURL(url))
+        .then ( function (response) { return response.text() })
+        .then ( function (html) { return html });
+}
+
+/**
+ * Отправка запроса вызова ф-ии в background
+ *
+ * @param string url
+ *
+ * @return promise
+ */
+function sendCall (name, value)
+{
+    var cV = JSON.parse(get('callerVariable', true)),
+        value = JSON.stringify(value) || "{}";
+    
+    cV[name] = value;
+    set('callerVariable', JSON.stringify(cV), true);
+}
+
 /**
  * Кастомный log
  *
@@ -118,36 +149,56 @@ function has (item, a)
 /**
  * Загрузка разрешённых стилей и скриптов
  *
- * @param string capt
+ * @param array capt
  */
 function load (capt)
 {
-    var name = capt.split('.')[0],
-        type = capt.split('.')[1],
-        elem = type == 'css' ? 'style' : type == 'js' ? 'script' : 'user';
+    capt.forEach
+    (function (a) {
+        var name = a.split('.')[0],
+            type = a.split('.')[1],
+            elem = type == 'css' ? 'style' : type == 'js' ? 'script' : 'user';
 
-    if (get(name) == 'false') return false;
-    else set(name, 'true');
-    
-    if (capt.indexOf('.') > -1)
-    {
-        fetch(chrome.extension.getURL(`/assets/${type}/${name}.${type}`))
-        .then(function(response){
-            return response.text();
-        })
-        .then(function(html){
-            createDom(elem, html);
-            log(`${name}.${type} загружен успешно`);
-        });
-    }
-    else
-    {
-        setTimeout
-        ( () => {
-            let html = JSON.parse(get(`${capt}-css`));
-            createDom('style', html);
-        });
-    }
+        if (get(name) == 'false') return false;
+        else set(name, 'true');
+
+        if (a.indexOf('.') > -1)
+        {
+            fetch(chrome.extension.getURL(`/assets/${type}/${name}.${type}`))
+            .then(function(response){
+                return response.text();
+            })
+            .then(function(html){
+                createDom
+                ({
+                    name: elem,
+                    html: html,
+                    bounty:
+                    {
+                        name: name,
+                        value: true
+                    }
+                });
+            });
+        }
+        else
+        {
+            setTimeout
+            ( () => {
+                let html = JSON.parse(get(`${a}-css`));
+                createDom
+                ({
+                    name: 'style',
+                    html: html,
+                    bounty:
+                    {
+                        name: a,
+                        value: ''
+                    }
+                });
+            });
+        }
+    });
 }
 
 /**
@@ -197,12 +248,15 @@ function dom (html)
  *
  *	@return HTMLElement
  */
-function createDom (elem, html)
+function createDom ({name, html, classes, bounty})
 {
-    var el = document.createElement(elem);
-        el.innerHTML = html;
-
-        document.head.appendChild(el);
+    var el = document.createElement(name);
+        el.innerHTML = html || '';
+    
+    if (classes) el.classList = classes;
+    if (bounty) el.setAttribute(bounty.name, bounty.value);
+    
+    document.head.appendChild(el);
 }
 
 /**
@@ -295,4 +349,32 @@ function _getStorage ()
 		storage = JSON.parse(storage);
 
 	return storage;
+}
+
+function change (type, name, value)
+{
+    switch (type)
+    {
+        case 'success':
+            __(name).innerText = `Успешно > ${value}`;
+            __(name).style.setProperty('background', '#00bfff', 'important');
+        break;
+            
+        case 'failed':
+            __(name).innerText = `Ошибка > ${value}`;
+            __(name).style.setProperty('background', 'red', 'important');
+        break;
+            
+        case 'init':
+            __(name.text).innerText = value;
+            __(name.text).style.setProperty('background', '#00bfff', 'important');
+            __(name.button).style.setProperty('height', '0px', 'important');
+            __(name.button).style.setProperty('opacity', '0', 'important');
+        break;
+            
+        case 'finally':
+            __(name).style.setProperty('height', '27px', 'important');
+            __(name).style.setProperty('opacity', '1', 'important');
+        break;
+    }
 }

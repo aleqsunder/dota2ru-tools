@@ -137,10 +137,10 @@ body
 
 #chatFull .chatContainer
 {
+    overflow-x: hidden;
 	border: none!important;
 	background: none!important;
 	height: 250px!important;
-	/* width: calc(100% - 26px)!important; */
 	margin: 0 15px 0!important;
 	padding: 0!important;
 }

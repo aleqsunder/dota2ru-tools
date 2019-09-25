@@ -1,40 +1,40 @@
 /**
  *	Смена страниц
  */
-function adoor (elem)
+function openWindow (elem)
 {
 	var flag = '';
 	
-	if (!__('.open', afp))
+	if (!__('.open', fullPageMain))
 	{
-		afp.classList.toggle('open');
-		afp.classList.toggle('margin');
+		fullPageMain.classList.toggle('open');
+		fullPageMain.classList.toggle('margin');
 	}
 	
-	__(`backfon.${elem}`, afp).classList.toggle('open');
-	if (flag = __(elem, afp).classList.toggle('open'))
+	__(`backfon.${elem}`, fullPageMain).classList.toggle('open');
+	if (flag = __(elem, fullPageMain).classList.toggle('open'))
 	{
-		__(`backfon.${elem}`, afp).classList.toggle('margin');
-		__(elem, afp).classList.toggle('margin');
+		__(`backfon.${elem}`, fullPageMain).classList.toggle('margin');
+		__(elem, fullPageMain).classList.toggle('margin');
 	}
 	else
 	{
 		setTimeout
 		( function () {
-			__(`backfon.${elem}`, afp).classList.toggle('margin');
-			__(elem, afp).classList.toggle('margin');
+			__(`backfon.${elem}`, fullPageMain).classList.toggle('margin');
+			__(elem, fullPageMain).classList.toggle('margin');
 		}, 400);
 	}
 	
 	if (elem == 'saveto' && flag)
 		saveTo();
 	
-	if (!__('.open', afp))
+	if (!__('.open', fullPageMain))
 	{
 		setTimeout
 		( function () {
-			afp.classList.toggle('open');
-			afp.classList.toggle('margin');
+			fullPageMain.classList.toggle('open');
+			fullPageMain.classList.toggle('margin');
 		}, 400);
 	}
 }
@@ -50,7 +50,7 @@ function openAlert ({text, wait, button, titleOf})
 	__('top', alert).textContent = header;
 	__('middle', alert).innerHTML = text;
 	
-	adoor('alert');
+	openWindow('alert');
 	
 	if (wait)
 	{
@@ -65,10 +65,9 @@ function openAlert ({text, wait, button, titleOf})
 			
 			button.forEach
 			( function (a) { 
-				log(a);
 				bottom.appendChild
 				( dom(`
-					<fing onclick="${a.callback}; adoor('alert'); this.parentElement.outerHTML = '';">
+					<fing onclick="${a.callback}; openWindow('alert'); this.parentElement.outerHTML = '';">
 						${a.value}
 					</fing>
 				`));
@@ -79,7 +78,7 @@ function openAlert ({text, wait, button, titleOf})
 		__('fullpage backfon.alert').setAttribute
 		(
 			'onclick',
-			`adoor('alert'); this.querySelector('bottom').outerHTML = ''; this.querySelector('top').style = ''; this.onclick = 'return false;'`
+			`openWindow('alert'); __('alert bottom').outerHTML = ''; __('alert top').style = ''; this.onclick = 'return false;'`
 		);
 	}
 	else
@@ -87,7 +86,7 @@ function openAlert ({text, wait, button, titleOf})
 		// Временное уведомление закрывается само
 		setTimeout
 		(function () {
-			adoor('alert');
+			openWindow('alert');
 		}, 2000);
 	}
 }

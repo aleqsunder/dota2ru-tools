@@ -5,6 +5,7 @@ function dist ()
 {
 	var ob = this,
 		type = dtod(ob, 'button'),
+        middleContent = tinyMCE.activeEditor.selection.getContent({format : 'html'}),
 		before = '', context = '', after = '';
 		
 	switch (type)
@@ -12,38 +13,41 @@ function dist ()
 		case 'code':
 			tinyExec
 			({
-				before: `<div class="bbCodeBlock bbCodeQuote" style="background-color: rgba(0,0,0,0);"> <blockquote class="quoteContainer"> <p>`,
-				context: tinyMCE.activeEditor.selection.getContent({format : 'html'}),
-				after: `</p> </blockquote> </div>`
+				before: `<div class="spoiler"><div class="spoiler-content"><p>`,
+				context: middleContent,
+				after: `</p></div></div>`
 			});
 			break;
 			
 		case 'font-size':
-			if (ob.tagName == 'SPAN')
-			{
-				ob.style.setProperty('font-size', dtod(ob, 'font-size'));
-				smce(ob, 'style', ob.style.cssText);
-			}
-			else
-			{
-				var fontSize = dtod(ob, 'font-size');
-				
-				tinyExec
-				({
-					before: `<span style="font-size: ${fontSize}px;" data-mce-style="font-size: ${fontSize}px;">`,
-					context: tinyMCE.activeEditor.selection.getContent({format : 'html'}),
-					after: `</span>`
-				});
-			}
+            var fontSize = dtod(ob, 'font-size');
+            
+            var dol = document.createElement('div');
+            dol.innerHTML = middleContent;
+            
+            $_('span', dol).forEach((a) => {
+                if (a.style.hasOwnProperty('font-size'))
+                    a.style.removeProperty('font-size');
+            });
+
+            tinyExec
+            ({
+                before: `<span style="font-size: ${fontSize}px;" data-mce-style="font-size: ${fontSize}px;">`,
+                context: dol.innerHTML,
+                after: `</span>`
+            });
 			
+            delete dol;
 			break;
+            
 		case 'font-background':
 			if (ob.tagName == 'SPAN')
 			{
-				ob.style.setProperty('padding', '0 2px');
+                console.log(this);
 				ob.style.setProperty('background', '#989899');
 				ob.style.setProperty('color', '#1b1c20');
-				
+				console.log(ob);
+                
 				smce(ob, 'style', ob.style.cssText);
 			}
 			else
@@ -53,13 +57,15 @@ function dist ()
 				tinyExec
 				({
 					before: `<span style="background-color: #989899; color: #1b1c20;" data-mce-style="background-color: #989899; color: #1b1c20;">`,
-					context: tinyMCE.activeEditor.selection.getContent({format : 'html'}),
+					context: `&nbsp;${middleContent}&nbsp;`,
 					after: `</span>`
 				});
 			}
 			
 			break;
 	}
+    
+    console.log(ob);
 }
 
 /**
@@ -246,9 +252,9 @@ if (tinyMods.indexOf(mode) > -1)
 			("mouseenter", function (event) {
 				var ob = this,
 					title = ob.getAttribute('dota-title'),
-					mcet = document.querySelector('div.mce-tooltip');
-					
-				log(event, this);
+					mcet = document.querySelector('div.mce-tooltip'),
+                    clientRect = el.getBoundingClientRect().top,
+                    top = window.scrollY + clientRect + el.clientHeight;
 					
 				if (!mcet)
 				{
@@ -264,6 +270,7 @@ if (tinyMods.indexOf(mode) > -1)
 				mcet.querySelector('.mce-tooltip-inner').innerText = title;
 				mcet.style.setProperty('display', 'block');
 				mcet.style.setProperty('left', ((parseInt(el.offsetLeft) + 204) - (parseInt(mcet.offsetWidth))/2 + (parseInt(el.offsetWidth)/2)) + "px");
+                mcet.style.setProperty('top', `${top}px`)
 			});
 			
 			el.addEventListener

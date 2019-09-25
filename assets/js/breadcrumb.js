@@ -3,7 +3,7 @@ var open_count = 0, left = 0,
 
 if (!has('breadcrumb-isCascade'))
 {
-    log('[breadcrumb] Установлены первоначальные настройки');
+    log('breadcrumb > Установлены первоначальные настройки');
     
     set('breadcrumb-isCascade', 'true');
     set('breadcrumb-left', '160');
@@ -21,12 +21,15 @@ document.addEventListener
 
 watching
 ({
-	elem: 'blockquote.messageText div.attribution a',
+	elem: 'blockquote.messageText div.attribution a[href]',
 	bool: true,
 	
 	callback: function (el)
 	{
-		el.addEventListener('click', {handleEvent: openbc, b: true});
+        var elem = dom(`<a dialog class="fa fa-folder-o"></a>`)
+		elem.addEventListener('click', {handleEvent: openbc, b: true});
+        
+        el.parentElement.appendChild(elem);
 	}
 });
 
@@ -73,7 +76,7 @@ function openbc (e)
 		set = __(`.bc-loaded-post`),
 		ob = dom(
 			`<div class='bc-loaded-post' data-post-id='${post_id}' data-author='${author}' style='left: ${x}px; top: ${y}px;'>
-				<usercode>Сообщение ${author} <code>#${post_id}</code></usercode>
+				<usercode>Сообщение <a href='https://dota2.ru/forum/posts/${post_id}/'>${author}#${post_id} (ссылка на пост)</a></usercode>
 				<postmessage data-post-id='${post_id}' data-author='${author}'>
 					Загрузка...
 				</postmessage>
@@ -110,7 +113,7 @@ function openbc (e)
 				data = Base64.decode(response.data);
 				data = data.replace(
 					/<p>\[QUOTE=\"(.*?), post: (.*?), member: (.*?)\"\]<\/p>(.*?)<p>\[\/QUOTE\]<\/p>/ig,
-					"<loadpost data-post-id='$2' data-author='$1'><div class='bc-nickname'>$1<a onclick='openbc.call(this, event, true); return false;'>#$2</a></div><div class='bc-loadpost'>$4<div class='bottomborder'></div></div></loadpost>"
+					"<loadpost data-post-id='$2' data-author='$1'><div class='bc-nickname'>$1<a onclick='openbc.call(this, event, true); return false;'> #$2</a></div><div class='bc-loadpost'>$4<div class='bottomborder'></div></div></loadpost>"
 				)
 				
 				__('postmessage', ob).innerHTML = data;
