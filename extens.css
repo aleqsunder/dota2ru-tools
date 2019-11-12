@@ -138,6 +138,7 @@ fullpage middle
 {
 	height: auto;
 	flex-direction: column;
+	overflow: hidden;
 	
 	padding: 10px 16px;
 }

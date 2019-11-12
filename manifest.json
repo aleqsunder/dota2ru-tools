@@ -1,6 +1,6 @@
 {
 	"manifest_version": 2,
-	"version": "1.0.0.0",
+	"version": "1.0.0.1",
 	
 	"name": "D2S - форумный редактор",
 	"description": "Кастомные смайлы, новый чат, редактор текста и прочее!",
@@ -18,7 +18,9 @@
 		"run_at": "document_start"
 	} ],
     "permissions": [
-        "*://*/"
+        "*://dota2.ru/*",
+		"*://script.google.com/*",
+		"*://script.googleusercontent.com/*"
     ],
 	"icons": {
 		"128": "assets/images/favicon_128.png",
