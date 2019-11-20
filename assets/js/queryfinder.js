@@ -1,8 +1,8 @@
-function __ (selector,context) {
-	return $_(selector,context)[0] || null;
+function qs (selector,context) {
+	return qsa(selector,context)[0] || null;
 }
 
-function $_ (selector,context) {
+function qsa (selector,context) {
 	context = context || document;
 
 	if (!/^(#?[\w-]+|\.[\w-.]+)$/.test(selector)) {

@@ -1,15 +1,11 @@
-class datadocs
-{
-    constructor ({ database_name, username, password })
-    {
+class datadocs {
+    constructor ({ database_name, username, password }) {
         this.database_name = database_name;
-        
         this.username = get('docs-username', true) || undefined;
         this.password = get('docs-password', true) || undefined;
     }
     
-    saveSmiles ()
-    {
+    saveSmiles () {
         let date = Date.now();
         set('lasttime', date);
         
@@ -23,8 +19,7 @@ class datadocs
         });
     }
     
-    getSmiles (name)
-    {
+    getSmiles (name) {
         name = name || this.username || get('docs-username', true);
         
         return this.send ({
@@ -33,35 +28,26 @@ class datadocs
         });
     }
     
-    loadSmiles ()
-    {
-        this.getSmiles()
-        .then((res) => {
-            if (res.type == 'Успешно')
-            {
-                if (res.lasttime > JSON.parse(get('lasttime')))
-                {
+    loadSmiles () {
+        this.getSmiles().then((res) => {
+            if (res.type == 'Успешно') {
+                if (res.lasttime > JSON.parse(get('lasttime'))) {
                     log(`GetSmiles > ${res.type} > Смайлы на сервере новее, присваиваем себе`);
                     set('a-dota2smile', res.value, true);
                     set('cath', res.cath, true);
                     set('lasttime', res.lasttime);
                     
                     document.location.reload();
-                }
-                else
-                {
+                } else {
                     log(`GetSmiles > ${res.type} > У вас самые свежие смайлы`);
                 }
-            }
-            else
-            {
+            } else {
                 log(`GetSmiles > ${res.type} > ${res.name}`);
             }
         });
     }
     
-    registration ({ password })
-    {
+    registration ({ password }) {
         if (!password)
             return { type: 'Ошибка', name: 'Регистрация не удалась - не указан пароль' }
         
@@ -72,8 +58,7 @@ class datadocs
         });
     }
     
-    changePassword ({ old, to })
-    {
+    changePassword ({ old, to }) {
         let incaps = this;
         
         return this.send ({
@@ -81,20 +66,15 @@ class datadocs
             username: get('docs-username', true),
             oldpassword: old,
             newpassword: to
-        })
-        .then((res) => {
-            if (res.type == 'Успешно')
-            {
+        }).then((res) => {
+            if (res.type == 'Успешно') {
                 log (`changePassword > ${res.type} > ${res.name}`);
                 set('docs-password', res.newpass, true);
                 incaps.password = res.newpass;
                 
                 change('success', `changepassword ifpasschanged`, `${res.type} > ${res.name}`);
-            }
-            else if (res.caption == 'incorrectOldPassword')
-            {
-                if (!has('docs-password', true) || get('docs-username') == res.pass)
-                {
+            } else if (res.caption == 'incorrectOldPassword') {
+                if (!has('docs-password', true) || get('docs-username') == res.pass) {
                     log (`changePassword > Забыли пароль? Напишите мне в личку > AdmAlexander`);
                 }
                 
@@ -103,36 +83,31 @@ class datadocs
             }
             
             change('finally', `changepassword ifpasschanged`);
-            __('changepassword input[oldpass]').value = res.newpass;
-            __('changepassword input[newpass]').value = ''; 
+            qs('changepassword input[oldpass]').value = res.newpass;
+            qs('changepassword input[newpass]').value = ''; 
             
             return res;
         });
     }
     
-    stayPassword ({ password })
-    {
+    stayPassword({ password }) {
         let incaps = this;
         
         return this.send ({
             type: 'staypassword',
             username: get('docs-username', true),
             password: password
-        })
-        .then((res) => {
+        }).then((res) => {
             console.log(res.type);
             
-            if (res.type == 'Успешно')
-            {
+            if (res.type == 'Успешно') {
                 log (`stayPassword > ${res.type} > ${res.name}`);
                 set('docs-password', res.pass, true);
                 incaps.password = res.pass;
                 
                 change('success', `staypassword ifpasschanged`, `${res.name}`);
-                __('staypassword input[thispass]').value = res.pass;
-            }
-            else if (res.caption == 'incorrectOldPassword')
-            {   
+                qs('staypassword input[thispass]').value = res.pass;
+            } else if (res.caption == 'incorrectOldPassword') {   
                 log (`${res.type} > ${res.name}`);
                 change('failed', `staypassword ifpasschanged`, `${res.name}`);
             };
@@ -142,28 +117,21 @@ class datadocs
         });
     }
     
-    firstInit ()
-    {
+    firstInit () {
         let incaps = this;
         
-        watching
-        ({
+        watching ({
             elem: 'div.userbar span.username',
-            callback: function (el)
-            {
+            callback: (el) => {
                 set('docs-username', el.innerText, true);
                 incaps.username = el.innerText;
                 
-                incaps.registration({ password: el.innerText })
-                .then (function (res) {
-                    if (res.type == 'Успешно')
-                    {
+                incaps.registration({ password: el.innerText }).then ((res) => {
+                    if (res.type == 'Успешно') {
                         log (`Register > ${res.type} > Пользователь успешно зарегистрирован!`);
                         incaps.password = get('docs-username', true);
                         set('docs-password', get('docs-username', true), true);
-                    }
-                    else
-                    {
+                    } else {
                         log(`Register > ${res.type} > ${res.name}`);
                     }
                     
@@ -173,25 +141,17 @@ class datadocs
         });
     }
     
-    send (p)
-    {
+    send (p) {
         let url = `https://script.google.com/macros/s/${this.database_name}/exec`;
         
-        return fetch(url, {
-            headers: {
-              'Accept': 'application/json',
-              'Content-Type': 'application/json'
-            },
+        return fetch(url, {headers: { 'Accept': 'application/json', 'Content-Type': 'application/json'},
             method: "POST",
             body: JSON.stringify(p)
-        })
-        .then(function (res) {
-            if (res.status)
-            {
+        }).then(function (res) {
+            if (res.status) {
                 let response = {};
                 
-                switch (res.status)
-                {
+                switch (res.status) {
                     case 200:
                         response = res.json();
                     break;
@@ -241,9 +201,7 @@ class datadocs
                 }
                 
                 return response;
-            }
-            else
-            {
+            } else {
                 return { type: 'Ошибка', name: 'Ответ не получен' }
             }
         })

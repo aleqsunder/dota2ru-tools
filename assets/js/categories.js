@@ -1,24 +1,20 @@
 /**
  *	Взятие категории
  */
-function takeTab (tab)
-{ __('input', smileSett).value = tab }
+function takeTab (tab) { qs('input', smileSett).value = tab }
 
 /**
  *	Удаление категории
  */
-function delTab (tab, bool)
-{
-	if (bool === true)
-	{
-		__(`page[tab="${tab}"]`, asstabes).outerHTML = '';
-		__(`listed tab[alt="${tab}"]`, smileSett).outerHTML = '';
-		__(`tab[alt="${tab}"]`, smileList).outerHTML = '';
+function delTab (tab, bool) {
+	if (bool === true) {
+		qs(`page[tab="${tab}"]`, asstabes).outerHTML = '';
+		qs(`listed tab[alt="${tab}"]`, smileSett).outerHTML = '';
+		qs(`tab[alt="${tab}"]`, smileList).outerHTML = '';
 		
 		array = [];
 		
-		Object.keys(cath).forEach
-		( function (a) {
+		Object.keys(cath).forEach((a) => {
 			b = cath[a];
 			
 			if (b.name != tab)
@@ -27,11 +23,8 @@ function delTab (tab, bool)
 		
 		cath = array;
 		set('cath', JSON.stringify(cath), true);
-	}
-	else
-	{
-		openAlert
-		({
+	} else {
+		openAlert ({
 			wait: true,
 			titleOf: 'Удаление категории',
 			text: `Вы уверены, что хотите удалить категорию ${tab}?<br>
@@ -44,10 +37,9 @@ function delTab (tab, bool)
 /**
  *	Сворачивание категории
  */
-function ahide (tab)
-{
-	var tab = __(`tab[alt="${tab}"]`, smileList),
-		close = __('hit close', tab);
+function ahide (tab) {
+	var tab = qs(`tab[alt="${tab}"]`, smileList),
+		close = qs('hit close', tab);
 		
 	tab.classList.toggle('minimized');
 	
@@ -58,24 +50,21 @@ function ahide (tab)
 /**
  *	Сохранение списка страниц
  */
-function savePages (output)
-{
-	var mains = $_("asett pages[name='mainsetting'] page"),
-		pages = $_("asett pages[name='pagesetting'] page"),
-		tabs = $_("asett pages[name='tabsetting'] page"),
+function savePages (output) {
+	var mains = qsa("asett pages[name='mainsetting'] page"),
+		pages = qsa("asett pages[name='pagesetting'] page"),
+		tabs = qsa("asett pages[name='tabsetting'] page"),
 		arrayPage = {}, arrayTab = [], j = 0;
 		
-	mains.forEach
-	( function (a) {
-		var input = __('input[type="checkbox"]', a);
+	mains.forEach((a) => {
+		var input = qs('input[type="checkbox"]', a);
 		
 		set(input.value, input.checked);
 	});
 		
-	pages.forEach
-	( function (a) {
-		var input = __('input[type="checkbox"]', a),
-			name = __('input[type="text"]', a).value;
+	pages.forEach((a) => {
+		var input = qs('input[type="checkbox"]', a),
+			name = qs('input[type="text"]', a).value;
 			
 		arrayPage[input.value] = {name: name, is: input.checked};
 	});
@@ -83,23 +72,19 @@ function savePages (output)
 	set('page', JSON.stringify(arrayPage), true);
 	storagePage = arrayPage;
 	
-	tabs.forEach
-	( function (a) {
-		var index = __('input[name="index"]', a).value,
-			tab = __('input[name="tab"]', a).value,
+	tabs.forEach((a) => {
+		var index = qs('input[name="index"]', a).value,
+			tab = qs('input[name="tab"]', a).value,
 			oldtab = a.getAttribute('tab');
 			
 		arrayTab[j] = {name: tab, index: index};
 		j++;
 		
-		if (tab != oldtab)
-		{
-			Object.keys(storageCache).forEach
-			( function (a) {
+		if (tab != oldtab) {
+			Object.keys(storageCache).forEach((a) => {
 				var el = JSON.parse(storageCache[a]);
 				
-				if (el.tab == oldtab)
-				{
+				if (el.tab == oldtab) {
 					el.tab = tab;
 					setStorage(el.name, JSON.stringify(el));
 				}
@@ -112,27 +97,23 @@ function savePages (output)
 	
 	reload();
 	
-	openAlert
-	({
+	openAlert ({
 		titleOf: 'Настройки',
 		text: output || 'Отображение изменено по вашему усмотрению!'
 	});
 }
 
-function userStyles ()
-{
-    set('userstyles-css', JSON.stringify(__('textarea[userstyles]').value));
-    __('style[userstyles]').innerHTML = __('textarea[userstyles]').value;
+function userStyles () {
+    set('userstyles-css', JSON.stringify(qs('textarea[userstyles]').value));
+    qs('style[userstyles]').innerHTML = qs('textarea[userstyles]').value;
     
-	openAlert
-	({
+	openAlert ({
 		titleOf: 'Редактор стилей',
 		text: 'Стили изменены!'
 	});
 }
 
-const startScanning = function (event)
-{ 
+const startScanning = (event) => { 
     var puth = '',
         el = event.target,
         style = getComputedStyle(el),
@@ -145,63 +126,54 @@ const startScanning = function (event)
     el.style.setProperty('border', '1px solid yellow', 'important');
     el.style.setProperty('margin', `${top} ${right} ${bottom} ${left}`);
 
-    el.addEventListener
-    ('mouseout', function (event) {
+    el.addEventListener('mouseout', (event) => {
         var el = event.target;
         
         el.style.removeProperty('border');
         el.style.removeProperty('margin');
     });
 
-    while (el.nodeName != 'BODY')
-    {
+    while (el.nodeName != 'BODY') {
         var classes = el.className.replace(/\s+/g, ' ').trim().split(' ').join('.');
 
         while (classes.indexOf('..') > -1)
             classes = classes.replace('..', '.');
 
-        if (classes.length == 0)
-            puth = `${el.nodeName} ${puth}`;
-        
-        else
-            puth = `${el.nodeName}.<span style='font-size: 9px'>${classes}</span> ${puth}`;
+        if (classes.length == 0) puth = `${el.nodeName} ${puth}`;
+        else puth = `${el.nodeName}.<span style='font-size: 9px'>${classes}</span> ${puth}`;
 
         el = el.parentElement;
     }
 
-    __('bottomhelper').innerHTML = puth;
+    qs('bottomhelper').innerHTML = puth;
 }
 
-function animateClosing ()
-{
-    __('bottomhelper').style.setProperty('margin-top', '50px');
-    __('bottomhelper').style.setProperty('margin-left', '50%');
-    __('bottomhelper').style.setProperty('transform', 'translateX(-50%)');
-    __('bottomhelper').style.setProperty('width', 'auto');
-    __('bottomhelper').style.setProperty('text-align', 'center');
-    __('bottomhelper').style.setProperty('font-size', '13px');
+function animateClosing () {
+    qs('bottomhelper').style.setProperty('margin-top', '50px');
+    qs('bottomhelper').style.setProperty('margin-left', '50%');
+    qs('bottomhelper').style.setProperty('transform', 'translateX(-50%)');
+    qs('bottomhelper').style.setProperty('width', 'auto');
+    qs('bottomhelper').style.setProperty('text-align', 'center');
+    qs('bottomhelper').style.setProperty('font-size', '13px');
     
     setTimeout (() => {
-        __('bottomhelper').style.setProperty('opacity', '0');
-        __('bottomhelper').style.setProperty('margin-top', '0px');
+        qs('bottomhelper').style.setProperty('opacity', '0');
+        qs('bottomhelper').style.setProperty('margin-top', '0px');
         
         setTimeout (() => {
-            
-            __('bottomhelper').outerHTML = '';
+            qs('bottomhelper').outerHTML = '';
         }, 300);
     }, 500);
 }
 
-function scanDom ()
-{
+function scanDom () {
     var bottomhelper = document.createElement('bottomhelper'),
         body = document.body;
 
     body.appendChild(bottomhelper);
     body.addEventListener('mouseover', startScanning);
     
-    body.addEventListener
-    ('click', function (e) { 
+    body.addEventListener('click', (e) => { 
         e.preventDefault();
         e.stopPropagation();
         
@@ -212,16 +184,12 @@ function scanDom ()
     });
 }
 
-watching
-({
+watching ({
 	elem: 'textarea[userstyles]',
 	
-	callback: function (el)
-	{
-		el.addEventListener
-        ('keydown', function (e) {
-            if(e.keyCode === 9)
-            {
+	callback: (el) => {
+		el.addEventListener ('keydown', (e) => {
+            if(e.keyCode === 9) {
                 e.preventDefault();
                 
                 var start = this.selectionStart,

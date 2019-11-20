@@ -1,18 +1,15 @@
 /**
  *	Дистрибьютор
  */
-function dist ()
-{
+function dist () {
 	var ob = this,
 		type = dtod(ob, 'button'),
         middleContent = tinyMCE.activeEditor.selection.getContent({format : 'html'}),
 		before = '', context = '', after = '';
 		
-	switch (type)
-	{
+	switch (type) {
 		case 'code':
-			tinyExec
-			({
+			tinyExec({
 				before: `<div class="spoiler"><div class="spoiler-content"><p>`,
 				context: middleContent,
 				after: `</p></div></div>`
@@ -25,13 +22,12 @@ function dist ()
             var dol = document.createElement('div');
             dol.innerHTML = middleContent;
             
-            $_('span', dol).forEach((a) => {
+            qsa('span', dol).forEach((a) => {
                 if (a.style.hasOwnProperty('font-size'))
                     a.style.removeProperty('font-size');
             });
 
-            tinyExec
-            ({
+            tinyExec({
                 before: `<span style="font-size: ${fontSize}px;" data-mce-style="font-size: ${fontSize}px;">`,
                 context: dol.innerHTML,
                 after: `</span>`
@@ -41,21 +37,17 @@ function dist ()
 			break;
             
 		case 'font-background':
-			if (ob.tagName == 'SPAN')
-			{
+			if (ob.tagName == 'SPAN') {
                 console.log(this);
 				ob.style.setProperty('background', '#989899');
 				ob.style.setProperty('color', '#1b1c20');
 				console.log(ob);
                 
 				smce(ob, 'style', ob.style.cssText);
-			}
-			else
-			{
+			} else {
 				var fontSize = dtod(ob, 'font-size');
 				
-				tinyExec
-				({
+				tinyExec ({
 					before: `<span style="background-color: #989899; color: #1b1c20;" data-mce-style="background-color: #989899; color: #1b1c20;">`,
 					context: `&nbsp;${middleContent}&nbsp;`,
 					after: `</span>`
@@ -64,59 +56,40 @@ function dist ()
 			
 			break;
 	}
-    
-    console.log(ob);
 }
 
 /**
  *	Получение data из namespace dota
  */
-function dtod (element, a)
-{
-	return element.getAttribute(`dota-${a}`);
-}
+function dtod (element, a) { return element.getAttribute(`dota-${a}`) }
 
 /**
  *	Установка в namespace dota
  */
-function stod (element, a, b)
-{
-	element.setAttribute(`dota-${a}`, b);
-}
+function stod (element, a, b) { element.setAttribute(`dota-${a}`, b) }
 
 /**
  *	Установка в namespace data mce
  */
-function smce (element, a, b)
-{
-	element.setAttribute(`data-mce-${a}`, b);
-}
+function smce (element, a, b) { element.setAttribute(`data-mce-${a}`, b) }
 
 /**
  *	Замена текста
  */
-function tinyExec ({before, context, after})
-{
-	tinyMCE.activeEditor.execCommand
-	( 'mceReplaceContent', false, 
-		`${before}${context}${after}`
-	);
+function tinyExec ({before, context, after}) {
+	tinyMCE.activeEditor.execCommand('mceReplaceContent', false, `${before}${context}${after}`);
 }
 
 /**
  *	Изменение размера текста
  */
-function fontChange ()
-{
+function fontChange () {
 	var ob = this;
 	
-	if (this.tagName == 'IS')
-	{
-		__('input.a-input').value = this.innerText;
-	}
-	else
-	{
-		stod(__('i.taked', this.parentElement), 'font-size', this.value);
+	if (this.tagName == 'IS') {
+		qs('input.a-input').value = this.innerText;
+	} else {
+		stod(qs('i.taked', this.parentElement), 'font-size', this.value);
 		dist.call(this);
 	}
 }
@@ -124,9 +97,8 @@ function fontChange ()
 /**
  *	Открытие поля "размеры"
  */
-function openfontsizes ()
-{
-	var fc = __('font-size').classList;
+function openfontsizes () {
+	var fc = qs('font-size').classList;
 	
 	if (!fc.contains('opened'))
 		fc.add('opened')
@@ -135,9 +107,8 @@ function openfontsizes ()
 /**
  *	Закрытие поля "размеры"
  */
-function closefontsizes ()
-{
-	var fc = __('font-size').classList;
+function closefontsizes () {
+	var fc = qs('font-size').classList;
 	
 	if (fc.contains('opened'))
 		fc.remove('opened')
@@ -146,8 +117,7 @@ function closefontsizes ()
 /**
  *	Изменение цвета
  */
-function colorchanger ()
-{
+function colorchanger () {
 	var ob = this,
 		color = ob.value,
 		button = ob.parentElement.parentElement.querySelector('div[data-mce-color]'),
@@ -161,44 +131,32 @@ function colorchanger ()
 	button.setAttribute('style', `background-color: #${ob.value}`);
 }
 
-if (tinyMods.indexOf(mode) > -1)
-{
-	watching
-	({
+if (tinyMods.indexOf(mode) > -1) {
+	watching ({
 		elem: 'i.mce-ico.mce-i-bold',
 		bool: true,
 		
-		callback: function (el)
-		{
-			tinyMCE.activeEditor.contentDocument
-			.addEventListener("keydown", function (e) {
+		callback: (el) => {
+			tinyMCE.activeEditor.contentDocument.addEventListener("keydown", (e) => {
 				var code = e.keyCode || e.which;
 				
-				if (code == '9')
-				{
+				if (code == '9') {
 					e.preventDefault();
 					
 					var sel = tinyMCE.activeEditor.selection.getNode(),
 						pdd = parseInt(sel.style.getPropertyValue('padding-left')),
 						pom = event.shiftKey ? -1 : 1;
 						
-					if (!isNaN(pdd) && pdd != 0)
-					{
+					if (!isNaN(pdd) && pdd != 0) {
 						var result = (pdd + (pom * 30));
 						
-						if (result == 0)
-						{
+						if (result == 0) {
 							sel.style.removeProperty('padding-left');
-						}
-						else
-						{
+						} else {
 							sel.style.setProperty('padding-left', result + 'px');
 						}
-					}
-					else
-					{
-						if (!event.shiftKey)
-						{
+					} else {
+						if (!event.shiftKey) {
 							sel.style.setProperty('padding-left', '30px');
 						}
 					}
@@ -207,22 +165,18 @@ if (tinyMods.indexOf(mode) > -1)
 		}
 	});
 
-	watching
-	({
+	watching ({
 		elem: 'div[aria-label="Font Sizes"]',
 		bool: true,
 		
-		callback: function (el)
-		{
+		callback: (el) => {
 			var mce = document.querySelector('.mce-container-body.mce-flow-layout'),
 				body = dom(`<div class='mce-container mce-flow-layout-item mce-first mce-btn-group' role="group"></div>`);
 			
-			tinyButtons.forEach
-			( function (a) {
+			tinyButtons.forEach((a) => {
 				var content = a.content || '';
 				
-				body.appendChild
-				( dom (`
+				body.appendChild(dom(`
 					<div class="mce-widget mce-btn mce-btn-small" dota-title="${a.title}" tabindex="-1" onmouseleave="closefontsizes()">
 						<div class='a-button' tabindex="-1">
 							${content}
@@ -233,31 +187,26 @@ if (tinyMods.indexOf(mode) > -1)
 			});
 			
 			var mceu = document.querySelector('div[aria-label="Font Sizes"]').parentElement.parentElement;
-			
 			mce.insertBefore(body, mceu);
 			mceu.outerHTML = '';
 		}
 	});
 
-	watching
-	({
+	watching ({
 		elem: 'div[dota-title]',
 		bool: true,
 		
-		callback: function (el)
-		{
+		callback: (el) => {
 			var el = el;
 			
-			el.addEventListener
-			("mouseenter", function (event) {
+			el.addEventListener("mouseenter", (event) => {
 				var ob = this,
 					title = ob.getAttribute('dota-title'),
 					mcet = document.querySelector('div.mce-tooltip'),
                     clientRect = el.getBoundingClientRect().top,
                     top = window.scrollY + clientRect + el.clientHeight;
 					
-				if (!mcet)
-				{
+				if (!mcet) {
 					mcet = dom(
 						`<div class="mce-widget mce-tooltip mce-tooltip-n" role="presentation" style="top: 4046px; z-index: 131070; display: none;">
 							<div class="mce-tooltip-arrow"></div>
@@ -273,21 +222,18 @@ if (tinyMods.indexOf(mode) > -1)
                 mcet.style.setProperty('top', `${top}px`)
 			});
 			
-			el.addEventListener
-			("mouseleave", function (e) {
+			el.addEventListener("mouseleave", (e) => {
 				var mcet = document.querySelector('div.mce-tooltip');
 				mcet.style.setProperty('display', 'none');
 			});
 		}
 	});
 
-	watching
-	({
+	watching ({
 		elem: 'table.mce-colorbutton-grid tbody',
 		bool: true,
 		
-		callback: function (el)
-		{
+		callback: function (el) {
 			// dom не видит элементы типа <tr>
 			var doc = document.createElement('tr');
 			doc.className = 'dota-color';

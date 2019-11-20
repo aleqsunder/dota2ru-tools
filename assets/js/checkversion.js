@@ -1,25 +1,19 @@
-const version = '1.0.0.0';
+const version = '1.0.0.2';
 
 // Если новая версия
-if (get('version', true) != version)
-{
-	if (!get('first', true))
-	{
+if (get('version', true) != version) {
+	if (!get('first', true)) {
 		openWindow('wellcome');
 		
-		var qn = $_('wellcome qn', fullPageMain),
+		var qn = qsa('wellcome qn', fullPageMain),
 			len = qn.length,
 			i = 0, timer = 0;
 		
-		function trytodoit ()
-        {
-			if (i < 1)
-			{
+		function trytodoit () {
+			if (i < 1) {
 				qn[i].style.setProperty('max-height', '100px');
 				qn[i].style.setProperty('opacity', '1');
-			}
-			else
-			{
+			} else {
 				qn[i-1].style = '';
 				qn[i].style.setProperty('max-height', '100px');
 				qn[i].style.setProperty('opacity', '1');
@@ -28,14 +22,10 @@ if (get('version', true) != version)
 			i++;
 			timer = qn[i-1].innerText.length * 52;
 			
-			if (i < len)
-			{
+			if (i < len) {
 				setTimeout(trytodoit, timer);
-			}
-			else
-			{
-				setTimeout
-				( function () {
+			} else {
+				setTimeout(() => {
 					openWindow('wellcome');
 					
 					set('first', 'est zhi', true);
@@ -45,27 +35,20 @@ if (get('version', true) != version)
 		}
 		
 		trytodoit();
-	}
-	else
-	{
+	} else {
 		set('version', version, true);
 		openAlert({
 			wait: true,
 			
 			titleOf: `Обновление`,
 			text: `Новая версия ${version}! Что внутри?<br><br>
-			Что же, это первое столь глобальное обновление, но расскажу только об одной функции, всё 
-            остальное ждёт вас в самой теме (а там правда куча всего).<br>
-            Добавлена самая ожидаемая функция - доступность смайлов на ЛЮБЫХ устройствах, будь то ваш ПК, рабочий 
-            ноутбук, телефон или планшет. 
-            Для работы с ним необходима лишь авторизация в Google в любом месте, будь то Почта, YouTube и 
-            прочее. Если вы уже были авторизованы хотя бы в одном из сервисов Google, то расширение 
-            автоматически приступит к работе. Так же необходима установка расширения на них, но это ты 
-            и без меня понял)<br><br>Предсказываю вопрос - А ЗАЧЕМ?<br>
-            Отвечаю - Google Apps Script выступает в роли бекенда, и чтобы работать с ним Google требует 
-            авторизацию пользователя. Я упростил авторизацию, сделав все махинации через себя, но Google 
-            необходимо быть увереным, что пользователь есть пользователь.<br><br>Давай, беги в темку читать обо 
-            всём остальном!`
+			В общем немного переписал чат, теперь сообщения не бездумно обновляются и 
+			перезаписываются, а просто добавляются в конец. Как-то не подумал, когда изначально писал.<br><br>
+			Теперь все голосовые или музыка не останавливаются, а сообщения не пролистываются каждый раз 
+			в самый низ.<br>
+			Так же написал игнор для чата, все подробности в теме расширения.<br><br>
+			Если вкратце - анимации появления/пропадания сообщений, тот же игнор из чата и по нику в 
+			редакторе списка игнора и прочее.`
 		});
 	}
 }

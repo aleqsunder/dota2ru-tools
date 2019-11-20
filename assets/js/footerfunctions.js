@@ -10,39 +10,35 @@ var chess = 'a-dota2smile',
 	tinyMods = [ 'threads', 'conversation', 'settings' ],
 	forumpostMods = [ 'threads', 'conversation' ],
 	otherMods = [ 'category', 'notifications', 'unknown' ],
-	tinyButtons = 
-	[
-		{
-			name: 'code',
-			title: 'Код',
-			onclick: 'dist.call(this)',
-			fa: 'code'
-		},
-		{
-			name: 'font-size',
-			title: 'Размер шрифта',
-			onclick: 'dist.call(this)',
-			fa: 'text-height',
-			content: 
-				`<input onkeyup='fontChange.call(this)' onclick='openfontsizes();' class='a-input' type="number" name="font-size" min="8" max="72" placeholder="11px">
-				<font-size>
-					<is onclick='fontChange.call(this)'>8</is>
-					<is onclick='fontChange.call(this)'>12</is>
-					<is onclick='fontChange.call(this)'>14</is>
-					<is onclick='fontChange.call(this)'>18</is>
-					<is onclick='fontChange.call(this)'>24</is>
-					<is onclick='fontChange.call(this)'>36</is>
-					<is onclick='fontChange.call(this)'>64</is>
-					<is onclick='fontChange.call(this)'>72</is>
-				</font-size>`
-		},
-		{
-			name: 'font-background',
-			title: 'Выделенный текст',
-			onclick: 'dist.call(this)',
-			fa: 'adn'
-		}
-	];
+	tinyButtons = [{
+		name: 'code',
+		title: 'Код',
+		onclick: 'dist.call(this)',
+		fa: 'code'
+	}, {
+		name: 'font-size',
+		title: 'Размер шрифта',
+		onclick: 'dist.call(this)',
+		fa: 'text-height',
+		content: 
+			`<input onkeyup='fontChange.call(this)' onclick='openfontsizes();' class='a-input' type="number" name="font-size" min="8" max="72" placeholder="11px">
+			<font-size>
+				<is onclick='fontChange.call(this)'>8</is>
+				<is onclick='fontChange.call(this)'>12</is>
+				<is onclick='fontChange.call(this)'>14</is>
+				<is onclick='fontChange.call(this)'>18</is>
+				<is onclick='fontChange.call(this)'>24</is>
+				<is onclick='fontChange.call(this)'>36</is>
+				<is onclick='fontChange.call(this)'>64</is>
+				<is onclick='fontChange.call(this)'>72</is>
+			</font-size>`
+	}, {
+		name: 'font-background',
+		title: 'Выделенный текст',
+		onclick: 'dist.call(this)',
+		fa: 'adn'
+	}
+];
 	
 /**
  * Загрузка локальных файлов
@@ -51,8 +47,7 @@ var chess = 'a-dota2smile',
  *
  * @return promise
  */
-function upload (url)
-{
+function upload (url) {
     return fetch(getURL(url))
         .then ( function (response) { return response.text() })
         .then ( function (html) { return html });
@@ -65,8 +60,7 @@ function upload (url)
  *
  * @return promise
  */
-function sendCall (name, value)
-{
+function sendCall (name, value) {
     var cV = JSON.parse(get('callerVariable', true)),
         value = JSON.stringify(value) || "{}";
     
@@ -79,11 +73,8 @@ function sendCall (name, value)
  *
  * @param string item
  */
-function log (text)
-{
-    console.log
-    (
-      `%cD2S - forumhelper%c ${text}`,
+function log (text) {
+    console.log(`%cD2S - forumhelper%c ${text}`,
       `background: #333; color:#FFF; padding: 3px 8px; border-radius: 6px;`, ``
     );
 }
@@ -95,8 +86,7 @@ function log (text)
  * @param string str
  * @param boolean a
  */
-function set (item, str, a)
-{
+function set (item, str, a) {
     a = a == null ? 'setting--' : '';
     localStorage.setItem(`${a}${item}`, str);
 }
@@ -109,8 +99,7 @@ function set (item, str, a)
  *
  * @return string
  */
-function get (item, a)
-{
+function get (item, a) {
     a = a == null ? 'setting--' : '';
     return localStorage.getItem(`${a}${item}`);
 }
@@ -121,8 +110,7 @@ function get (item, a)
  * @param string item
  * @param boolean a
  */
-function remove (item, a)
-{
+function remove (item, a) {
     a = a == null ? 'setting--' : '';
     localStorage.removeItem(`${a}${item}`);
 }
@@ -135,10 +123,8 @@ function remove (item, a)
  *
  * @return string
  */
-function has (item, a)
-{
+function has (item, a) {
     a = a == null ? 'setting--' : '';
-    
     var b = localStorage.getItem(`${a}${item}`);
     
     if (b == 'null')
@@ -151,10 +137,8 @@ function has (item, a)
  *
  * @param array capt
  */
-function load (capt)
-{
-    capt.forEach
-    (function (a) {
+function load (capt) {
+    capt.forEach((a) => {
         var name = a.split('.')[0],
             type = a.split('.')[1],
             elem = type == 'css' ? 'style' : type == 'js' ? 'script' : 'user';
@@ -162,39 +146,23 @@ function load (capt)
         if (get(name) == 'false') return false;
         else set(name, 'true');
 
-        if (a.indexOf('.') > -1)
-        {
-            fetch(chrome.extension.getURL(`/assets/${type}/${name}.${type}`))
-            .then(function(response){
+        if (a.indexOf('.') > -1) {
+            fetch(chrome.extension.getURL(`/assets/${type}/${name}.${type}`)).then(function(response){
                 return response.text();
-            })
-            .then(function(html){
-                createDom
-                ({
+            }).then(function(html){
+                createDom({
                     name: elem,
                     html: html,
-                    bounty:
-                    {
-                        name: name,
-                        value: true
-                    }
+                    bounty: {name: name, value: true}
                 });
             });
-        }
-        else
-        {
-            setTimeout
-            ( () => {
+        } else {
+            setTimeout(() => {
                 let html = JSON.parse(get(`${a}-css`));
-                createDom
-                ({
+                createDom ({
                     name: 'style',
                     html: html,
-                    bounty:
-                    {
-                        name: a,
-                        value: ''
-                    }
+                    bounty: {name: a, value: ''}
                 });
             });
         }
@@ -209,14 +177,11 @@ function load (capt)
  *	@param function callback
  *	@param boolean bool
  */ 
-function watching ({doc, elem, callback, bool})
-{
-	var interval = setInterval
-	( function () {
+function watching ({doc, elem, callback, bool}) {
+	var interval = setInterval(() => {
 		doc = (doc)? doc : document;
 		
-		if (el = doc.querySelector(`${elem}:not(.watched)`))
-		{
+		if (el = doc.querySelector(`${elem}:not(.watched)`)) {
 			callback(el);
 			el.classList.add('watched');
 			
@@ -233,12 +198,8 @@ function watching ({doc, elem, callback, bool})
  *
  *	@return HTMLElement
  */
-function dom (html)
-{
-	return new DOMParser()
-				.parseFromString(html, 'text/html')
-				.querySelector('body')
-				.childNodes[0];
+function dom (html) {
+	return new DOMParser().parseFromString(html, 'text/html').querySelector('body').childNodes[0];
 }
 
 /**
@@ -248,8 +209,7 @@ function dom (html)
  *
  *	@return HTMLElement
  */
-function createDom ({name, html, classes, bounty})
-{
+function createDom ({name, html, classes, bounty}) {
     var el = document.createElement(name);
         el.innerHTML = html || '';
     
@@ -266,8 +226,7 @@ function createDom ({name, html, classes, bounty})
  *
  * @return string
  */
-function getURL (path)
-{ return chrome.extension.getURL(path) }
+function getURL (path) { return chrome.extension.getURL(path) }
 
 /**
  * Возвращает значение иначе сохраняет его
@@ -277,8 +236,7 @@ function getURL (path)
  *
  * @return mixed
  */
-function putStorage (key, value)
-{
+function putStorage (key, value) {
 	var storage = getStorage(key);
 
 	if (storage === null) 
@@ -294,8 +252,7 @@ function putStorage (key, value)
  *
  * @return boolean
  */
-function hasStorage (key)
-{ return key in storageCache }
+function hasStorage (key) { return key in storageCache }
 
 /**
  * Возвращает их хранилища
@@ -305,8 +262,7 @@ function hasStorage (key)
  *
  * @return mixed
  */
-function getStorage (key, value)
-{
+function getStorage (key, value) {
 	if (hasStorage(key))
 		return storageCache[key];
 
@@ -321,11 +277,9 @@ function getStorage (key, value)
  *
  * @return mixed
  */
-function setStorage (key, value)
-{
+function setStorage (key, value) {
 	storageCache = _getStorage();
 	storageCache[key] = value;
-
 	set(chess, JSON.stringify(storageCache), true);
 
 	return storageCache[key];
@@ -338,8 +292,7 @@ function setStorage (key, value)
  *
  * @return object
  */
-function _getStorage ()
-{
+function _getStorage () {
 	var storage = get(chess, true);
 
 	if (storage === null)
@@ -351,30 +304,28 @@ function _getStorage ()
 	return storage;
 }
 
-function change (type, name, value)
-{
-    switch (type)
-    {
+function change (type, name, value) {
+    switch (type) {
         case 'success':
-            __(name).innerText = `Успешно > ${value}`;
-            __(name).style.setProperty('background', '#00bfff', 'important');
+            qs(name).innerText = `Успешно > ${value}`;
+            qs(name).style.setProperty('background', '#00bfff', 'important');
         break;
             
         case 'failed':
-            __(name).innerText = `Ошибка > ${value}`;
-            __(name).style.setProperty('background', 'red', 'important');
+            qs(name).innerText = `Ошибка > ${value}`;
+            qs(name).style.setProperty('background', 'red', 'important');
         break;
             
         case 'init':
-            __(name.text).innerText = value;
-            __(name.text).style.setProperty('background', '#00bfff', 'important');
-            __(name.button).style.setProperty('height', '0px', 'important');
-            __(name.button).style.setProperty('opacity', '0', 'important');
+            qs(name.text).innerText = value;
+            qs(name.text).style.setProperty('background', '#00bfff', 'important');
+            qs(name.button).style.setProperty('height', '0px', 'important');
+            qs(name.button).style.setProperty('opacity', '0', 'important');
         break;
             
         case 'finally':
-            __(name).style.setProperty('height', '27px', 'important');
-            __(name).style.setProperty('opacity', '1', 'important');
+            qs(name).style.setProperty('height', '27px', 'important');
+            qs(name).style.setProperty('opacity', '1', 'important');
         break;
     }
 }

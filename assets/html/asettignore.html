@@ -1,0 +1,17 @@
+<top>
+    Редактор игнора
+    <close class='fa fa-times' onclick="openWindow('asettignore')"></close>
+</top>
+
+<middle>
+    <finder>
+        <input type='text' name='nickname' placeholder='Никнейм'>
+        <fing onclick="asett_ignoreUser(qs('input[name=nickname]', this.parentElement).value)">Добавить</fing>
+	</finder>
+
+    <ignore-list>
+		
+    </ignore-list>
+	
+	<div class="empty"><i class="fa fa-info"></i> Список игнорируемых пользователей пуст</div>
+</middle>
