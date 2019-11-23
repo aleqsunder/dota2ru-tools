@@ -8,7 +8,8 @@ load ([
     'reservecopy.js',       // Модуль - резервная копия
     'smiles.js',            // Модуль - смайлы
     'categories.js',        // Модуль - категории
-    'alert.js'              // Модуль - уведомления
+    'alert.js',              // Модуль - уведомления
+	'whoignoredme.js'	 // Модуль - кто игнорирует
 ])
 
 /* Хлебные крошки */
@@ -37,7 +38,7 @@ watching ({
 	elem: 'head title',
 	
 	callback: function (el) {
-		if (mode == 'unknown' && document.querySelector('head title').innerHTML == 'Форум Dota 2')
+		if ((mode == 'unknown' && document.querySelector('head title').innerHTML == 'Форум Dota 2') || mode == 'chat')
 			load ([ 'chat.css', 'chat.js' ]);
 	}
 });
@@ -209,8 +210,7 @@ document.addEventListener
 	 */
 	function reload () {
 		list = [];
-		Object.keys(storageCache).forEach
-		( function (name) {
+		Object.keys(storageCache).forEach((name) => {
 			var sc = JSON.parse(storageCache[name]);
 			
 			if (sc.name) {
@@ -243,8 +243,7 @@ document.addEventListener
 	 */
     let htmlResult = '',
         htmlCount = 0,
-        htmlInterval = setInterval
-        (function () {
+        htmlInterval = setInterval(() => {
             if (htmlCount === htmlCountNames) {
                 document.body.insertBefore (dom(`<fullpage>${htmlResult}</fullpage>`), document.body.firstChild);
                 
@@ -265,8 +264,7 @@ document.addEventListener
             }
         }, 200);
     
-    htmlSettingNames.forEach 
-    (function(a) {
+    htmlSettingNames.forEach((a) => {
         upload(`/assets/html/${a.name}.html`)
         .then( function (tmp) {
             htmlResult += 
@@ -278,16 +276,14 @@ document.addEventListener
             htmlCount++;
         });
     });
-    
+	
 	// Если tinyMCE есть на страницах, то продолжить
 	if (tinyMods.indexOf(mode) > -1) {
 		//Шаг первый - отслеживание timyMCE и присваивание кнопке второго шага
 		watching ({
 			elem: 'div[aria-label="Смайлы"]',
 			bool: true,
-			
-			callback: function (el)
-			{
+			callback: function (el) {
 				el.addEventListener('click', createPanel, false);
 			}
 		});

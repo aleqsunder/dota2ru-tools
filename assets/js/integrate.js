@@ -19,8 +19,7 @@ var fullPageMain = qs('fullpage'),
 	Отображение сообщений
 */
 
-if (mode == 'unknown' && qs('head title').innerText == 'Форум Dota 2' 
-	&& (getchat == 'true' || getchat == null)) {	
+if (((mode == 'unknown' && qs('head title').innerText == 'Форум Dota 2') || mode == 'chat') && (getchat == 'true' || getchat == null)) {	
 	setInterval (() => {
 		let stab = qs('div.smiles-panel ul.tabs');
 		
@@ -573,6 +572,15 @@ function reload () {
 }
 
 reload();
+
+if (mode == 'threads') { 
+	watching ({
+		elem: '#message-list li a.username',
+		callback: () => {
+			checkIgnoreOnPage();
+		}
+	});
+}
 
 setInterval(() => {
 	// Получаем активный tinyMCE
