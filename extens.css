@@ -252,8 +252,10 @@ fullpage input[name="tab"]
 }
 
 /* Перекрываем стили как можем ей богу */
-fullpage input:not([mode="withoutfone"]), fullpage textarea
+fullpage input:not([mode="withoutfone"]):not([type="checkbox"]), fullpage textarea
 {
+	width: 100%;
+	padding: 0 5px;
 	margin: 0 5px 0 0!important; /* Особенно это */
 	height: 29px!important;
 	line-height: 29px!important;
@@ -848,10 +850,4 @@ staypassword input
     padding: 0px 10px;
     border-color: #282727!important;
     background: #121215!important;
-}
-
-.ignoreYou {
-    font-size: 12px;
-    line-height: 12px;
-    display: inline-flex;
 }

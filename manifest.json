@@ -14,7 +14,7 @@
             "assets/js/database.js",
 			"extension.js"
 		],
-		"matches": [ "*://dota2.ru/forum*" ],
+		"matches": [ "*://dota2.ru/*" ],
 		"run_at": "document_start"
 	} ],
     "permissions": [

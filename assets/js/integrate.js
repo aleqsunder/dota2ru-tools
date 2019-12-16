@@ -19,7 +19,10 @@ var fullPageMain = qs('fullpage'),
 	Отображение сообщений
 */
 
-if (((mode == 'unknown' && qs('head title').innerText == 'Форум Dota 2') || mode == 'chat') && (getchat == 'true' || getchat == null)) {	
+if (((mode == 'unknown' && qs('head title').innerText == 'Форум Dota 2') || mode == 'chat') 
+	&& (getchat == 'true' || getchat == null)) {	
+	// Форумный чат
+
 	setInterval (() => {
 		let stab = qs('div.smiles-panel ul.tabs');
 		
@@ -248,6 +251,10 @@ if (((mode == 'unknown' && qs('head title').innerText == 'Форум Dota 2') ||
 			qs(`#chatMessage${data.id}:not(.removeUserMessageAnimation)`)
 				.classList.add('removeUserMessageAnimation');
 		}
+		
+		if (chatScroll.scrollHeight - (chatScroll.scrollTop + 250) < 100) {
+			Chat.scrollChat();
+		}
 	}
 	
 	// Фикс момента опоздания присвоения appendToChat
@@ -277,7 +284,7 @@ if (((mode == 'unknown' && qs('head title').innerText == 'Форум Dota 2') ||
 				
 				if (response.data.length != undefined && response.data.length != 0) {
 					if (qs("ul.chatMessages li:last-child").id != `chatMessage${response.data[response.data.length - 1].id}`) {
-						yourBlock.innerHTML = '';
+						typeof yourBlock !== "undefined" && (yourBlock.innerHTML = '');
 						for (let i = 0; i < response.data.length; i++) Chat.appendToChat(response.data[i], scroll);
 						
 						if (has('chatTurn')) {
@@ -394,16 +401,24 @@ if (((mode == 'unknown' && qs('head title').innerText == 'Форум Dota 2') ||
 		})
 	}
 
-	/*
-		Всё ниже необходимо переписать под сайт и только
-	*/
-
-	var chatFulled = qs('#chatFull'),
+	var chatFulled = qs('#chatFull'), chatScroll = qs('.chatContainer', chatFulled),
 		chatTitle = qs('h3.content-title', chatFulled);
 
 	qs('a.right').classList.remove('toggle');
 	qs('a.right').classList.add('fa');
 	qs('a.right').classList.add('fa-minus');
+
+	chatScroll.addEventListener('scroll', () => {
+		if (chatScroll.scrollHeight - (chatScroll.scrollTop + 250) > 100) {
+			if (!chatScroll.classList.contains('active')) {
+				chatScroll.classList.add('active');
+			}
+		} else {
+			if (chatScroll.classList.contains('active')) {
+				chatScroll.classList.remove('active');
+			}
+		}
+	});
 
 	chatTitle.appendChild(dom(
 		`<a onclick="onFullWindow(); return false" data-id="chatBlock" data-title="На весь экран" href="#" class="right fa fa-arrows"></a>`
@@ -421,12 +436,6 @@ if (((mode == 'unknown' && qs('head title').innerText == 'Форум Dota 2') ||
 	chatTitle.appendChild(dom(
 		`<a onclick="notify_turn(); return false" data-id="chatBlock" data-title="Уведомления" href="#" class="right fa fa-bell${red}"></a>`
 	));
-	
-	let trj = document.createElement('div');
-	trj.classList = 'yourMessages';
-	document.body.append(trj);
-	
-	yourBlock = trj;
 }
 
 /**
@@ -572,15 +581,6 @@ function reload () {
 }
 
 reload();
-
-if (mode == 'threads') { 
-	watching ({
-		elem: '#message-list li a.username',
-		callback: () => {
-			checkIgnoreOnPage();
-		}
-	});
-}
 
 setInterval(() => {
 	// Получаем активный tinyMCE

@@ -15,26 +15,6 @@ function dist () {
 				after: `</p></div></div>`
 			});
 			break;
-			
-		case 'font-size':
-            var fontSize = dtod(ob, 'font-size');
-            
-            var dol = document.createElement('div');
-            dol.innerHTML = middleContent;
-            
-            qsa('span', dol).forEach((a) => {
-                if (a.style.hasOwnProperty('font-size'))
-                    a.style.removeProperty('font-size');
-            });
-
-            tinyExec({
-                before: `<span style="font-size: ${fontSize}px;" data-mce-style="font-size: ${fontSize}px;">`,
-                context: dol.innerHTML,
-                after: `</span>`
-            });
-			
-            delete dol;
-			break;
             
 		case 'font-background':
 			if (ob.tagName == 'SPAN') {
@@ -78,40 +58,6 @@ function smce (element, a, b) { element.setAttribute(`data-mce-${a}`, b) }
  */
 function tinyExec ({before, context, after}) {
 	tinyMCE.activeEditor.execCommand('mceReplaceContent', false, `${before}${context}${after}`);
-}
-
-/**
- *	Изменение размера текста
- */
-function fontChange () {
-	var ob = this;
-	
-	if (this.tagName == 'IS') {
-		qs('input.a-input').value = this.innerText;
-	} else {
-		stod(qs('i.taked', this.parentElement), 'font-size', this.value);
-		dist.call(this);
-	}
-}
-
-/**
- *	Открытие поля "размеры"
- */
-function openfontsizes () {
-	var fc = qs('font-size').classList;
-	
-	if (!fc.contains('opened'))
-		fc.add('opened')
-}
-
-/**
- *	Закрытие поля "размеры"
- */
-function closefontsizes () {
-	var fc = qs('font-size').classList;
-	
-	if (fc.contains('opened'))
-		fc.remove('opened')
 }
 
 /**
@@ -166,40 +112,13 @@ if (tinyMods.indexOf(mode) > -1) {
 	});
 
 	watching ({
-		elem: 'div[aria-label="Font Sizes"]',
-		bool: true,
-		
-		callback: (el) => {
-			var mce = document.querySelector('.mce-container-body.mce-flow-layout'),
-				body = dom(`<div class='mce-container mce-flow-layout-item mce-first mce-btn-group' role="group"></div>`);
-			
-			tinyButtons.forEach((a) => {
-				var content = a.content || '';
-				
-				body.appendChild(dom(`
-					<div class="mce-widget mce-btn mce-btn-small" dota-title="${a.title}" tabindex="-1" onmouseleave="closefontsizes()">
-						<div class='a-button' tabindex="-1">
-							${content}
-							<i onclick='${a.onclick}' dota-button="${a.name}" class="taked fa fa-${a.fa}"></i>
-						</div>
-					</div>
-				`));
-			});
-			
-			var mceu = document.querySelector('div[aria-label="Font Sizes"]').parentElement.parentElement;
-			mce.insertBefore(body, mceu);
-			mceu.outerHTML = '';
-		}
-	});
-
-	watching ({
 		elem: 'div[dota-title]',
 		bool: true,
 		
 		callback: (el) => {
 			var el = el;
-			
-			el.addEventListener("mouseenter", (event) => {
+		
+			el.addEventListener("mouseenter", function (event) {
 				var ob = this,
 					title = ob.getAttribute('dota-title'),
 					mcet = document.querySelector('div.mce-tooltip'),

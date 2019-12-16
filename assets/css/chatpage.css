@@ -1,0 +1,44 @@
+header {
+	display: none!important;
+}
+
+nav {
+	display: none!important;
+}
+
+.breadcrumbs-container-top {
+    display: none!important;
+}
+
+div#chatFull {
+    margin: 0!important;
+}
+
+div#chatBlock {
+    margin: 0!important;
+    height: 100vh!important;
+}
+
+#chatFull.full-chat .chatContainer {
+    height: 100%!important;
+}
+
+#button-move-up {
+	display: none!important;
+}
+
+.userbar {
+    display: flex!important;
+    align-items: center!important;
+    justify-content: center!important;
+	float: none!important;
+}
+
+.full-page-container {
+    margin: 0!important;
+    padding: 0!important;
+}
+
+footer {
+    display: none!important;
+}

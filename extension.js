@@ -1,16 +1,24 @@
 ﻿/**
  *	Загрузка разрешённых стилей и скриптов
  */
+if (mode == 'chat') {
+	load ([ 'chatpage.css' ]);
+}
+ 
+/* Основные */
 load ([
-    'footerfunctions.js',   // Основные ф-ии для работы расширения
-    'queryfinder.js',       // Упрощенный querySelector/all
+	/**** Завязка функционала ****/
+    'footerfunctions.js', // Основные ф-ии для работы расширения
+    'queryfinder.js', // Упрощенный querySelector/all
     
-    'reservecopy.js',       // Модуль - резервная копия
-    'smiles.js',            // Модуль - смайлы
-    'categories.js',        // Модуль - категории
-    'alert.js',              // Модуль - уведомления
-	'whoignoredme.js'	 // Модуль - кто игнорирует
-])
+	/**** Модули ****/
+    'reservecopy.js', // Модуль - резервная копия
+    'smiles.js', // Модуль - смайлы
+    'categories.js', // Модуль - категории
+    'alert.js', // Модуль - уведомления
+	'customignore.js', // Модуль - кастомный игнор
+	/*>*/ 'customignore.css' // Стили для модуля
+]);
 
 /* Хлебные крошки */
 if (mode == 'threads') { // Только форум
@@ -38,7 +46,7 @@ watching ({
 	elem: 'head title',
 	
 	callback: function (el) {
-		if ((mode == 'unknown' && document.querySelector('head title').innerHTML == 'Форум Dota 2') || mode == 'chat')
+		if ((mode == 'unknown' && qs('head title').innerHTML == 'Форум Dota 2') || mode == 'chat')
 			load ([ 'chat.css', 'chat.js' ]);
 	}
 });

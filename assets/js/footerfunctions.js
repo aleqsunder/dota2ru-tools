@@ -133,6 +133,31 @@ function has (item, a) {
 }
 
 /**
+ * Сокращённый sessionStorage на будущее
+ */
+const ss = {
+	/*** Получение */
+	get: (item) => {
+		return JSON.parse(sessionStorage.getItem(item));
+	},
+	
+	/*** Добавление/изменение */
+	set: (item, value) => {
+		sessionStorage.setItem(item, JSON.stringify(value));
+	},
+	
+	/*** Удаление */
+	remove: (item) => {
+		sessionStorage.removeItem(item);
+	},
+	
+	/*** Проверка на наличие */
+	has: function (item) {
+		return this.get(item) !== null ? true : false;
+	}
+}
+
+/**
  * Загрузка разрешённых стилей и скриптов
  *
  * @param array capt
