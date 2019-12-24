@@ -289,7 +289,7 @@ document.addEventListener
 	if (tinyMods.indexOf(mode) > -1) {
 		//Шаг первый - отслеживание timyMCE и присваивание кнопке второго шага
 		watching ({
-			elem: 'div[aria-label="Смайлы"]',
+			elem: 'button[aria-label="Смайлы"]',
 			bool: true,
 			callback: function (el) {
 				el.addEventListener('click', createPanel, false);

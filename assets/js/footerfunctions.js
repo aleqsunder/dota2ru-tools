@@ -245,6 +245,81 @@ function createDom ({name, html, classes, bounty}) {
 }
 
 /**
+ * Создание DOM
+ *
+ * @param string tag
+ * @param object data
+ *
+ * @return HTMLElement
+ */
+class createDM {
+	constructor (tag, data) {
+		this.dom = document.createElement(tag);
+		this.data = data;
+		
+		this.collect();
+		return this.dom;
+	}
+	
+	conv (item) {
+		return item.replace(/([A-Z])/g, "-$1").toLowerCase();
+	}
+	
+	collect () {
+		for (let i in this.data) {
+			let item = this.data[i];
+			
+			switch (i) {
+				 // Присвоение ID
+				case "id":
+					this.dom.id = item;
+				break;
+				
+				 // Присвоение class[list]
+				case "class":
+					this.dom.classList.add(item);
+				break;
+				case "classList":
+					for (let j of item)
+						this.dom.classList.add(j);
+				break;
+				
+				 // Присвоение attribute[list]
+				case "attribute":
+					for (let j in item)
+						this.dom.setAttribute(this.conv(j), item[j])
+				break;
+				
+				 // Присвоение innerText
+				case "text":
+					this.dom.innerText = item;
+				break;
+				 
+				 // Присвоение innerHTML
+				case "html":
+					this.dom.innerHTML = item;
+				break;
+				
+				 // Присвоение outerHTML
+				case "_html":
+					this.dom.outerHTML = item;
+				break;
+				
+				 // Присвоение style[list]
+				case "style":
+					for (let j in item)
+						this.dom.style.setProperty(this.conv(j), item[j]);
+				break;
+				
+				default:
+					console.warn(`Недопустимый параметр [${i}: ${item}]`);
+				break;
+			}
+		}
+	}
+}
+
+/**
  * Возвращает URL от расширения
  *
  * @param string path
