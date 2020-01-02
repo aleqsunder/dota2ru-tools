@@ -17,7 +17,8 @@ load ([
     'categories.js', // Модуль - категории
     'alert.js', // Модуль - уведомления
 	'customignore.js', // Модуль - кастомный игнор
-	/*>*/ 'customignore.css' // Стили для модуля
+	/*>*/ 'customignore.css', // Стили для модуля
+    'whoignoredme.js'
 ]);
 
 /* Хлебные крошки */

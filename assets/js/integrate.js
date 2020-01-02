@@ -15,6 +15,17 @@ var fullPageMain = qs('fullpage'),
 	cath = JSON.parse(get('cath', true)), 
 	alert = qs('alert', fullPageMain), aflag = true;
 
+/* Кто игнорирует меня?! */
+if (mode == 'threads') {
+	watching ({
+		elem: '#message-list li',
+		
+		callback: function (el) {
+			checkIgnoreOnPage();
+		}
+	});
+}
+
 /*
 	Отображение сообщений
 */
@@ -587,13 +598,14 @@ setInterval(() => {
 	if (typeof tinymce != 'undefined' && tinymce.activeEditor) { var content = tinymce.activeEditor.contentDocument }
 	
 	if (content) {
-		let head = qs('head style:not(.resized)', content);
+		let head = qs('head style.resized', content);
 		
 		// Проверяем, существуют ли (для стабильности, проскакивает "of null")
-		if (head) {
-			// Добавляем стили и присваиваем класс, чтобы больше на глаза не попадался
-			head.innerHTML += 'img[data-smile]:not(.resized)[data-shortcut="canEdit=false"] { width: auto; height: 30px; }';
-			head.classList.add('resized');
+		if (!head) {
+		    content.head.insertAdjacentHTML('beforeend', `
+            <style class="resized">
+		        img[data-smile]:not(.resized)[data-shortcut="canEdit=false"] { width: auto; height: 30px; }'
+		    </style>`);
 		}
 		
 		let allCont = qsa('img[data-smile]:not(.resized)', content);
